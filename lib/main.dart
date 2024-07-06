@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:quran_fi/screens/commons/all_surahs.dart';
 import 'package:quran_fi/screens/player.dart';
+import 'package:quran_fi/screens/surah.dart';
 
 void main() {
   runApp(const MyApp());
@@ -13,7 +15,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: Player(),
+      home: Scaffold(body: AllSurahs()),
     );
   }
 }
