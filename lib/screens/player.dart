@@ -14,6 +14,9 @@ class Player extends StatefulWidget {
 
 class _PlayerState extends State<Player> {
   late AudioPlayer _audioPlayer;
+  bool isPlaying = false;
+  Duration duration = Duration.zero;
+  Duration position = Duration.zero;
 
   @override
   void initState() {
@@ -24,6 +27,7 @@ class _PlayerState extends State<Player> {
             Uri.parse(quran.getAudioURLBySurah(widget.surahNumber))))
         .catchError((error) => print(error));
 
+    /// Listen to audio duration
     super.initState();
   }
 
@@ -39,12 +43,46 @@ class _PlayerState extends State<Player> {
       appBar: AppBar(),
       body: Center(
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(quran.getSurahName(widget.surahNumber)),
-            PlayerButtons(_audioPlayer),
+            Column(
+              children: [
+                PlayerButtons(_audioPlayer),
+                Slider(
+                  min: 0,
+                  max: duration.inSeconds.toDouble(),
+                  value: position.inSeconds.toDouble(),
+                  onChanged: (value) async {},
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(formatTime(position)),
+                      Text(formatTime(duration)),
+                    ],
+                  ),
+                )
+              ],
+            ),
           ],
         ),
       ),
     );
   }
+}
+
+String formatTime(Duration duration) {
+  String twoDigits(int n) => n.toString().padLeft(2, "0");
+  final hours = twoDigits(duration.inHours);
+  final minutes = twoDigits(duration.inMinutes);
+  final seconds = twoDigits(duration.inSeconds);
+
+  return [
+    if (duration.inHours > 0) hours,
+    minutes,
+    seconds,
+  ].join(":");
 }
