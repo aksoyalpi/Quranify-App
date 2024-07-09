@@ -71,21 +71,21 @@ class PlayerButtons extends StatelessWidget {
 
   Widget _previousButton() {
     return IconButton(
-      icon: Icon(Icons.skip_previous),
+      icon: const Icon(Icons.skip_previous),
       onPressed: _audioPlayer.hasPrevious ? _audioPlayer.seekToPrevious : null,
     );
   }
 
   Widget _nextButton() {
     return IconButton(
-      icon: Icon(Icons.skip_next),
+      icon: const Icon(Icons.skip_next),
       onPressed: _audioPlayer.hasNext ? _audioPlayer.seekToNext : null,
     );
   }
 
   Widget _repeatButton(BuildContext context, LoopMode loopMode) {
     final icons = [
-      Icon(Icons.repeat),
+      const Icon(Icons.repeat),
       Icon(Icons.repeat, color: Theme.of(context).colorScheme.secondary),
       Icon(Icons.repeat_one, color: Theme.of(context).colorScheme.secondary),
     ];
@@ -111,29 +111,29 @@ class PlayerButtons extends StatelessWidget {
         processingState == ProcessingState.buffering) {
       // 2
       return Container(
-        margin: EdgeInsets.all(8.0),
+        margin: const EdgeInsets.all(8.0),
         width: 64.0,
         height: 64.0,
-        child: CircularProgressIndicator(),
+        child: const CircularProgressIndicator(),
       );
     } else if (_audioPlayer.playing != true) {
       // 3
       return IconButton(
-        icon: Icon(Icons.play_arrow),
+        icon: const Icon(Icons.play_arrow),
         iconSize: 64.0,
         onPressed: _audioPlayer.play,
       );
     } else if (processingState != ProcessingState.completed) {
       // 4
       return IconButton(
-        icon: Icon(Icons.pause),
+        icon: const Icon(Icons.pause),
         iconSize: 64.0,
         onPressed: _audioPlayer.pause,
       );
     } else {
       // 5
       return IconButton(
-        icon: Icon(Icons.replay),
+        icon: const Icon(Icons.replay),
         iconSize: 64.0,
         onPressed: () => _audioPlayer.seek(Duration.zero,
             index: _audioPlayer.effectiveIndices?.first),

@@ -11,7 +11,7 @@ class SettingsPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
-        title: Text("S E T T I N G S"),
+        title: const Text("S E T T I N G S"),
       ),
       body: Container(
         decoration: BoxDecoration(
@@ -32,7 +32,7 @@ class SettingsPage extends StatelessWidget {
             CupertinoSwitch(
                 value: Provider.of<ThemeProvider>(context, listen: false)
                     .isDarkMode,
-                onChanged: (value) =>
+                onChanged: (_) =>
                     Provider.of<ThemeProvider>(context, listen: false)
                         .toggleTheme)
           ],

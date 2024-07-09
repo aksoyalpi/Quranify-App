@@ -7,6 +7,14 @@ import 'package:quran_fi/models/surahs_provider.dart';
 class SurahPage extends StatelessWidget {
   const SurahPage({super.key});
 
+  // conver duration into min:sec
+  String formatTime(Duration duration) {
+    String twoDigitSeconds =
+        duration.inSeconds.remainder(60).toString().padLeft(2, "0");
+    String formattedTime = "${duration.inMinutes}:$twoDigitSeconds";
+    return formattedTime;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<SurahsProvider>(builder: (context, value, child) {
@@ -32,13 +40,13 @@ class SurahPage extends StatelessWidget {
                     // back button
                     IconButton(
                         onPressed: () => Navigator.pop(context),
-                        icon: Icon(Icons.arrow_back)),
+                        icon: const Icon(Icons.arrow_back)),
 
                     // title
-                    Text("S U R A H"),
+                    const Text("S U R A H"),
 
                     // menu button
-                    IconButton(onPressed: () {}, icon: Icon(Icons.menu))
+                    IconButton(onPressed: () {}, icon: const Icon(Icons.menu))
                   ],
                 ),
 
@@ -53,7 +61,7 @@ class SurahPage extends StatelessWidget {
                     // image
                     ClipRRect(
                         borderRadius: BorderRadius.circular(8),
-                        child: Image.asset("../assets/images/quran.jpg")),
+                        child: Image.asset("assets/images/quran.jpg")),
 
                     Padding(
                       padding: const EdgeInsets.all(15),
@@ -91,22 +99,22 @@ class SurahPage extends StatelessWidget {
                 // song duration progress
                 Column(
                   children: [
-                    const Padding(
+                    Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                      child: const Row(
+                      child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           // start time
-                          Text("0:00"),
+                          Text(formatTime(value.currentDuration)),
 
                           // shuffle icon
-                          Icon(Icons.shuffle),
+                          const Icon(Icons.shuffle),
 
                           // repeat icon
-                          Icon(Icons.repeat),
+                          const Icon(Icons.repeat),
 
                           // end time
-                          Text("0:00")
+                          Text(formatTime(value.totalDuration))
                         ],
                       ),
                     ),
@@ -117,11 +125,18 @@ class SurahPage extends StatelessWidget {
                           thumbShape: const RoundSliderThumbShape(
                               enabledThumbRadius: 0)),
                       child: Slider(
-                          min: 0,
-                          max: 100,
-                          value: 50,
-                          activeColor: Colors.green,
-                          onChanged: (value) {}),
+                        min: 0,
+                        max: value.totalDuration.inSeconds.toDouble(),
+                        value: value.currentDuration.inSeconds.toDouble(),
+                        activeColor: Colors.green,
+                        onChanged: (double double) {
+                          // during when the user is sliding around
+                        },
+                        onChangeEnd: (double double) {
+                          // sliding has finished, go to tha position in song duration
+                          value.seek(Duration(seconds: double.toInt()));
+                        },
+                      ),
                     ),
                   ],
                 ),
@@ -136,8 +151,9 @@ class SurahPage extends StatelessWidget {
                     // skip previous
                     Expanded(
                         child: GestureDetector(
-                            onTap: () {},
-                            child: NeuBox(child: Icon(Icons.skip_previous)))),
+                            onTap: value.playPreviousSurah,
+                            child: const NeuBox(
+                                child: Icon(Icons.skip_previous)))),
 
                     const SizedBox(
                       width: 20,
@@ -147,8 +163,11 @@ class SurahPage extends StatelessWidget {
                     Expanded(
                         flex: 2,
                         child: GestureDetector(
-                            onTap: () {},
-                            child: NeuBox(child: Icon(Icons.play_arrow)))),
+                            onTap: value.pauseOrResume,
+                            child: NeuBox(
+                                child: Icon(value.isPlaying
+                                    ? Icons.pause
+                                    : Icons.play_arrow)))),
 
                     const SizedBox(
                       width: 20,
@@ -157,8 +176,8 @@ class SurahPage extends StatelessWidget {
                     // skip forward
                     Expanded(
                         child: GestureDetector(
-                            onTap: () {},
-                            child: NeuBox(child: Icon(Icons.skip_next)))),
+                            onTap: value.playNextSurah,
+                            child: const NeuBox(child: Icon(Icons.skip_next)))),
                   ],
                 )
               ],

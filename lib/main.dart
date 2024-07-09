@@ -9,12 +9,8 @@ import 'package:quran_fi/themes/theme_provider.dart';
 void main() {
   runApp(MultiProvider(
     providers: [
-      ChangeNotifierProvider(
-        create: (context) => ThemeProvider(),
-      ),
-      ChangeNotifierProvider(
-        create: (context) => SurahsProvider(),
-      )
+      ChangeNotifierProvider(create: (_) => ThemeProvider()),
+      ChangeNotifierProvider(create: (_) => SurahsProvider())
     ],
     child: const MyApp(),
   ));
@@ -47,7 +43,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
 
     surahsProvider = Provider.of<SurahsProvider>(context, listen: false);
@@ -69,7 +64,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
         title: const Text("P L A Y L I S T"),
       ),
@@ -87,7 +82,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
             // return list tile UI
             return ListTile(
-              leading: Image.asset("../assets/images/quran.jpg"),
+              leading: Image.asset("assets/images/quran.jpg"),
               title: Text(surah.title),
               subtitle: Text(surah.recitator),
               onTap: () => goToSurah(index),
