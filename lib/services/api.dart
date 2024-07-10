@@ -16,3 +16,14 @@ Future<List<Surah>> getSurahs() async {
     throw Exception("Failed to load Surahs");
   }
 }
+
+Future getRecitionUrl(int recitatorId, int surahNumber) async {
+  final url = Uri.parse("$baseURL/chapter_recitations/$recitatorId/$surahNumber");
+  final response = await http.get(url);
+
+  if(response.statusCode == 200){
+    return jsonDecode(response.body).audio_file.audio._url;
+  } else {
+    throw Exception ("Failed to load AudioURL");
+  }
+}

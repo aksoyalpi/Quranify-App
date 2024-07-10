@@ -1,17 +1,17 @@
 const recitations = [
     {
-      "id": 2,
+      "id": 1,
       "reciter_name": "AbdulBaset AbdulSamad",
-      "style": "Murattal",
+      "style": "Mujawwad",
       "translated_name": {
         "name": "AbdulBaset AbdulSamad",
         "language_name": "english"
       }
     },
     {
-      "id": 1,
+      "id": 2,
       "reciter_name": "AbdulBaset AbdulSamad",
-      "style": "Mujawwad",
+      "style": "Murattal",
       "translated_name": {
         "name": "AbdulBaset AbdulSamad",
         "language_name": "english"
