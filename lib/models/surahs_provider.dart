@@ -165,4 +165,9 @@ class SurahsProvider extends ChangeNotifier {
     // update UI
     notifyListeners();
   }
+
+  set currentRecitator(Recitator recitator) {
+    _currentRecitator = recitator;
+    notifyListeners();
+  }
 }

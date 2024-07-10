@@ -46,7 +46,50 @@ class SurahPage extends StatelessWidget {
                     const Text("S U R A H"),
 
                     // menu button
-                    IconButton(onPressed: () {}, icon: const Icon(Icons.menu))
+                    IconButton(
+                        onPressed: () {
+                          showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                    title: const Text("Recitator"),
+                                    content: SingleChildScrollView(
+                                      child: Column(
+                                        children: List.generate(
+                                          value.recitators.length,
+                                          (index) {
+                                            final recitator =
+                                                value.recitators[index];
+
+                                            return RadioListTile(
+                                                title: Text(recitator.name),
+                                                value: recitator.id,
+                                                groupValue:
+                                                    value.currentRecitator.id,
+                                                onChanged: (index) {
+                                                  if (index != null) {
+                                                    value.currentRecitator =
+                                                        value.recitators[index];
+                                                  }
+                                                });
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                    actions: <Widget>[
+                                      TextButton(
+                                          onPressed: () =>
+                                              Navigator.pop(context),
+                                          child: const Text("Cancel")),
+                                      TextButton(
+                                          onPressed: () {
+                                            // TODO
+                                            Navigator.pop(context);
+                                          },
+                                          child: const Text("Ok"))
+                                    ],
+                                  ));
+                        },
+                        icon: const Icon(Icons.menu))
                   ],
                 ),
 
@@ -77,8 +120,7 @@ class SurahPage extends StatelessWidget {
                                 style: const TextStyle(
                                     fontWeight: FontWeight.bold, fontSize: 20),
                               ),
-                              Text(value.currentRecitator
-                                  .name /*currentSurah.arabicTitle*/),
+                              Text(value.currentRecitator.name),
                             ],
                           ),
 
