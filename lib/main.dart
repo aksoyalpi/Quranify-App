@@ -66,7 +66,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
-        title: const Text("P L A Y L I S T"),
+        title: const Text("S U R A H S"),
       ),
       drawer: const MyDrawer(),
       body: Consumer<SurahsProvider>(builder: (context, value, child) {
@@ -84,7 +84,7 @@ class _MyHomePageState extends State<MyHomePage> {
             return ListTile(
               leading: Image.asset("assets/images/quran.jpg"),
               title: Text(surah.title),
-              subtitle: Text(surah.recitator),
+              subtitle: Text(surah.arabicTitle),
               onTap: () => goToSurah(index),
             );
           },

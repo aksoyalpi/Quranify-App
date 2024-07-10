@@ -3,6 +3,8 @@
         android:label="quran_fi"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        <!-- Required to fetch data from the internet. -->
+        <uses-permission android:name="android.permission.INTERNET" />
         <activity
             android:name=".MainActivity"
             android:exported="true"

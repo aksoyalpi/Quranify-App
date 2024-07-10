@@ -1,20 +1,19 @@
+import 'dart:html';
+
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:quran_fi/models/surah.dart';
+import "package:quran_fi/consts/surahs.dart";
 
-class SurahsProvider extends ChangeNotifier {
+class SurahsProvider extends ChangeNotifier{
   // all surahs
-  final List<Surah> _surahs = [
-    // Test
-    Surah(
-        title: "Al-Fatiha",
-        recitator: "Abdullah 3awwad Al-Juhaynee",
-        audioURL:
-            "https://download.quranicaudio.com/quran/abdullaah_3awwaad_al-juhaynee//001.mp3")
-  ];
+  final List<Surah> _surahs = List.generate(allSurahs.length, (index) => Surah.fromJson(allSurahs[index]));
 
   // current surah playing index
   int? _currentSurahIndex;
+
+  // current recitator (default: )
+  String _currentRecitator;
 
   /*
 
@@ -31,6 +30,7 @@ class SurahsProvider extends ChangeNotifier {
 
   // constructor
   SurahsProvider() {
+    print(_surahs);
     listenToDuraton();
   }
 
@@ -38,13 +38,13 @@ class SurahsProvider extends ChangeNotifier {
   bool _isPlaying = false;
 
   // play the surah
-  void play() async {
+  /*void play() async {
     final String path = _surahs[_currentSurahIndex!].audioURL;
     await _audioPlayer.stop(); // stop current song
     await _audioPlayer.play(UrlSource(path));
     _isPlaying = true;
     notifyListeners();
-  }
+  }*/
 
   // pause current surah
   void pause() async {
@@ -150,7 +150,7 @@ class SurahsProvider extends ChangeNotifier {
     _currentSurahIndex = newIndex;
 
     if (newIndex != null) {
-      play(); // play the song at the new index
+      //play(); // play the song at the new index
     }
 
     // update UI
