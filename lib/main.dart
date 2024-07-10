@@ -51,7 +51,7 @@ class _MyHomePageState extends State<MyHomePage> {
   // go to a surah
   void goToSurah(int surahIndex) {
     // update current surah index
-    surahsProvider.currentSurahIndex = surahIndex;
+    surahsProvider.currentSurahIndex = surahIndex + 1;
 
     // navigate to surah page
     Navigator.push(

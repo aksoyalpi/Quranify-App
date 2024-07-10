@@ -9,21 +9,23 @@ Future<List<Surah>> getSurahs() async {
   final url = Uri.parse("$baseURL/chapters");
   final response = await http.get(url);
 
-  if(response.statusCode == 200){
+  if (response.statusCode == 200) {
     final surahs = jsonDecode(response.body).chapters;
-    return List.generate(surahs.length, (index) => Surah.fromJson(surahs[index]));
+    return List.generate(
+        surahs.length, (index) => Surah.fromJson(surahs[index]));
   } else {
     throw Exception("Failed to load Surahs");
   }
 }
 
 Future getRecitionUrl(int recitatorId, int surahNumber) async {
-  final url = Uri.parse("$baseURL/chapter_recitations/$recitatorId/$surahNumber");
+  final url =
+      Uri.parse("$baseURL/chapter_recitations/$recitatorId/$surahNumber");
   final response = await http.get(url);
 
-  if(response.statusCode == 200){
-    return jsonDecode(response.body).audio_file.audio._url;
+  if (response.statusCode == 200) {
+    return jsonDecode(response.body)["audio_file"]["audio_url"];
   } else {
-    throw Exception ("Failed to load AudioURL");
+    throw Exception("Failed to load AudioURL");
   }
 }

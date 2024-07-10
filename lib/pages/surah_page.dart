@@ -77,7 +77,8 @@ class SurahPage extends StatelessWidget {
                                 style: const TextStyle(
                                     fontWeight: FontWeight.bold, fontSize: 20),
                               ),
-                              Text(currentSurah.arabicTitle),
+                              Text(value.currentRecitator
+                                  .name /*currentSurah.arabicTitle*/),
                             ],
                           ),
 
