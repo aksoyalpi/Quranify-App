@@ -98,7 +98,7 @@ class SurahsProvider extends ChangeNotifier {
   // play previous surah
   void playPreviousSurah() async {
     // if more than 2sec have passed, restart the current surah
-    if (_currentDuration.inSeconds < 2) {
+    if (_currentDuration.inSeconds > 2) {
       seek(Duration.zero);
     }
     // if its whithin 2 secons of the surah, go to previous surah

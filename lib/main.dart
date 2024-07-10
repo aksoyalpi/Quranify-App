@@ -74,7 +74,8 @@ class _MyHomePageState extends State<MyHomePage> {
         final List<Surah> surahs = value.surahs;
 
         // return list view UI
-        return ListView.builder(
+        return ListView.separated(
+          separatorBuilder: (context, index) => Divider(),
           itemCount: surahs.length,
           itemBuilder: (context, index) {
             // get individual surah
@@ -84,7 +85,8 @@ class _MyHomePageState extends State<MyHomePage> {
             return ListTile(
               leading: Image.asset("assets/images/quran.jpg"),
               title: Text(surah.title),
-              subtitle: Text(surah.arabicTitle),
+              subtitle: Text("Surah ${index + 1}"),
+              trailing: Text(surah.arabicTitle),
               onTap: () => goToSurah(index),
             );
           },
