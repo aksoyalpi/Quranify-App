@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:quran_fi/components/neu_box.dart';
-import 'package:quran_fi/models/recitator.dart';
 import 'package:quran_fi/models/surah.dart';
 import 'package:quran_fi/models/surahs_provider.dart';
 
@@ -17,49 +16,43 @@ class SurahPage extends StatelessWidget {
   }
 
   void showMenu(BuildContext context, SurahsProvider value) {
-    showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-              title: const Text("Recitator"),
-              content: SingleChildScrollView(
-                child: Column(
-                  children: List.generate(
-                    value.recitators.length,
-                    (index) {
-                      final recitator = value.recitators[index];
-                      return RadioListTile(
-                          title: Text(recitator.name),
-                          value: value.recitators[index].id,
-                          groupValue: value.currentRecitator.id,
-                          onChanged: (id) {
-                            if (id != null) {
-                              value.currentRecitator =
-                                  value.recitators.firstWhere(
-                                (element) => element.id == id,
-                              );
-                            }
-                          });
-                    },
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => SingleChildScrollView(
+        child: Column(
+          children: List.generate(
+            value.recitators.length,
+            (index) {
+              final recitator = value.recitators[index];
+              return RadioListTile(
+                  title: Text(
+                    recitator.name,
                   ),
-                ),
-              ),
-              actions: <Widget>[
-                TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text("Cancel")),
-                TextButton(
-                    onPressed: () {
-                      value.pause();
-                      value.play();
-                      Navigator.pop(context);
-                    },
-                    child: const Text("Ok"))
-              ],
-            ));
+                  subtitle: recitator.style != null
+                      ? Text(recitator.style!,
+                          style:
+                              const TextStyle(color: Colors.grey, fontSize: 12))
+                      : null,
+                  value: value.recitators[index].id,
+                  groupValue: value.currentRecitator.id,
+                  onChanged: (id) {
+                    if (id != null) {
+                      value.currentRecitator = value.recitators.firstWhere(
+                        (element) => element.id == id,
+                      );
+                    }
+                  });
+            },
+          ),
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    bool pausedBeforeSliding = false;
+
     return Consumer<SurahsProvider>(builder: (context, value, child) {
       // get surahs
       final surahs = value.surahs;
@@ -176,10 +169,20 @@ class SurahPage extends StatelessWidget {
                         activeColor: Colors.green,
                         onChanged: (double double) {
                           // during when the user is sliding around
+                          if (value.isPlaying) {
+                            pausedBeforeSliding = false;
+                            value.pause();
+                          } else {
+                            pausedBeforeSliding = true;
+                          }
+                          value.seek(Duration(seconds: double.toInt()));
                         },
                         onChangeEnd: (double double) {
                           // sliding has finished, go to tha position in song duration
                           value.seek(Duration(seconds: double.toInt()));
+                          if (!pausedBeforeSliding) {
+                            value.play();
+                          }
                         },
                       ),
                     ),

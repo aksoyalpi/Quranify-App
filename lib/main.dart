@@ -75,7 +75,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
         // return list view UI
         return ListView.separated(
-          separatorBuilder: (context, index) => Divider(),
+          separatorBuilder: (context, index) => Divider(
+            color: Theme.of(context).colorScheme.secondary,
+          ),
           itemCount: surahs.length,
           itemBuilder: (context, index) {
             // get individual surah
