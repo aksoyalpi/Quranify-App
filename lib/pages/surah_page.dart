@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:quran_fi/components/neu_box.dart';
+import 'package:quran_fi/models/recitator.dart';
 import 'package:quran_fi/models/surah.dart';
 import 'package:quran_fi/models/surahs_provider.dart';
 
@@ -13,6 +14,48 @@ class SurahPage extends StatelessWidget {
         duration.inSeconds.remainder(60).toString().padLeft(2, "0");
     String formattedTime = "${duration.inMinutes}:$twoDigitSeconds";
     return formattedTime;
+  }
+
+  void showMenu(BuildContext context, SurahsProvider value) {
+    showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+              title: const Text("Recitator"),
+              content: SingleChildScrollView(
+                child: Column(
+                  children: List.generate(
+                    value.recitators.length,
+                    (index) {
+                      final recitator = value.recitators[index];
+                      return RadioListTile(
+                          title: Text(recitator.name),
+                          value: value.recitators[index].id,
+                          groupValue: value.currentRecitator.id,
+                          onChanged: (id) {
+                            if (id != null) {
+                              value.currentRecitator =
+                                  value.recitators.firstWhere(
+                                (element) => element.id == id,
+                              );
+                            }
+                          });
+                    },
+                  ),
+                ),
+              ),
+              actions: <Widget>[
+                TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text("Cancel")),
+                TextButton(
+                    onPressed: () {
+                      value.pause();
+                      value.play();
+                      Navigator.pop(context);
+                    },
+                    child: const Text("Ok"))
+              ],
+            ));
   }
 
   @override
@@ -47,49 +90,7 @@ class SurahPage extends StatelessWidget {
 
                     // menu button
                     IconButton(
-                        onPressed: () {
-                          showDialog(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                    title: const Text("Recitator"),
-                                    content: SingleChildScrollView(
-                                      child: Column(
-                                        children: List.generate(
-                                          value.recitators.length,
-                                          (index) {
-                                            final recitator =
-                                                value.recitators[index];
-
-                                            return RadioListTile(
-                                                title: Text(recitator.name),
-                                                value: recitator.id,
-                                                groupValue:
-                                                    value.currentRecitator.id,
-                                                onChanged: (index) {
-                                                  if (index != null) {
-                                                    value.currentRecitator =
-                                                        value.recitators[index];
-                                                  }
-                                                });
-                                          },
-                                        ),
-                                      ),
-                                    ),
-                                    actions: <Widget>[
-                                      TextButton(
-                                          onPressed: () =>
-                                              Navigator.pop(context),
-                                          child: const Text("Cancel")),
-                                      TextButton(
-                                          onPressed: () {
-                                            value.pause();
-                                            value.play();
-                                            Navigator.pop(context);
-                                          },
-                                          child: const Text("Ok"))
-                                    ],
-                                  ));
-                        },
+                        onPressed: () => showMenu(context, value),
                         icon: const Icon(Icons.menu))
                   ],
                 ),
