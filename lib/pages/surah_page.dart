@@ -82,7 +82,8 @@ class SurahPage extends StatelessWidget {
                                           child: const Text("Cancel")),
                                       TextButton(
                                           onPressed: () {
-                                            // TODO
+                                            value.pause();
+                                            value.play();
                                             Navigator.pop(context);
                                           },
                                           child: const Text("Ok"))

@@ -45,8 +45,8 @@ class SurahsProvider extends ChangeNotifier {
 
   // play the surah
   void play() async {
-    final String path =
-        await getRecitionUrl(_currentRecitator.id, _currentSurahIndex ?? 1);
+    final String path = await getRecitionUrl(_currentRecitator.id,
+        _currentSurahIndex == null ? 1 : _currentSurahIndex! + 1);
     await _audioPlayer.stop(); // stop current song
     await _audioPlayer.play(UrlSource(path));
     _isPlaying = true;
