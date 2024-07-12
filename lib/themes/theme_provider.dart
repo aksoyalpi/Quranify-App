@@ -4,7 +4,7 @@ import 'package:quran_fi/themes/light_mode.dart';
 
 class ThemeProvider extends ChangeNotifier {
   // initially, light mode
-  ThemeData _themeData = darkMode;
+  ThemeData _themeData = lightMode;
 
   // get Theme
   ThemeData get themeData => _themeData;

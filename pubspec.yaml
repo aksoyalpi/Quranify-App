@@ -40,6 +40,7 @@ dependencies:
   provider: ^6.1.2
   audioplayers: ^6.0.0
   http: ^1.2.1
+  audio_service: ^0.18.14
 
 dev_dependencies:
   flutter_test:

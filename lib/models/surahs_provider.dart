@@ -44,11 +44,18 @@ class SurahsProvider extends ChangeNotifier {
   bool _isPlaying = false;
 
   // play the surah
-  void play() async {
+  Future<void> play() async {
     final String path = await getRecitionUrl(_currentRecitator.id,
         _currentSurahIndex == null ? 1 : _currentSurahIndex! + 1);
     await _audioPlayer.stop(); // stop current song
     await _audioPlayer.play(UrlSource(path));
+
+    /////////////////// T E S T //////////////////////////
+    //AudioPlayer _soundPlayer = AudioPlayer();
+    //await _soundPlayer.setReleaseMode(ReleaseMode.loop);
+    //await _soundPlayer.play(AssetSource("audio/thunder.mp3"));
+    /////////////////// T E S T //////////////////////////
+
     _isPlaying = true;
     notifyListeners();
   }
@@ -84,6 +91,7 @@ class SurahsProvider extends ChangeNotifier {
 
   // play next surah
   void playNextSurah() {
+    _currentDuration = Duration.zero;
     if (_currentSurahIndex != null) {
       if (_currentSurahIndex! < _surahs.length - 1) {
         // go to next surah if its not the last surah

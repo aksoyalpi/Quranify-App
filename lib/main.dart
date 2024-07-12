@@ -6,7 +6,7 @@ import 'package:quran_fi/models/surahs_provider.dart';
 import 'package:quran_fi/pages/surah_page.dart';
 import 'package:quran_fi/themes/theme_provider.dart';
 
-void main() {
+Future<void> main() async {
   runApp(MultiProvider(
     providers: [
       ChangeNotifierProvider(create: (_) => ThemeProvider()),
@@ -49,7 +49,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   // go to a surah
-  void goToSurah(int surahIndex) {
+  void goToSurah(int surahIndex) async {
     // update current surah index
     surahsProvider.currentSurahIndex = surahIndex;
 

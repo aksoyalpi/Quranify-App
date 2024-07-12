@@ -40,6 +40,10 @@ class SurahPage extends StatelessWidget {
                       value.currentRecitator = value.recitators.firstWhere(
                         (element) => element.id == id,
                       );
+
+                      value.pause();
+                      value.play();
+                      Navigator.pop(context);
                     }
                   });
             },
@@ -166,6 +170,7 @@ class SurahPage extends StatelessWidget {
                         min: 0,
                         max: value.totalDuration.inSeconds.toDouble(),
                         value: value.currentDuration.inSeconds.toDouble(),
+                        inactiveColor: Theme.of(context).colorScheme.secondary,
                         activeColor: Colors.green,
                         onChanged: (double double) {
                           // during when the user is sliding around
