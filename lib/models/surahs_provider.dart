@@ -1,5 +1,6 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:quran_fi/consts/recitations.dart';
 import 'package:quran_fi/models/recitator.dart';
 import 'package:quran_fi/models/surah.dart';
@@ -15,6 +16,18 @@ class SurahsProvider extends ChangeNotifier {
   final List<Recitator> _recitators = List.generate(
       recitations.length, (index) => Recitator.fromJson(recitations[index]));
 
+  // Map with all sounds and their IconData
+  final Map<String, IconData> _sounds = {
+    "empty": Icons.cloud_off,
+    "rain": Icons.cloudy_snowing,
+    "beach": Icons.waves,
+    "fire": Icons.local_fire_department,
+    "birds": Icons.emoji_nature
+  };
+
+  // current sound index
+  int _soundIndex = 0;
+
   // current surah playing index
   int? _currentSurahIndex;
 
@@ -29,6 +42,7 @@ class SurahsProvider extends ChangeNotifier {
 
   // audio player
   final AudioPlayer _audioPlayer = AudioPlayer();
+  final AudioPlayer _soundPlayer = AudioPlayer();
 
   // durations
   Duration _currentDuration = Duration.zero;
@@ -51,9 +65,11 @@ class SurahsProvider extends ChangeNotifier {
     await _audioPlayer.play(UrlSource(path));
 
     /////////////////// T E S T //////////////////////////
-    //AudioPlayer _soundPlayer = AudioPlayer();
-    //await _soundPlayer.setReleaseMode(ReleaseMode.loop);
-    //await _soundPlayer.play(AssetSource("audio/thunder.mp3"));
+    await _soundPlayer.setReleaseMode(ReleaseMode.loop);
+    if (_soundIndex != 0) {
+      await _soundPlayer.play(
+          AssetSource("audio/${_sounds.keys.elementAt(_soundIndex)}.mp3"));
+    }
     /////////////////// T E S T //////////////////////////
 
     _isPlaying = true;
@@ -63,6 +79,7 @@ class SurahsProvider extends ChangeNotifier {
   // pause current surah
   void pause() async {
     await _audioPlayer.pause();
+    await _soundPlayer.pause();
     _isPlaying = false;
     notifyListeners();
   }
@@ -120,6 +137,19 @@ class SurahsProvider extends ChangeNotifier {
     }
   }
 
+  // toggle nature sound
+  void toggleSounds() async {
+    await _soundPlayer.pause();
+    _soundIndex++;
+    if (_soundIndex >= _sounds.length) {
+      _soundIndex = 0;
+    } else {
+      await _soundPlayer.play(
+          AssetSource("audio/${_sounds.keys.elementAt(_soundIndex)}.mp3"));
+    }
+    notifyListeners();
+  }
+
   // list to duration
   void listenToDuraton() {
     // listen for total duration
@@ -155,12 +185,27 @@ class SurahsProvider extends ChangeNotifier {
   Duration get totalDuration => _totalDuration;
   List<Recitator> get recitators => _recitators;
   Recitator get currentRecitator => _currentRecitator;
+  IconData get soundIconData => _sounds.values.elementAt(_soundIndex);
+  bool get soundOn => _soundIndex != 0;
+  List<IconData> get soundIconDatas => _sounds.values.toList();
 
   /*
 
     S E T T E R S
   
   */
+
+  set soundIndex(int index) {
+    _soundPlayer.pause();
+    _soundIndex = index;
+    _soundPlayer.pause();
+    if (_soundIndex != 0) {
+      _soundPlayer.play(
+          AssetSource("audio/${_sounds.keys.elementAt(_soundIndex)}.mp3"));
+    }
+
+    notifyListeners();
+  }
 
   set currentSurahIndex(int? newIndex) {
     // update current surah index

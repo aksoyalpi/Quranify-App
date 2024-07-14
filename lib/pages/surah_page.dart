@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:quran_fi/components/neu_box.dart';
+import 'package:quran_fi/components/sound_icon.dart';
 import 'package:quran_fi/models/surah.dart';
 import 'package:quran_fi/models/surahs_provider.dart';
 
@@ -152,6 +153,9 @@ class SurahPage extends StatelessWidget {
                           // shuffle icon
                           const Icon(Icons.shuffle),
 
+                          // nature sound icon
+                          const SoundIcon(),
+
                           // repeat icon
                           const Icon(Icons.repeat),
 
@@ -171,7 +175,7 @@ class SurahPage extends StatelessWidget {
                         max: value.totalDuration.inSeconds.toDouble(),
                         value: value.currentDuration.inSeconds.toDouble(),
                         inactiveColor: Theme.of(context).colorScheme.secondary,
-                        activeColor: Colors.green,
+                        activeColor: Theme.of(context).colorScheme.onPrimary,
                         onChanged: (double double) {
                           // during when the user is sliding around
                           if (value.isPlaying) {

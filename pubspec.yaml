@@ -41,6 +41,7 @@ dependencies:
   audioplayers: ^6.0.0
   http: ^1.2.1
   audio_service: ^0.18.14
+  font_awesome_flutter: ^10.7.0
 
 dev_dependencies:
   flutter_test:
