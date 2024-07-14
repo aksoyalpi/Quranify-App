@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:quran_fi/themes/theme_provider.dart';
@@ -8,6 +9,7 @@ class SettingsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
@@ -30,11 +32,9 @@ class SettingsPage extends StatelessWidget {
 
             // switch
             CupertinoSwitch(
-                value: Provider.of<ThemeProvider>(context, listen: false)
-                    .isDarkMode,
-                onChanged: (_) =>
-                    Provider.of<ThemeProvider>(context, listen: false)
-                        .toggleTheme)
+              value: themeProvider.isDarkMode,
+              onChanged: (_) => themeProvider.toggleTheme(),
+            )
           ],
         ),
       ),
