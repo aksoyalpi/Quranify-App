@@ -188,6 +188,8 @@ class SurahsProvider extends ChangeNotifier {
   IconData get soundIconData => _sounds.values.elementAt(_soundIndex);
   bool get soundOn => _soundIndex != 0;
   List<IconData> get soundIconDatas => _sounds.values.toList();
+  int get soundIndex => _soundIndex;
+  double get soundVolume => soundOn ? _soundPlayer.volume : 0;
 
   /*
 
@@ -221,6 +223,11 @@ class SurahsProvider extends ChangeNotifier {
 
   set currentRecitator(Recitator recitator) {
     _currentRecitator = recitator;
+    notifyListeners();
+  }
+
+  set soundVolume(double volume) {
+    _soundPlayer.setVolume(volume);
     notifyListeners();
   }
 }

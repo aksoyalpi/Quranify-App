@@ -32,7 +32,7 @@ class _SoundIconState extends State<SoundIcon>
     super.dispose();
   }
 
-  OverlayEntry _createOverlayEntry(BuildContext context, SurahsProvider value) {
+  OverlayEntry _createOverlayEntry(BuildContext context, SurahsProvider prov) {
     RenderBox renderBox =
         _iconKey.currentContext!.findRenderObject() as RenderBox;
     Offset position = renderBox.localToGlobal(Offset.zero);
@@ -41,30 +41,59 @@ class _SoundIconState extends State<SoundIcon>
 
     return OverlayEntry(
       builder: (context) => Positioned(
-        top: position.dy - (iconHeight + 20),
-        left: position.dx - 65,
-        child: AnimatedContainer(
-          duration: Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
-          width: _isExpanded ? 150 : 0,
-          height: _isExpanded ? 40 : 0,
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
-              color: Theme.of(context).colorScheme.secondary),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: List.generate(
-              value.soundIconDatas.length,
-              (index) => GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      _isExpanded = false;
-                    });
-                    value.soundIndex = index;
-                    _overlayEntry?.remove();
-                    _overlayEntry = null;
-                  },
-                  child: Icon(value.soundIconDatas[index])),
+        top: position.dy - (iconHeight + 65),
+        left: position.dx - 120,
+        child: Material(
+          color: Colors.transparent,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            width: _isExpanded ? 250 : 0,
+            height: _isExpanded ? 80 : 0,
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                color: Theme.of(context).colorScheme.secondary),
+            child: Consumer<SurahsProvider>(
+              builder: (context, value, child) => Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(value.soundOn
+                          ? Icons.volume_up_outlined
+                          : Icons.volume_off_outlined),
+                      Slider(
+                        activeColor: value.soundOn
+                            ? Theme.of(context).colorScheme.onPrimary
+                            : Theme.of(context).colorScheme.primary,
+                        value: value.soundVolume,
+                        onChanged: (volume) => value.soundVolume = volume,
+                      ),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: List.generate(
+                      value.soundIconDatas.length,
+                      (index) => GestureDetector(
+                          onTap: () {
+                            //setState(() {
+                            //  _isExpanded = false;
+                            //});
+                            value.soundIndex = index;
+                            //_overlayEntry?.remove();
+                            //_overlayEntry = null;
+                          },
+                          child: Icon(
+                            value.soundIconDatas[index],
+                            color: index == value.soundIndex
+                                ? Theme.of(context).colorScheme.onPrimary
+                                : null,
+                          )),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
