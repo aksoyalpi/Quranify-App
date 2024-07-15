@@ -38,30 +38,49 @@ class _SoundIconState extends State<SoundIcon>
     Offset position = renderBox.localToGlobal(Offset.zero);
     double iconWidth = renderBox.size.width;
     double iconHeight = renderBox.size.height;
+    double containerWidth = 250;
+    double containerHeigth = 150;
 
     return OverlayEntry(
       builder: (context) => Positioned(
-        top: position.dy - (iconHeight + 65),
-        left: position.dx - 120,
+        top: position.dy - (iconHeight + containerHeigth - 20),
+        left: position.dx - containerWidth / 2 + 12,
         child: Material(
           color: Colors.transparent,
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 300),
             curve: Curves.easeInOut,
-            width: _isExpanded ? 250 : 0,
-            height: _isExpanded ? 80 : 0,
+            width: _isExpanded ? containerWidth : 0,
+            height: _isExpanded ? containerHeigth : 0,
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8),
                 color: Theme.of(context).colorScheme.secondary),
             child: Consumer<SurahsProvider>(
               builder: (context, value, child) => Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
+                  // Slider for quran volume
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(value.quranVolume != 0
+                          ? Icons.record_voice_over_outlined
+                          : Icons.voice_over_off_outlined),
+                      Slider(
+                        activeColor: Theme.of(context).colorScheme.onPrimary,
+                        value: value.quranVolume,
+                        onChanged: (volume) => value.quranVolume = volume,
+                      ),
+                    ],
+                  ),
+
+                  // Slider for sound volume
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(value.soundOn
-                          ? Icons.volume_up_outlined
-                          : Icons.volume_off_outlined),
+                          ? Icons.music_note_outlined
+                          : Icons.music_off_outlined),
                       Slider(
                         activeColor: value.soundOn
                             ? Theme.of(context).colorScheme.onPrimary
@@ -71,6 +90,8 @@ class _SoundIconState extends State<SoundIcon>
                       ),
                     ],
                   ),
+
+                  // Icons for different nature sounds
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: List.generate(
