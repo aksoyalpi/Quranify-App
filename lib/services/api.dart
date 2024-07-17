@@ -18,7 +18,7 @@ Future<List<Surah>> getSurahs() async {
   }
 }
 
-Future getRecitionUrl(int recitatorId, int surahNumber) async {
+Future getRecitationUrl(int recitatorId, int surahNumber) async {
   final url =
       Uri.parse("$baseURL/chapter_recitations/$recitatorId/$surahNumber");
   final response = await http.get(url);

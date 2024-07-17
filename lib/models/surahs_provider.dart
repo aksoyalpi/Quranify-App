@@ -1,11 +1,11 @@
-import 'package:audioplayers/audioplayers.dart';
+//import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:quran_fi/consts/recitations.dart';
 import 'package:quran_fi/models/recitator.dart';
 import 'package:quran_fi/models/surah.dart';
 import "package:quran_fi/consts/surahs.dart";
 import 'package:quran_fi/services/api.dart';
+import 'package:just_audio/just_audio.dart';
 
 class SurahsProvider extends ChangeNotifier {
   // all surahs
@@ -59,16 +59,18 @@ class SurahsProvider extends ChangeNotifier {
 
   // play the surah
   Future<void> play() async {
-    final String path = await getRecitionUrl(_currentRecitator.id,
+    final String path = await getRecitationUrl(_currentRecitator.id,
         _currentSurahIndex == null ? 1 : _currentSurahIndex! + 1);
     await _audioPlayer.stop(); // stop current song
-    await _audioPlayer.play(UrlSource(path));
+    await _audioPlayer.setUrl(path);
+    _audioPlayer.play();
 
     /////////////////// T E S T //////////////////////////
-    await _soundPlayer.setReleaseMode(ReleaseMode.loop);
+    await _soundPlayer.setLoopMode(LoopMode.all);
     if (_soundIndex != 0) {
-      await _soundPlayer.play(
-          AssetSource("audio/${_sounds.keys.elementAt(_soundIndex)}.mp3"));
+      await _soundPlayer
+          .setAsset("audio/${_sounds.keys.elementAt(_soundIndex)}.mp3");
+      _soundPlayer.play();
     }
     /////////////////// T E S T //////////////////////////
 
@@ -86,7 +88,7 @@ class SurahsProvider extends ChangeNotifier {
 
   // resume playing
   void resume() async {
-    await _audioPlayer.resume();
+    _audioPlayer.play();
     _isPlaying = true;
     notifyListeners();
   }
@@ -144,8 +146,9 @@ class SurahsProvider extends ChangeNotifier {
     if (_soundIndex >= _sounds.length) {
       _soundIndex = 0;
     } else {
-      await _soundPlayer.play(
-          AssetSource("audio/${_sounds.keys.elementAt(_soundIndex)}.mp3"));
+      await _soundPlayer
+          .setAsset("audio/${_sounds.keys.elementAt(_soundIndex)}.mp3");
+      _soundPlayer.play();
     }
     notifyListeners();
   }
@@ -153,20 +156,22 @@ class SurahsProvider extends ChangeNotifier {
   // list to duration
   void listenToDuraton() {
     // listen for total duration
-    _audioPlayer.onDurationChanged.listen((newDuration) {
-      _totalDuration = newDuration;
+    _audioPlayer.durationStream.listen((newDuration) {
+      _totalDuration = newDuration ?? Duration.zero;
       notifyListeners();
     });
 
     // listen for current duration
-    _audioPlayer.onPositionChanged.listen((newPosition) {
+    _audioPlayer.positionStream.listen((newPosition) {
       _currentDuration = newPosition;
       notifyListeners();
     });
 
     // listen for song is completed
-    _audioPlayer.onPlayerComplete.listen((event) {
-      playNextSurah();
+    _audioPlayer.playerStateStream.listen((state) {
+      if (state.processingState == ProcessingState.completed) {
+        playNextSurah();
+      }
     });
   }
 
@@ -203,8 +208,11 @@ class SurahsProvider extends ChangeNotifier {
     _soundIndex = index;
     _soundPlayer.pause();
     if (_soundIndex != 0) {
-      _soundPlayer.play(
-          AssetSource("audio/${_sounds.keys.elementAt(_soundIndex)}.mp3"));
+      _soundPlayer
+          .setAsset("audio/${_sounds.keys.elementAt(_soundIndex)}.mp3")
+          .then(
+            (value) => _soundPlayer.play(),
+          );
     }
 
     notifyListeners();
