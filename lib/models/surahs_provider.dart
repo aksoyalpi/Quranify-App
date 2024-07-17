@@ -1,4 +1,6 @@
 //import 'package:audioplayers/audioplayers.dart';
+import 'package:audio_service/audio_service.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:quran_fi/consts/recitations.dart';
 import 'package:quran_fi/models/recitator.dart';
@@ -8,8 +10,11 @@ import 'package:quran_fi/services/api.dart';
 import 'package:just_audio/just_audio.dart';
 
 class SurahsProvider extends ChangeNotifier {
+  // playlist with all surahs
+  late final List<AudioSource> _playlist;
+
   // all surahs
-  final List<Surah> _surahs = List.generate(
+  static final List<Surah> _surahs = List.generate(
       allSurahs.length, (index) => Surah.fromJson(allSurahs[index]));
 
   // all recitators
@@ -48,9 +53,43 @@ class SurahsProvider extends ChangeNotifier {
   Duration _currentDuration = Duration.zero;
   Duration _totalDuration = Duration.zero;
 
+  /*SurahsProvider._create() {}
+
+  static Future<SurahsProvider> create() async {
+    final surahPlaylist = List.generate(
+      _surahs.length,
+      (index) async {
+        final url = await getRecitationUrl(1, index + 1);
+
+        return AudioSource.uri(Uri.parse(url),
+            tag: MediaItem(
+                id: index.toString(),
+                title: _surahs[index].title,
+                album: "Quran",
+                artist: _currentRecitator.name,
+                artUri: Uri.file("images/quran.jpg", windows: false)));
+      },
+    );
+  }*/
+
   // constructor
   SurahsProvider() {
     _currentRecitator = recitators[0];
+
+    // Define the playlist
+    /*final playlist = ConcatenatingAudioSource(
+      // Start loading next item just before reaching it
+      useLazyPreparation: true,
+      // Customise the shuffle algorithm
+      shuffleOrder: DefaultShuffleOrder(),
+      // Specify the playlist items
+      children: surahPlaylist,
+    );
+
+    if (kDebugMode) print(_playlist);
+
+    _audioPlayer.setAudioSource(playlist);*/
+
     listenToDuraton();
   }
 
@@ -59,17 +98,28 @@ class SurahsProvider extends ChangeNotifier {
 
   // play the surah
   Future<void> play() async {
-    final String path = await getRecitationUrl(_currentRecitator.id,
+    final String url = await getRecitationUrl(_currentRecitator.id,
         _currentSurahIndex == null ? 1 : _currentSurahIndex! + 1);
+
     await _audioPlayer.stop(); // stop current song
-    await _audioPlayer.setUrl(path);
+
+    // initializing the AudioSource
+    final audioSource = AudioSource.uri(Uri.parse(url),
+        tag: MediaItem(
+            id: _currentSurahIndex.toString(),
+            title: _surahs[_currentSurahIndex!].title,
+            album: "Quran",
+            artist: _currentRecitator.name,
+            artUri: Uri.file("assets/images/quran.jpg", windows: false)));
+
+    await _audioPlayer.setAudioSource(audioSource);
     _audioPlayer.play();
 
     /////////////////// T E S T //////////////////////////
     await _soundPlayer.setLoopMode(LoopMode.all);
     if (_soundIndex != 0) {
       await _soundPlayer
-          .setAsset("audio/${_sounds.keys.elementAt(_soundIndex)}.mp3");
+          .setAsset("assets/audio/${_sounds.keys.elementAt(_soundIndex)}.mp3");
       _soundPlayer.play();
     }
     /////////////////// T E S T //////////////////////////
@@ -209,7 +259,7 @@ class SurahsProvider extends ChangeNotifier {
     _soundPlayer.pause();
     if (_soundIndex != 0) {
       _soundPlayer
-          .setAsset("audio/${_sounds.keys.elementAt(_soundIndex)}.mp3")
+          .setAsset("assets/audio/${_sounds.keys.elementAt(_soundIndex)}.mp3")
           .then(
             (value) => _soundPlayer.play(),
           );

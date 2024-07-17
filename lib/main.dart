@@ -1,5 +1,6 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
+import 'package:just_audio_background/just_audio_background.dart';
 import 'package:provider/provider.dart';
 import 'package:quran_fi/components/my_drawer.dart';
 import 'package:quran_fi/models/surah.dart';
@@ -11,12 +12,10 @@ import 'package:quran_fi/themes/theme_provider.dart';
 late AudioHandler _audioHandler;
 
 Future<void> main() async {
-  _audioHandler = await AudioService.init(
-    builder: () => MyAudioHandler(),
-    config: AudioServiceConfig(
-      androidNotificationChannelId: 'com.mycompany.myapp.channel.audio',
-      androidNotificationChannelName: 'Quran playback',
-    ),
+  await JustAudioBackground.init(
+    androidNotificationChannelId: 'com.alaksoftware.quranfi',
+    androidNotificationChannelName: 'Quran playback',
+    androidNotificationOngoing: true,
   );
   runApp(MultiProvider(
     providers: [
