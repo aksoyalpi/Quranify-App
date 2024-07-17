@@ -1,12 +1,23 @@
+import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:quran_fi/components/my_drawer.dart';
 import 'package:quran_fi/models/surah.dart';
 import 'package:quran_fi/models/surahs_provider.dart';
 import 'package:quran_fi/pages/surah_page.dart';
+import 'package:quran_fi/services/audio_handler.dart';
 import 'package:quran_fi/themes/theme_provider.dart';
 
+late AudioHandler _audioHandler;
+
 Future<void> main() async {
+  _audioHandler = await AudioService.init(
+    builder: () => MyAudioHandler(),
+    config: AudioServiceConfig(
+      androidNotificationChannelId: 'com.mycompany.myapp.channel.audio',
+      androidNotificationChannelName: 'Quran playback',
+    ),
+  );
   runApp(MultiProvider(
     providers: [
       ChangeNotifierProvider(create: (_) => ThemeProvider()),

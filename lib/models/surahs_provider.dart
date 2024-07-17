@@ -77,7 +77,7 @@ class SurahsProvider extends ChangeNotifier {
   }
 
   // pause current surah
-  void pause() async {
+  Future pause() async {
     await _audioPlayer.pause();
     await _soundPlayer.pause();
     _isPlaying = false;
@@ -102,7 +102,7 @@ class SurahsProvider extends ChangeNotifier {
   }
 
   // seek to a specific position in the current song
-  void seek(Duration position) async {
+  Future seek(Duration position) async {
     await _audioPlayer.seek(position);
   }
 
