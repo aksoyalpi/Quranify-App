@@ -13,7 +13,7 @@ late AudioHandler _audioHandler;
 
 Future<void> main() async {
   await JustAudioBackground.init(
-    androidNotificationChannelId: 'com.alaksoftware.quranfi',
+    androidNotificationChannelId: 'com.ryanheise.bg_demo.channel.audio',
     androidNotificationChannelName: 'Quran playback',
     androidNotificationOngoing: true,
   );

@@ -8,6 +8,7 @@ import 'package:quran_fi/models/surah.dart';
 import "package:quran_fi/consts/surahs.dart";
 import 'package:quran_fi/services/api.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:audioplayers/audioplayers.dart' as ap;
 
 class SurahsProvider extends ChangeNotifier {
   // playlist with all surahs
@@ -47,7 +48,7 @@ class SurahsProvider extends ChangeNotifier {
 
   // audio player
   final AudioPlayer _audioPlayer = AudioPlayer();
-  final AudioPlayer _soundPlayer = AudioPlayer();
+  final ap.AudioPlayer _soundPlayer = ap.AudioPlayer();
 
   // durations
   Duration _currentDuration = Duration.zero;
@@ -110,17 +111,16 @@ class SurahsProvider extends ChangeNotifier {
             title: _surahs[_currentSurahIndex!].title,
             album: "Quran",
             artist: _currentRecitator.name,
-            artUri: Uri.file("assets/images/quran.jpg", windows: false)));
+            artUri: Uri.file("assets/images/quran.jpg")));
 
     await _audioPlayer.setAudioSource(audioSource);
     _audioPlayer.play();
 
     /////////////////// T E S T //////////////////////////
-    await _soundPlayer.setLoopMode(LoopMode.all);
+    //await _soundPlayer.setLoopMode(LoopMode.all);
     if (_soundIndex != 0) {
-      await _soundPlayer
-          .setAsset("assets/audio/${_sounds.keys.elementAt(_soundIndex)}.mp3");
-      _soundPlayer.play();
+      await _soundPlayer.play(
+          ap.AssetSource("audio/${_sounds.keys.elementAt(_soundIndex)}.mp3"));
     }
     /////////////////// T E S T //////////////////////////
 
@@ -196,9 +196,8 @@ class SurahsProvider extends ChangeNotifier {
     if (_soundIndex >= _sounds.length) {
       _soundIndex = 0;
     } else {
-      await _soundPlayer
-          .setAsset("audio/${_sounds.keys.elementAt(_soundIndex)}.mp3");
-      _soundPlayer.play();
+      await _soundPlayer.play(
+          ap.AssetSource("audio/${_sounds.keys.elementAt(_soundIndex)}.mp3"));
     }
     notifyListeners();
   }
@@ -258,11 +257,8 @@ class SurahsProvider extends ChangeNotifier {
     _soundIndex = index;
     _soundPlayer.pause();
     if (_soundIndex != 0) {
-      _soundPlayer
-          .setAsset("assets/audio/${_sounds.keys.elementAt(_soundIndex)}.mp3")
-          .then(
-            (value) => _soundPlayer.play(),
-          );
+      _soundPlayer.play(
+          ap.AssetSource("audio/${_sounds.keys.elementAt(_soundIndex)}.mp3"));
     }
 
     notifyListeners();
