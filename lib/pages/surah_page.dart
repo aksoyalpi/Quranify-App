@@ -4,9 +4,12 @@ import 'package:quran_fi/components/neu_box.dart';
 import 'package:quran_fi/components/sound_icon.dart';
 import 'package:quran_fi/models/surah.dart';
 import 'package:quran_fi/models/surahs_provider.dart';
+import 'package:quran_fi/services/audio_handler.dart';
 
 class SurahPage extends StatelessWidget {
-  const SurahPage({super.key});
+  const SurahPage({super.key, required this.audioHandler});
+
+  final MyAudioHandler audioHandler;
 
   // conver duration into min:sec
   String formatTime(Duration duration) {
@@ -180,17 +183,17 @@ class SurahPage extends StatelessWidget {
                           // during when the user is sliding around
                           if (value.isPlaying) {
                             pausedBeforeSliding = false;
-                            value.pause();
+                            audioHandler.pause();
                           } else {
                             pausedBeforeSliding = true;
                           }
-                          value.seek(Duration(seconds: double.toInt()));
+                          audioHandler.seek(Duration(seconds: double.toInt()));
                         },
                         onChangeEnd: (double double) {
                           // sliding has finished, go to tha position in song duration
-                          value.seek(Duration(seconds: double.toInt()));
+                          audioHandler.seek(Duration(seconds: double.toInt()));
                           if (!pausedBeforeSliding) {
-                            value.play();
+                            audioHandler.play();
                           }
                         },
                       ),
@@ -208,7 +211,7 @@ class SurahPage extends StatelessWidget {
                     // skip previous
                     Expanded(
                         child: GestureDetector(
-                            onTap: value.playPreviousSurah,
+                            onTap: () => audioHandler.skipToPrevious,
                             child: const NeuBox(
                                 child: Icon(Icons.skip_previous)))),
 
@@ -220,7 +223,7 @@ class SurahPage extends StatelessWidget {
                     Expanded(
                         flex: 2,
                         child: GestureDetector(
-                            onTap: value.pauseOrResume,
+                            onTap: () => audioHandler.pause(),
                             child: NeuBox(
                                 child: Icon(value.isPlaying
                                     ? Icons.pause

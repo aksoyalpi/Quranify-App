@@ -1,5 +1,6 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:quran_fi/components/my_drawer.dart';
 import 'package:quran_fi/models/surah.dart';
@@ -8,23 +9,32 @@ import 'package:quran_fi/pages/surah_page.dart';
 import 'package:quran_fi/services/audio_handler.dart';
 import 'package:quran_fi/themes/theme_provider.dart';
 
-late AudioHandler _audioHandler;
+MyAudioHandler _audioHandler = MyAudioHandler();
 
 Future<void> main() async {
+  // Ensure that the Flutter binding is initialized
+  WidgetsFlutterBinding.ensureInitialized();
+
   _audioHandler = await AudioService.init(
     builder: () => MyAudioHandler(),
-    config: AudioServiceConfig(
+    config: const AudioServiceConfig(
       androidNotificationChannelId: 'com.mycompany.myapp.channel.audio',
       androidNotificationChannelName: 'Quran playback',
+      androidNotificationOngoing: true,
+      androidShowNotificationBadge: true,
     ),
   );
   runApp(MultiProvider(
     providers: [
       ChangeNotifierProvider(create: (_) => ThemeProvider()),
-      ChangeNotifierProvider(create: (_) => SurahsProvider())
+      ChangeNotifierProvider(
+          create: (_) => SurahsProvider()..loadSurahs(_audioHandler))
     ],
     child: const MyApp(),
   ));
+
+  // Set preferred orientations for the app
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 }
 
 class MyApp extends StatelessWidget {
@@ -50,25 +60,29 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   // get surahs provider
-  late final dynamic surahsProvider;
+  //late final dynamic surahsProvider;
 
   @override
   void initState() {
     super.initState();
 
-    surahsProvider = Provider.of<SurahsProvider>(context, listen: false);
+    //surahsProvider = Provider.of<SurahsProvider>(context, listen: false);
   }
 
   // go to a surah
   void goToSurah(int surahIndex) async {
     // update current surah index
-    surahsProvider.currentSurahIndex = surahIndex;
+    //surahsProvider.currentSurahIndex = surahIndex;
+
+    _audioHandler.skipToQueueItem(surahIndex);
 
     // navigate to surah page
     Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => const SurahPage(),
+          builder: (context) => SurahPage(
+            audioHandler: _audioHandler,
+          ),
         ));
   }
 
