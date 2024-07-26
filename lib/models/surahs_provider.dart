@@ -62,10 +62,10 @@ class SurahsProvider extends ChangeNotifier {
 
   // play the surah
   Future<void> play() async {
-    final String path = await getRecitionUrl(_currentRecitator.id,
-        _currentSurahIndex == null ? 1 : _currentSurahIndex! + 1);
-    await _audioPlayer.stop(); // stop current song
-    await _audioPlayer.setUrl(path);
+    //final String path = await getRecitionUrl(_currentRecitator.id,
+    //_currentSurahIndex == null ? 1 : _currentSurahIndex! + 1);
+    //await _audioPlayer.stop(); // stop current song
+    //await _audioPlayer.setUrl(path);
     _audioPlayer.play();
 
     /////////////////// T E S T //////////////////////////
@@ -178,20 +178,25 @@ class SurahsProvider extends ChangeNotifier {
     });*/
   }
 
-  Future<void> loadSurahs(MyAudioHandler audioHandler) async {
+  Future<void> loadSurah(MyAudioHandler audioHandler, int index) async {
     try {
-      List<MediaItem> mediaItemSurahs = [];
-      for (final surah in surahs) {
-        final String path = await getRecitionUrl(
-            _currentRecitator.id, surahs.indexOf(surah) + 1);
-        mediaItemSurahs.add(await surahToMediaItem(surah, path));
-      }
-      await audioHandler.initSurahs(surahs: mediaItemSurahs);
-
-      notifyListeners();
+      final String path = await getRecitionUrl(_currentRecitator.id, index);
+      await audioHandler.initSurah(
+          surah: await surahToMediaItem(surahs[index], path));
     } catch (e) {
       debugPrint("Error loading surahs: $e");
     }
+  }
+
+// used to listen to Playback events (important for audio_handler)
+  void listenToPlaybackEvent(Function(PlaybackEvent event) broadcastState) {
+    _audioPlayer.playbackEventStream.listen(broadcastState);
+  }
+
+  void makeWhenCompleted(Function() skip) {
+    _audioPlayer.processingStateStream.listen((state) {
+      if (state == ProcessingState.completed) skip;
+    });
   }
 
   // dispose audio player
@@ -204,7 +209,7 @@ class SurahsProvider extends ChangeNotifier {
 
   List<Surah> get surahs => _surahs;
   int? get currentSurahIndex => _currentSurahIndex;
-  bool get isPlaying => _isPlaying;
+  bool get isPlaying => _audioPlayer.playing;
   Duration get currentDuration => _currentDuration;
   Duration get totalDuration => _totalDuration;
   List<Recitator> get recitators => _recitators;
@@ -215,12 +220,31 @@ class SurahsProvider extends ChangeNotifier {
   int get soundIndex => _soundIndex;
   double get soundVolume => soundOn ? _soundPlayer.volume : 0;
   double get quranVolume => _audioPlayer.volume;
+  ProcessingState get processingState => _audioPlayer.processingState;
+  Duration get position => _audioPlayer.position;
+  Duration get bufferedPosition => _audioPlayer.bufferedPosition;
+  double get speed => _audioPlayer.speed;
+  Function get setAudioSource => _audioPlayer.setAudioSource;
+  Future<MediaItem> get mediaItem async {
+    final String path =
+        await getRecitionUrl(_currentRecitator.id, currentSurahIndex ?? 1);
+    return surahToMediaItem(surahs[currentSurahIndex ?? 0], path);
+  }
 
   /*
 
     S E T T E R S
   
   */
+  // Function to create an audio source from a MediaItem
+  UriAudioSource _createAudioSource(MediaItem item) {
+    return ProgressiveAudioSource(Uri.parse(item.id));
+  }
+
+  Future<void> setAudioSourceFromCurrentIndex() async {
+    final medItem = await mediaItem;
+    _audioPlayer.setAudioSource(_createAudioSource(medItem));
+  }
 
   set soundIndex(int index) {
     _soundPlayer.pause();

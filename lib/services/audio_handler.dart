@@ -5,29 +5,19 @@ import 'package:quran_fi/models/surahs_provider.dart';
 
 class MyAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
   //final _player = SurahsProvider();
-  final _player = AudioPlayer();
+  //final _player = AudioPlayer();
+  final _player = SurahsProvider();
 
   // Function to create an audio source from a MediaItem
   UriAudioSource _createAudioSource(MediaItem item) {
     return ProgressiveAudioSource(Uri.parse(item.id));
   }
 
-  // Listen for changes in the current song index and update the media item
-  void _listenForCurrentSongIndexChanges() {
-    _player.currentIndexStream.listen((index) {
-      final playlist = queue.value;
-      if (index == null || playlist.isEmpty) return;
-      mediaItem.add(playlist[index]);
-    });
-  }
-
   // Broadcast the current playback state based on the received PlaybackEvent
   void _broadcastState(PlaybackEvent event) {
     playbackState.add(playbackState.value.copyWith(
       controls: [
-        MediaControl.skipToPrevious,
-        if (_player.playing) MediaControl.pause else MediaControl.play,
-        MediaControl.skipToNext,
+        if (_player.isPlaying) MediaControl.pause else MediaControl.play,
       ],
       systemActions: {
         MediaAction.seek,
@@ -41,38 +31,27 @@ class MyAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
         ProcessingState.ready: AudioProcessingState.ready,
         ProcessingState.completed: AudioProcessingState.completed,
       }[_player.processingState]!,
-      playing: _player.playing,
+      playing: _player.isPlaying,
       updatePosition: _player.position,
       bufferedPosition: _player.bufferedPosition,
       speed: _player.speed,
-      queueIndex: event.currentIndex,
+      queueIndex: _player.currentSurahIndex,
     ));
   }
 
   // Function to initialize the surahs and set up the audio player
-  Future<void> initSurahs({required List<MediaItem> surahs}) async {
+  Future<void> initSurah({required MediaItem surah}) async {
     // Listen for playback events and broadcast the state
-    _player.playbackEventStream.listen(_broadcastState);
+    _player.listenToPlaybackEvent(_broadcastState);
 
     // Create a list of audio sources from the provided songs
-    final audioSource = surahs.map(_createAudioSource).toList();
+    final audioSource = _createAudioSource(surah);
 
     // Set the audio source of the audio player to the concatenation of the audio sources
-    await _player
-        .setAudioSource(ConcatenatingAudioSource(children: audioSource));
-
-    // Add the songs to the queue
-    queue.value.clear();
-    queue.value.addAll(surahs);
-    queue.add(queue.value);
-
-    // Listen for changes in the current song index
-    _listenForCurrentSongIndexChanges();
+    await _player.setAudioSource(audioSource);
 
     // Listen for processing state changes and skip to the next song when completed
-    _player.processingStateStream.listen((state) {
-      if (state == ProcessingState.completed) skipToNext();
-    });
+    _player.makeWhenCompleted(skipToNext);
   }
 
   // Play function to start playback
@@ -88,17 +67,23 @@ class MyAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
   Future<void> seek(Duration position) => _player.seek(position);
 
   // Skip to a specific surah  and start playback
-  @override
-  Future<void> skipToQueueItem(int index) async {
-    await _player.seek(Duration.zero, index: index);
+  Future<void> playSurah(int index) async {
+    _player.currentSurahIndex = index;
+    //_player.listenToPlaybackEvent(_broadcastState);
+
+    // Set the audio source of the audio player to the concatenation of the audio sources
+    await _player.setAudioSourceFromCurrentIndex();
+
+    // Listen for processing state changes and skip to the next song when completed
+    //_player.makeWhenCompleted(skipToNext);
     play();
   }
 
   // Skip to the next item in the queue
   @override
-  Future<void> skipToNext() => _player.seekToNext();
+  Future<void> skipToNext() => _player.playNextSurah();
 
   // Skip to the previous item in the queue
   @override
-  Future<void> skipToPrevious() => _player.seekToPrevious();
+  Future<void> skipToPrevious() => _player.playPreviousSurah();
 }

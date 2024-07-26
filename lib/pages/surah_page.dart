@@ -223,7 +223,9 @@ class SurahPage extends StatelessWidget {
                     Expanded(
                         flex: 2,
                         child: GestureDetector(
-                            onTap: () => audioHandler.pause(),
+                            onTap: () => value.isPlaying
+                                ? audioHandler.pause()
+                                : audioHandler.play(),
                             child: NeuBox(
                                 child: Icon(value.isPlaying
                                     ? Icons.pause

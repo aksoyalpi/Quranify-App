@@ -27,8 +27,7 @@ Future<void> main() async {
   runApp(MultiProvider(
     providers: [
       ChangeNotifierProvider(create: (_) => ThemeProvider()),
-      ChangeNotifierProvider(
-          create: (_) => SurahsProvider()..loadSurahs(_audioHandler))
+      ChangeNotifierProvider(create: (_) => SurahsProvider())
     ],
     child: const MyApp(),
   ));

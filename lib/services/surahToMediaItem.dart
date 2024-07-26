@@ -6,6 +6,7 @@ import 'package:quran_fi/models/surahs_provider.dart';
 
 // Convert a SongModel to a MediaItem
 Future<MediaItem> surahToMediaItem(Surah surah, String uri) async {
+  SurahsProvider surahsProvider = SurahsProvider();
   try {
     // Create and return a MediaItem
     return MediaItem(
@@ -20,8 +21,8 @@ Future<MediaItem> surahToMediaItem(Surah surah, String uri) async {
       title: surah.title,
 
       // Set the artist, duration, and display description
-      artist: "test",
-      duration: Duration(milliseconds: 300),
+      artist: surahsProvider.currentRecitator.name,
+      duration: surahsProvider.totalDuration,
     );
   } catch (e) {
     // Handle any errors that occur during the process
