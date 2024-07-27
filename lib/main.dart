@@ -3,10 +3,13 @@ import 'package:provider/provider.dart';
 import 'package:quran_fi/components/my_drawer.dart';
 import 'package:quran_fi/models/surah.dart';
 import 'package:quran_fi/models/surahs_provider.dart';
+import 'package:quran_fi/page_manager.dart';
 import 'package:quran_fi/pages/surah_page.dart';
+import 'package:quran_fi/services/service_locator.dart';
 import 'package:quran_fi/themes/theme_provider.dart';
 
 Future<void> main() async {
+  await setupServiceLocator();
   runApp(MultiProvider(
     providers: [
       ChangeNotifierProvider(create: (_) => ThemeProvider()),
@@ -16,8 +19,19 @@ Future<void> main() async {
   ));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
+  void initState() {
+    super.initState();
+    getIt<PageManager>().init();
+  }
 
   // This widget is the root of your application.
   @override
@@ -51,7 +65,9 @@ class _MyHomePageState extends State<MyHomePage> {
   // go to a surah
   void goToSurah(int surahIndex) async {
     // update current surah index
-    surahsProvider.currentSurahIndex = surahIndex;
+    //surahsProvider.currentSurahIndex = surahIndex;
+    final pageManager = getIt<PageManager>();
+    pageManager.playSurah(surahIndex);
 
     // navigate to surah page
     Navigator.push(

@@ -1,9 +1,16 @@
+import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:quran_fi/components/neu_box.dart';
 import 'package:quran_fi/components/sound_icon.dart';
 import 'package:quran_fi/models/surah.dart';
 import 'package:quran_fi/models/surahs_provider.dart';
+import 'package:quran_fi/notifiers/play_button_notifier.dart';
+import 'package:quran_fi/page_manager.dart';
+import 'package:quran_fi/page_manager.dart';
+
+import '../page_manager.dart';
+import '../services/service_locator.dart';
 
 class SurahPage extends StatelessWidget {
   const SurahPage({super.key});
@@ -57,6 +64,7 @@ class SurahPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     bool pausedBeforeSliding = false;
+    final pageManager = getIt<PageManager>();
 
     return Consumer<SurahsProvider>(builder: (context, value, child) {
       // get surahs
@@ -115,11 +123,15 @@ class SurahPage extends StatelessWidget {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                currentSurah.title,
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 20),
-                              ),
+                              ValueListenableBuilder(
+                                  valueListenable:
+                                      pageManager.currentSongTitleNotifier,
+                                  builder: (_, value, __) => Text(
+                                        value,
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 20),
+                                      )),
                               Text(value.currentRecitator.name),
                             ],
                           ),
@@ -147,54 +159,47 @@ class SurahPage extends StatelessWidget {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          // start time
-                          Text(formatTime(value.currentDuration)),
-
                           // shuffle icon
-                          const Icon(Icons.shuffle),
+                          ValueListenableBuilder(
+                              valueListenable:
+                                  pageManager.isShuffleModeEnabledNotifier,
+                              builder: (_, isShuffleModeEnabled, __) {
+                                return IconButton(
+                                  icon: Icon(
+                                    Icons.shuffle,
+                                    color: isShuffleModeEnabled
+                                        ? Theme.of(context)
+                                            .colorScheme
+                                            .onPrimary
+                                        : null,
+                                  ),
+                                  onPressed: pageManager.shuffle,
+                                );
+                              }),
 
                           // nature sound icon
                           const SoundIcon(),
 
                           // repeat icon
                           const Icon(Icons.repeat),
-
-                          // end time
-                          Text(formatTime(value.totalDuration))
                         ],
                       ),
                     ),
 
                     // song duration progress
-                    SliderTheme(
-                      data: SliderTheme.of(context).copyWith(
-                          thumbShape: const RoundSliderThumbShape(
-                              enabledThumbRadius: 0)),
-                      child: Slider(
-                        min: 0,
-                        max: value.totalDuration.inSeconds.toDouble(),
-                        value: value.currentDuration.inSeconds.toDouble(),
-                        inactiveColor: Theme.of(context).colorScheme.secondary,
-                        activeColor: Theme.of(context).colorScheme.onPrimary,
-                        onChanged: (double double) {
-                          // during when the user is sliding around
-                          if (value.isPlaying) {
-                            pausedBeforeSliding = false;
-                            value.pause();
-                          } else {
-                            pausedBeforeSliding = true;
-                          }
-                          value.seek(Duration(seconds: double.toInt()));
-                        },
-                        onChangeEnd: (double double) {
-                          // sliding has finished, go to tha position in song duration
-                          value.seek(Duration(seconds: double.toInt()));
-                          if (!pausedBeforeSliding) {
-                            value.play();
-                          }
-                        },
-                      ),
-                    ),
+                    ValueListenableBuilder(
+                        valueListenable: pageManager.progressNotifier,
+                        builder: (_, value, __) {
+                          return ProgressBar(
+                            thumbColor: Theme.of(context).colorScheme.onPrimary,
+                            progressBarColor:
+                                Theme.of(context).colorScheme.onPrimary,
+                            progress: value.current,
+                            buffered: value.buffered,
+                            total: value.total,
+                            onSeek: pageManager.seek,
+                          );
+                        }),
                   ],
                 ),
 
@@ -207,10 +212,15 @@ class SurahPage extends StatelessWidget {
                   children: [
                     // skip previous
                     Expanded(
-                        child: GestureDetector(
-                            onTap: value.playPreviousSurah,
-                            child: const NeuBox(
-                                child: Icon(Icons.skip_previous)))),
+                        child: ValueListenableBuilder(
+                            valueListenable: pageManager.isFirstSongNotifier,
+                            builder: (_, isFirst, __) {
+                              return GestureDetector(
+                                  onTap:
+                                      (isFirst) ? null : pageManager.previous,
+                                  child: const NeuBox(
+                                      child: Icon(Icons.skip_previous)));
+                            })),
 
                     const SizedBox(
                       width: 20,
@@ -219,12 +229,26 @@ class SurahPage extends StatelessWidget {
                     // play pause
                     Expanded(
                         flex: 2,
-                        child: GestureDetector(
-                            onTap: value.pauseOrResume,
-                            child: NeuBox(
-                                child: Icon(value.isPlaying
-                                    ? Icons.pause
-                                    : Icons.play_arrow)))),
+                        child: NeuBox(
+                          child: ValueListenableBuilder(
+                              valueListenable: pageManager.playButtonNotifier,
+                              builder: (_, value, __) {
+                                switch (value) {
+                                  case ButtonState.loading:
+                                    return const Center(
+                                        child: CircularProgressIndicator());
+                                  case ButtonState.paused:
+                                    return IconButton(
+                                      icon: const Icon(Icons.play_arrow),
+                                      onPressed: pageManager.play,
+                                    );
+                                  case ButtonState.playing:
+                                    return IconButton(
+                                        onPressed: pageManager.pause,
+                                        icon: const Icon(Icons.pause));
+                                }
+                              }),
+                        )),
 
                     const SizedBox(
                       width: 20,
@@ -232,9 +256,14 @@ class SurahPage extends StatelessWidget {
 
                     // skip forward
                     Expanded(
-                        child: GestureDetector(
-                            onTap: value.playNextSurah,
-                            child: const NeuBox(child: Icon(Icons.skip_next)))),
+                        child: ValueListenableBuilder(
+                            valueListenable: pageManager.isLastSongNotifier,
+                            builder: (_, isLast, __) {
+                              return GestureDetector(
+                                  onTap: isLast ? null : pageManager.next,
+                                  child: const NeuBox(
+                                      child: Icon(Icons.skip_next)));
+                            })),
                   ],
                 )
               ],
