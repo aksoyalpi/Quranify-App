@@ -19,7 +19,6 @@ class MyAudioHandler extends BaseAudioHandler {
   final _playlist = ConcatenatingAudioSource(children: []);
 
   MyAudioHandler() {
-    print("YEssir");
     _loadEmptyPlaylist();
     _notifyAudioHandlerAboutPlaybackEvents();
     _listenForDurationChanges();
@@ -124,10 +123,7 @@ class MyAudioHandler extends BaseAudioHandler {
   }
 
   @override
-  Future<void> play() {
-    print(mediaItem.value?.title ?? "man im dead");
-    return _player.play();
-  }
+  Future<void> play() => _player.play();
 
   @override
   Future<void> skipToNext() => _player.seekToNext();
@@ -137,6 +133,26 @@ class MyAudioHandler extends BaseAudioHandler {
 
   @override
   Future<void> pause() => _player.pause();
+
+  @override
+  Future<void> stop() async {
+    await _player.stop();
+    return super.stop();
+  }
+
+  @override
+  Future<void> customAction(
+    String name, [
+    Map<String, dynamic>? extras,
+  ]) async {
+    if (name == 'dispose') {
+      await _player.dispose();
+      super.stop();
+    } else if (name == "removeAll") {
+      // manage Just Audio
+      _playlist.removeRange(0, 114);
+    }
+  }
 
   @override
   Future<void> seek(Duration position) => _player.seek(position);

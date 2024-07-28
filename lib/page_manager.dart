@@ -1,5 +1,11 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:quran_fi/consts/recitations.dart';
+import 'package:quran_fi/consts/surahs.dart';
+import 'package:quran_fi/models/recitator.dart';
+import 'package:quran_fi/models/surah.dart';
+import 'package:quran_fi/services/api.dart';
 import 'package:quran_fi/services/playlist_repository.dart';
 import 'notifiers/play_button_notifier.dart';
 import 'notifiers/progress_notifier.dart';
@@ -16,12 +22,59 @@ class PageManager {
   final playButtonNotifier = PlayButtonNotifier();
   final isLastSongNotifier = ValueNotifier<bool>(true);
   final isShuffleModeEnabledNotifier = ValueNotifier<bool>(false);
+  final currentRecitator =
+      ValueNotifier<Recitator>(Recitator.fromJson(recitations[0]));
+  final currentSoundIndex = ValueNotifier<int>(0);
+
+  // all surahs
+  final List<Surah> _surahs = List.generate(
+      allSurahs.length, (index) => Surah.fromJson(allSurahs[index]));
+
+  // all recitators
+  final List<Recitator> _recitators = List.generate(
+      recitations.length, (index) => Recitator.fromJson(recitations[index]));
+
+  // Map with all sounds and their IconData
+  final Map<String, IconData> _sounds = {
+    "empty": Icons.cloud_off,
+    "rain": Icons.cloudy_snowing,
+    "beach": Icons.waves,
+    "fire": Icons.local_fire_department,
+    "birds": Icons.emoji_nature
+  };
+
+  void changeRecitator(int id) async {
+    currentRecitator.value = _recitators.firstWhere(
+      (element) => element.id == id,
+    );
+    stop();
+    // remove all surahs from the queue
+
+    _audioHandler.customAction("removeAll");
+
+    final songRepository = getIt<PlaylistRepository>();
+    final playlist = await songRepository.fetchInitialPlaylist();
+    final mediaItems = playlist
+        .map((surah) => MediaItem(
+            id: surah["id"] ?? "",
+            album: surah["album"] ?? "",
+            title: surah["title"] ?? "",
+            extras: {"url": surah["url"]}))
+        .toList();
+    await _audioHandler.addQueueItems(mediaItems);
+    play();
+  }
 
   void _listenToChangesInPlaylist() {
     _audioHandler.queue.listen((playlist) {
-      if (playlist.isEmpty) return;
-      final newList = playlist.map((item) => item.title).toList();
-      playlistNotifier.value = newList;
+      if (playlist.isEmpty) {
+        playlistNotifier.value = [];
+        currentSongTitleNotifier.value = '';
+      } else {
+        final newList = playlist.map((item) => item.title).toList();
+        playlistNotifier.value = newList;
+      }
+      _updateSkipButtons();
     });
   }
 
@@ -140,5 +193,13 @@ class PageManager {
 
   void add() {}
   void remove() {}
-  void dispose() {}
+  void dispose() {
+    _audioHandler.customAction("dispose");
+  }
+
+  void stop() {
+    _audioHandler.stop();
+  }
+
+  List<Recitator> get recitators => _recitators;
 }

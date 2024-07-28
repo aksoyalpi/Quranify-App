@@ -2,7 +2,13 @@ import 'package:quran_fi/consts/recitations.dart';
 import 'package:quran_fi/consts/surahs.dart';
 import 'package:quran_fi/models/recitator.dart';
 import 'package:quran_fi/models/surah.dart';
+import 'package:quran_fi/page_manager.dart';
+import 'package:quran_fi/page_manager.dart';
+import 'package:quran_fi/page_manager.dart';
 import 'package:quran_fi/services/api.dart';
+import 'package:quran_fi/services/service_locator.dart';
+
+import '../page_manager.dart';
 
 abstract class PlaylistRepository {
   Future<List<Map<String, String>>> fetchInitialPlaylist();
@@ -21,7 +27,7 @@ class DemoPlaylist extends PlaylistRepository {
   @override
   Future<List<Map<String, String>>> fetchInitialPlaylist(
       {int length = _numberSurahs}) async {
-    print("Lak geht das nicht");
+    _surahIndex = 0;
     List<Future<Map<String, String>>> futures = List.generate(
       length - 1,
       (index) => _nextSurah(),
@@ -40,7 +46,9 @@ class DemoPlaylist extends PlaylistRepository {
 
   Future<Map<String, String>> _nextSurah() async {
     _surahIndex++;
-    final url = await getRecitionUrl(1, _surahIndex);
+    final currentRecitator = getIt<PageManager>().currentRecitator.value;
+    print("current recitator ${currentRecitator.name}");
+    final url = await getRecitionUrl(currentRecitator.id, _surahIndex);
     print(url);
     return {
       'id': _surahIndex.toString().padLeft(3, '0'),
