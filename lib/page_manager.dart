@@ -4,6 +4,7 @@ import 'package:quran_fi/consts/recitations.dart';
 import 'package:quran_fi/consts/surahs.dart';
 import 'package:quran_fi/models/recitator.dart';
 import 'package:quran_fi/models/surah.dart';
+import 'package:quran_fi/notifiers/sound_icon_notifier.dart';
 import 'package:quran_fi/services/api.dart';
 import 'package:quran_fi/services/playlist_repository.dart';
 import 'notifiers/play_button_notifier.dart';
@@ -26,6 +27,7 @@ class PageManager {
       ValueNotifier<Recitator>(Recitator.fromJson(recitations[0]));
   final currentSoundIndex = ValueNotifier<int>(0);
   final quranVolume = ValueNotifier<double>(1);
+  final soundVolume = ValueNotifier<double>(1);
 
   // all surahs
   final List<Surah> _surahs = List.generate(
@@ -43,6 +45,8 @@ class PageManager {
     "fire": Icons.local_fire_department,
     "birds": Icons.emoji_nature
   };
+
+  Map<String, IconData> get sounds => _sounds;
 
   void changeRecitator(int id) async {
     currentRecitator.value = _recitators.firstWhere(
@@ -71,16 +75,20 @@ class PageManager {
     play();
   }
 
-// TODO
-  set soundIndex(int index) {
+  void setSoundIndex(int index) async {
     _soundPlayer.pause();
     currentSoundIndex.value = index;
     _soundPlayer.pause();
     if (currentSoundIndex.value != 0) {
-      _soundPlayer.setAudioSource(AudioSource.file(
-          "audio/${_sounds.keys.elementAt(currentSoundIndex.value)}.mp3"));
+      await _soundPlayer.setAudioSource(AudioSource.asset(
+          "assets/audio/${_sounds.keys.elementAt(currentSoundIndex.value)}.mp3"));
       _soundPlayer.play();
     }
+  }
+
+  void setSoundVolume(double volume) {
+    _soundPlayer.setVolume(volume);
+    soundVolume.value = volume;
   }
 
   void _listenToChangesInPlaylist() {

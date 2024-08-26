@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:quran_fi/models/surahs_provider.dart';
@@ -58,15 +60,16 @@ class _SoundIconState extends State<SoundIcon>
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8),
                 color: Theme.of(context).colorScheme.secondary),
-            child: Consumer<SurahsProvider>(
-              builder: (context, value, child) => Column(
+            child: ValueListenableBuilder(
+              valueListenable: pageManager.currentSoundIndex,
+              builder: (_, soundIndex, __) => Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   // Slider for quran volume
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(value.quranVolume != 0
+                      Icon(pageManager.quranVolume.value != 0
                           ? Icons.record_voice_over_outlined
                           : Icons.voice_over_off_outlined),
                       ValueListenableBuilder(
@@ -76,7 +79,6 @@ class _SoundIconState extends State<SoundIcon>
                                     Theme.of(context).colorScheme.onPrimary,
                                 value: quranVolume,
                                 onChanged: (volume) {
-                                  print(quranVolume);
                                   pageManager.setQuranVolume(volume);
                                 },
                               )),
@@ -87,16 +89,19 @@ class _SoundIconState extends State<SoundIcon>
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(value.soundOn
+                      Icon(soundIndex != 0
                           ? Icons.music_note_outlined
                           : Icons.music_off_outlined),
-                      Slider(
-                        activeColor: value.soundOn
-                            ? Theme.of(context).colorScheme.onPrimary
-                            : Theme.of(context).colorScheme.primary,
-                        value: value.soundVolume,
-                        onChanged: (volume) => value.soundVolume = volume,
-                      ),
+                      ValueListenableBuilder(
+                          valueListenable: pageManager.soundVolume,
+                          builder: (_, soundVolume, __) => Slider(
+                                activeColor: soundIndex != 0
+                                    ? Theme.of(context).colorScheme.onPrimary
+                                    : Theme.of(context).colorScheme.primary,
+                                value: soundIndex == 0 ? 0 : soundVolume,
+                                onChanged: (volume) =>
+                                    pageManager.setSoundVolume(volume),
+                              )),
                     ],
                   ),
 
@@ -104,19 +109,19 @@ class _SoundIconState extends State<SoundIcon>
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: List.generate(
-                      value.soundIconDatas.length,
+                      pageManager.sounds.length,
                       (index) => GestureDetector(
                           onTap: () {
                             //setState(() {
                             //  _isExpanded = false;
                             //});
-                            value.soundIndex = index;
+                            pageManager.setSoundIndex(index);
                             //_overlayEntry?.remove();
                             //_overlayEntry = null;
                           },
                           child: Icon(
-                            value.soundIconDatas[index],
-                            color: index == value.soundIndex
+                            pageManager.sounds.values.elementAt(index),
+                            color: index == soundIndex
                                 ? Theme.of(context).colorScheme.onPrimary
                                 : null,
                           )),
