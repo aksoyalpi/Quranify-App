@@ -4,7 +4,6 @@ import 'package:quran_fi/consts/recitations.dart';
 import 'package:quran_fi/consts/surahs.dart';
 import 'package:quran_fi/models/recitator.dart';
 import 'package:quran_fi/models/surah.dart';
-import 'package:quran_fi/notifiers/sound_icon_notifier.dart';
 import 'package:quran_fi/services/api.dart';
 import 'package:quran_fi/services/playlist_repository.dart';
 import 'notifiers/play_button_notifier.dart';
@@ -170,7 +169,6 @@ class PageManager {
 
   void _listenToChangesInSurah() {
     _audioHandler.mediaItem.listen((mediaItem) {
-      print("MeeeeediaItem: $mediaItem");
       currentSongTitleNotifier.value = mediaItem?.title ?? '';
       _updateSkipButtons();
     });
@@ -190,6 +188,7 @@ class PageManager {
 
   // Events: Calls coming from the UI
   void init() async {
+    _soundPlayer.setLoopMode(LoopMode.all);
     await _loadPlaylist();
     _listenToChangesInPlaylist();
     _listenToPlaybackState();

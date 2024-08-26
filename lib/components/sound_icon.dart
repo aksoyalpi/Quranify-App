@@ -138,6 +138,8 @@ class _SoundIconState extends State<SoundIcon>
 
   @override
   Widget build(BuildContext context) {
+    final pageManager = getIt<PageManager>();
+
     return Consumer<SurahsProvider>(
       builder: (context, value, child) => Column(
         children: [
@@ -152,12 +154,14 @@ class _SoundIconState extends State<SoundIcon>
                   _toggleOverlay(context, value);
                 });
               },
-              child: Icon(
-                value.soundIconData,
-                color: value.soundOn
-                    ? Theme.of(context).colorScheme.onPrimary
-                    : null,
-              )),
+              child: ValueListenableBuilder(
+                  valueListenable: pageManager.currentSoundIndex,
+                  builder: (_, soundIndex, __) => Icon(
+                        pageManager.sounds.values.elementAt(soundIndex),
+                        color: soundIndex != 0
+                            ? Theme.of(context).colorScheme.onPrimary
+                            : null,
+                      ))),
         ],
       ),
     );
