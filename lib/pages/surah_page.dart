@@ -132,7 +132,8 @@ class SurahPage extends StatelessWidget {
                                 }),
                             ValueListenableBuilder(
                                 valueListenable: pageManager.currentRecitator,
-                                builder: (_, value, __) => Text(value.name)),
+                                builder: (_, recitator, __) =>
+                                    Text(recitator.name)),
                           ],
                         ),
 

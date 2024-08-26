@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:quran_fi/consts/recitations.dart';
@@ -14,6 +13,7 @@ import 'services/service_locator.dart';
 
 class PageManager {
   final _audioHandler = getIt<AudioHandler>();
+  final _soundPlayer = AudioPlayer();
   // Listeners: Updates going to the UI
   final currentSongTitleNotifier = ValueNotifier<String>('');
   final playlistNotifier = ValueNotifier<List<String>>([]);
@@ -49,20 +49,37 @@ class PageManager {
     );
     stop();
     // remove all surahs from the queue
-
     _audioHandler.customAction("removeAll");
 
     final songRepository = getIt<PlaylistRepository>();
     final playlist = await songRepository.fetchInitialPlaylist();
+    final artUri =
+        Uri.parse("https://unsplash.com/de/fotos/geoffnetes-buch-_KPuV9qSSlU");
+    //Uri.file("assets/images/quran.jpg");
+    print("Art uri $artUri");
     final mediaItems = playlist
         .map((surah) => MediaItem(
             id: surah["id"] ?? "",
             album: surah["album"] ?? "",
+            artist: currentRecitator.value.name,
             title: surah["title"] ?? "",
+            artUri: artUri,
             extras: {"url": surah["url"]}))
         .toList();
     await _audioHandler.addQueueItems(mediaItems);
     play();
+  }
+
+// TODO
+  set soundIndex(int index) {
+    _soundPlayer.pause();
+    currentSoundIndex.value = index;
+    _soundPlayer.pause();
+    if (currentSoundIndex.value != 0) {
+      _soundPlayer.setAudioSource(AudioSource.file(
+          "audio/${_sounds.keys.elementAt(currentSoundIndex.value)}.mp3"));
+      _soundPlayer.play();
+    }
   }
 
   void _listenToChangesInPlaylist() {
@@ -104,6 +121,8 @@ class PageManager {
             id: surah["id"] ?? "",
             album: surah["album"] ?? "",
             title: surah["title"] ?? "",
+            artUri: Uri.parse(
+                "https://unsplash.com/de/fotos/geoffnetes-buch-_KPuV9qSSlU"),
             extras: {"url": surah["url"]}))
         .toList();
     _audioHandler.addQueueItems(mediaItems);
@@ -142,6 +161,7 @@ class PageManager {
 
   void _listenToChangesInSurah() {
     _audioHandler.mediaItem.listen((mediaItem) {
+      print("MeeeeediaItem: $mediaItem");
       currentSongTitleNotifier.value = mediaItem?.title ?? '';
       _updateSkipButtons();
     });
@@ -171,6 +191,7 @@ class PageManager {
   }
 
   void playSurah(int index) {
+    print("skip to queue $index");
     _audioHandler.skipToQueueItem(index);
     play();
   }

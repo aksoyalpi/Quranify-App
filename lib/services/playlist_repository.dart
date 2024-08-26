@@ -16,6 +16,9 @@ abstract class PlaylistRepository {
 }
 
 class DemoPlaylist extends PlaylistRepository {
+  var _surahIndex = 0;
+  static const _numberSurahs = 114;
+
   // all surahs
   final List<Surah> _surahs = List.generate(
       allSurahs.length, (index) => Surah.fromJson(allSurahs[index]));
@@ -28,33 +31,28 @@ class DemoPlaylist extends PlaylistRepository {
   Future<List<Map<String, String>>> fetchInitialPlaylist(
       {int length = _numberSurahs}) async {
     _surahIndex = 0;
-    List<Future<Map<String, String>>> futures = List.generate(
-      length - 1,
-      (index) => _nextSurah(),
-    );
-
-    return await Future.wait(futures);
+    List<Map<String, String>> surahs = [];
+    for (int i = 0; i < length; i++) {
+      surahs.add(await _nextSurah());
+    }
+    return surahs;
   }
 
   @override
   Future<Map<String, String>> fetchAnotherSurah() async {
-    return _nextSurah();
+    return await _nextSurah();
   }
-
-  var _surahIndex = 0;
-  static const _numberSurahs = 114;
 
   Future<Map<String, String>> _nextSurah() async {
     _surahIndex++;
     final currentRecitator = getIt<PageManager>().currentRecitator.value;
-    print("current recitator ${currentRecitator.name}");
     final url = await getRecitionUrl(currentRecitator.id, _surahIndex);
     print(url);
+    print("_surahIndex: $_surahIndex");
     return {
       'id': _surahIndex.toString().padLeft(3, '0'),
-      'title': _surahs[_surahIndex].title,
+      'title': _surahs[_surahIndex - 1].title,
       'album': 'Quran',
-      "artUri": "asset/image/quran.jpg",
       'url': url,
     };
   }

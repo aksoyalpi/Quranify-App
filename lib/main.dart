@@ -64,6 +64,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   // go to a surah
   void goToSurah(int surahIndex) async {
+    print("Surah Index: $surahIndex");
     // update current surah index
     //surahsProvider.currentSurahIndex = surahIndex;
     final pageManager = getIt<PageManager>();
