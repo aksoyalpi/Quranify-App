@@ -25,6 +25,7 @@ class PageManager {
   final currentRecitator =
       ValueNotifier<Recitator>(Recitator.fromJson(recitations[0]));
   final currentSoundIndex = ValueNotifier<int>(0);
+  final quranVolume = ValueNotifier<double>(1);
 
   // all surahs
   final List<Surah> _surahs = List.generate(
@@ -194,6 +195,11 @@ class PageManager {
     print("skip to queue $index");
     _audioHandler.skipToQueueItem(index);
     play();
+  }
+
+  void setQuranVolume(double volume) {
+    _audioHandler.customAction("setVolume", {"volume": volume});
+    quranVolume.value = volume;
   }
 
   void play() => _audioHandler.play();

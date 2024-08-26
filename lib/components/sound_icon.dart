@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:quran_fi/models/surahs_provider.dart';
+import 'package:quran_fi/page_manager.dart';
+import 'package:quran_fi/services/service_locator.dart';
 
 class SoundIcon extends StatefulWidget {
   const SoundIcon({super.key});
@@ -33,6 +35,7 @@ class _SoundIconState extends State<SoundIcon>
   }
 
   OverlayEntry _createOverlayEntry(BuildContext context, SurahsProvider prov) {
+    final pageManager = getIt<PageManager>();
     RenderBox renderBox =
         _iconKey.currentContext!.findRenderObject() as RenderBox;
     Offset position = renderBox.localToGlobal(Offset.zero);
@@ -66,11 +69,17 @@ class _SoundIconState extends State<SoundIcon>
                       Icon(value.quranVolume != 0
                           ? Icons.record_voice_over_outlined
                           : Icons.voice_over_off_outlined),
-                      Slider(
-                        activeColor: Theme.of(context).colorScheme.onPrimary,
-                        value: value.quranVolume,
-                        onChanged: (volume) => value.quranVolume = volume,
-                      ),
+                      ValueListenableBuilder(
+                          valueListenable: pageManager.quranVolume,
+                          builder: (_, quranVolume, __) => Slider(
+                                activeColor:
+                                    Theme.of(context).colorScheme.onPrimary,
+                                value: quranVolume,
+                                onChanged: (volume) {
+                                  print(quranVolume);
+                                  pageManager.setQuranVolume(volume);
+                                },
+                              )),
                     ],
                   ),
 

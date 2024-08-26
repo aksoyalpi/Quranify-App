@@ -152,6 +152,8 @@ class MyAudioHandler extends BaseAudioHandler {
     } else if (name == "removeAll") {
       // manage Just Audio
       _playlist.removeRange(0, 114);
+    } else if (name == "setVolume") {
+      await _player.setVolume(extras!["volume"]);
     }
   }
 
