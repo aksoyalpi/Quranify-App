@@ -41,7 +41,7 @@ class MyAudioHandler extends BaseAudioHandler {
         controls: [
           MediaControl.skipToPrevious,
           if (playing) MediaControl.pause else MediaControl.play,
-          MediaControl.stop,
+          //MediaControl.stop,
           MediaControl.skipToNext,
         ],
         systemActions: const {

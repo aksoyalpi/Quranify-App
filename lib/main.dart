@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:quran_fi/components/modal_sheet_player.dart';
 import 'package:quran_fi/components/my_drawer.dart';
 import 'package:quran_fi/models/surah.dart';
 import 'package:quran_fi/models/surahs_provider.dart';
@@ -91,24 +92,36 @@ class _MyHomePageState extends State<MyHomePage> {
         final List<Surah> surahs = value.surahs;
 
         // return list view UI
-        return ListView.separated(
-          separatorBuilder: (context, index) => Divider(
-            color: Theme.of(context).colorScheme.secondary,
-          ),
-          itemCount: surahs.length,
-          itemBuilder: (context, index) {
-            // get individual surah
-            final Surah surah = surahs[index];
+        return Stack(
+          children: [
+            ListView.separated(
+              separatorBuilder: (context, index) => Divider(
+                color: Theme.of(context).colorScheme.secondary,
+              ),
+              itemCount: surahs.length,
+              itemBuilder: (context, index) {
+                // get individual surah
+                final Surah surah = surahs[index];
 
-            // return list tile UI
-            return ListTile(
-              leading: Image.asset("assets/images/quran.jpg"),
-              title: Text(surah.title),
-              subtitle: Text("Surah ${index + 1}"),
-              trailing: Text(surah.arabicTitle),
-              onTap: () => goToSurah(index),
-            );
-          },
+                // return list tile UI
+                return ListTile(
+                  leading: Image.asset("assets/images/quran.jpg"),
+                  title: Text(surah.title),
+                  subtitle: Text("Surah ${index + 1}"),
+                  trailing: Text(surah.arabicTitle),
+                  onTap: () => goToSurah(index),
+                );
+              },
+            ),
+
+            // little AudioPlayer
+            Align(
+                alignment: Alignment.bottomCenter,
+                child: Padding(
+                  padding: const EdgeInsets.all(18.0),
+                  child: LittleAudioPlayer(),
+                ))
+          ],
         );
       }),
     );

@@ -1,6 +1,7 @@
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:quran_fi/components/modal_sheet_player.dart';
 import 'package:quran_fi/components/neu_box.dart';
 import 'package:quran_fi/components/sound_icon.dart';
 import 'package:quran_fi/models/surah.dart';

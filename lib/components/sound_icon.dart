@@ -19,10 +19,10 @@ class _SoundIconState extends State<SoundIcon>
   OverlayEntry? _overlayEntry;
   final GlobalKey _iconKey = GlobalKey();
 
-  void _toggleOverlay(BuildContext context, SurahsProvider value) {
+  void _toggleOverlay(BuildContext context) {
     if (_isExpanded) {
       _overlayEntry?.remove();
-      _overlayEntry = _createOverlayEntry(context, value);
+      _overlayEntry = _createOverlayEntry(context);
       Overlay.of(context).insert(_overlayEntry!);
     } else {
       _overlayEntry?.remove();
@@ -36,7 +36,7 @@ class _SoundIconState extends State<SoundIcon>
     super.dispose();
   }
 
-  OverlayEntry _createOverlayEntry(BuildContext context, SurahsProvider prov) {
+  OverlayEntry _createOverlayEntry(BuildContext context) {
     final pageManager = getIt<PageManager>();
     RenderBox renderBox =
         _iconKey.currentContext!.findRenderObject() as RenderBox;
@@ -66,24 +66,24 @@ class _SoundIconState extends State<SoundIcon>
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   // Slider for quran volume
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(pageManager.quranVolume.value != 0
-                          ? Icons.record_voice_over_outlined
-                          : Icons.voice_over_off_outlined),
-                      ValueListenableBuilder(
-                          valueListenable: pageManager.quranVolume,
-                          builder: (_, quranVolume, __) => Slider(
+                  ValueListenableBuilder(
+                      valueListenable: pageManager.quranVolume,
+                      builder: (_, quranVolume, __) => Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(quranVolume != 0
+                                  ? Icons.record_voice_over_outlined
+                                  : Icons.voice_over_off_outlined),
+                              Slider(
                                 activeColor:
                                     Theme.of(context).colorScheme.onPrimary,
                                 value: quranVolume,
                                 onChanged: (volume) {
                                   pageManager.setQuranVolume(volume);
                                 },
-                              )),
-                    ],
-                  ),
+                              ),
+                            ],
+                          )),
 
                   // Slider for sound volume
                   Row(
@@ -140,30 +140,28 @@ class _SoundIconState extends State<SoundIcon>
   Widget build(BuildContext context) {
     final pageManager = getIt<PageManager>();
 
-    return Consumer<SurahsProvider>(
-      builder: (context, value, child) => Column(
-        children: [
-          // animated container for selecting nature sound
+    return Column(
+      children: [
+        // animated container for selecting nature sound
 
-          // Icon showing current nature sound
-          GestureDetector(
-              key: _iconKey,
-              onTap: () {
-                setState(() {
-                  _isExpanded = !_isExpanded;
-                  _toggleOverlay(context, value);
-                });
-              },
-              child: ValueListenableBuilder(
-                  valueListenable: pageManager.currentSoundIndex,
-                  builder: (_, soundIndex, __) => Icon(
-                        pageManager.sounds.values.elementAt(soundIndex),
-                        color: soundIndex != 0
-                            ? Theme.of(context).colorScheme.onPrimary
-                            : null,
-                      ))),
-        ],
-      ),
+        // Icon showing current nature sound
+        GestureDetector(
+            key: _iconKey,
+            onTap: () {
+              setState(() {
+                _isExpanded = !_isExpanded;
+                _toggleOverlay(context);
+              });
+            },
+            child: ValueListenableBuilder(
+                valueListenable: pageManager.currentSoundIndex,
+                builder: (_, soundIndex, __) => Icon(
+                      pageManager.sounds.values.elementAt(soundIndex),
+                      color: soundIndex != 0
+                          ? Theme.of(context).colorScheme.onPrimary
+                          : null,
+                    ))),
+      ],
     );
   }
 }
