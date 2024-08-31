@@ -153,7 +153,6 @@ class SurahPage extends StatelessWidget {
                 height: 25,
               ),
 
-              // song duration progress
               Column(
                 children: [
                   Padding(

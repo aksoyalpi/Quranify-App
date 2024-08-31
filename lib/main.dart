@@ -5,6 +5,7 @@ import 'package:quran_fi/components/my_drawer.dart';
 import 'package:quran_fi/models/surah.dart';
 import 'package:quran_fi/models/surahs_provider.dart';
 import 'package:quran_fi/page_manager.dart';
+import 'package:quran_fi/page_manager.dart';
 import 'package:quran_fi/pages/surah_page.dart';
 import 'package:quran_fi/services/service_locator.dart';
 import 'package:quran_fi/themes/theme_provider.dart';
@@ -81,6 +82,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final pageManager = getIt<PageManager>();
+
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
@@ -115,12 +118,32 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
 
             // little AudioPlayer
-            Align(
+            ValueListenableBuilder(
+              valueListenable: pageManager.currentSongTitleNotifier,
+              builder: (_, surah, __) {
+                final bool isLoading = surah == "";
+
+                if (surah == "") {
+                  return const SizedBox(
+                    width: 0,
+                    height: 0,
+                  );
+                } else {
+                  return const Align(
+                      alignment: Alignment.bottomCenter,
+                      child: Padding(
+                        padding: const EdgeInsets.all(18.0),
+                        child: LittleAudioPlayer(),
+                      ));
+                }
+              },
+            )
+            /*const Align(
                 alignment: Alignment.bottomCenter,
                 child: Padding(
                   padding: const EdgeInsets.all(18.0),
                   child: LittleAudioPlayer(),
-                ))
+                ))*/
           ],
         );
       }),
