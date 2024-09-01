@@ -121,8 +121,6 @@ class _MyHomePageState extends State<MyHomePage> {
             ValueListenableBuilder(
               valueListenable: pageManager.currentSongTitleNotifier,
               builder: (_, surah, __) {
-                final bool isLoading = surah == "";
-
                 if (surah == "") {
                   return const SizedBox(
                     width: 0,
