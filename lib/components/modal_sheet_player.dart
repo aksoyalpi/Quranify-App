@@ -3,7 +3,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:quran_fi/notifiers/play_button_notifier.dart';
 import 'package:quran_fi/page_manager.dart';
-import 'package:quran_fi/page_manager.dart';
 import 'package:quran_fi/pages/surah_page.dart';
 import 'package:quran_fi/services/service_locator.dart';
 
@@ -15,11 +14,25 @@ class LittleAudioPlayer extends StatefulWidget {
 }
 
 class _MyWidgetState extends State<LittleAudioPlayer> {
+  bool _hasSwiped = false;
+
   @override
   Widget build(BuildContext context) {
     final pageManager = getIt<PageManager>();
 
     return GestureDetector(
+      onPanStart: (details) => _hasSwiped = false,
+      onPanUpdate: (details) {
+        if (!_hasSwiped) {
+          print("Delta dx ${details.delta.dx}");
+          if (details.delta.dx > 5) {
+            pageManager.previous();
+          } else if (details.delta.dx < -5) {
+            pageManager.next();
+          }
+          _hasSwiped = true;
+        }
+      },
       onTap: () {
         Navigator.push(
             context,
@@ -116,22 +129,24 @@ class _MyWidgetState extends State<LittleAudioPlayer> {
               ValueListenableBuilder(
                   valueListenable: pageManager.progressNotifier,
                   builder: (_, value, __) {
+                    final double currentPos;
+
+                    if (value.total.inSeconds == 0) {
+                      currentPos = 0;
+                    } else {
+                      currentPos =
+                          value.current.inSeconds / value.total.inSeconds;
+                    }
+
                     return ClipRRect(
                       borderRadius: const BorderRadius.vertical(
                           bottom: Radius.circular(8)),
                       child: LinearProgressIndicator(
-                        value: value.current.inSeconds / value.total.inSeconds,
-                        color: Theme.of(context).colorScheme.onPrimary,
-                        backgroundColor: Theme.of(context).colorScheme.surface,
-                        minHeight: 5,
-
-                        /*thumbColor: Theme.of(context).colorScheme.onPrimary,
-                        progressBarColor: Theme.of(context).colorScheme.onPrimary,
-                        progress: value.current,
-                        buffered: value.buffered,
-                        total: value.total,
-                        onSeek: pageManager.seek,*/
-                      ),
+                          value: currentPos,
+                          color: Theme.of(context).colorScheme.onPrimary,
+                          backgroundColor:
+                              Theme.of(context).colorScheme.surface,
+                          minHeight: 5),
                     );
                   }),
             ],
