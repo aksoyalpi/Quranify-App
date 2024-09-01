@@ -40,116 +40,120 @@ class _MyWidgetState extends State<LittleAudioPlayer> {
               builder: (context) => const SurahPage(),
             ));
       },
-      child: Material(
-        elevation: 10,
-        borderRadius: BorderRadius.circular(8),
-        child: Container(
-          width: double.infinity,
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
-              color: Theme.of(context).colorScheme.secondary),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        // picture
-                        SizedBox(
-                          width: 60,
-                          height: 60,
-                          child: ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child: Image.asset(
-                                "assets/images/quran.jpg",
-                                fit: BoxFit.cover,
-                              )),
-                        ),
+      child: Hero(
+        tag: "audioplayer",
+        child: Material(
+          elevation: 10,
+          borderRadius: BorderRadius.circular(8),
+          child: Container(
+            width: double.infinity,
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                color: Theme.of(context).colorScheme.secondary),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          // picture
+                          SizedBox(
+                            width: 60,
+                            height: 60,
+                            child: ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: Image.asset(
+                                  "assets/images/quran.jpg",
+                                  fit: BoxFit.cover,
+                                )),
+                          ),
 
-                        const SizedBox(width: 10),
+                          const SizedBox(width: 10),
 
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Surah title
-                            ValueListenableBuilder(
-                              valueListenable:
-                                  pageManager.currentSongTitleNotifier,
-                              builder: (_, surah, __) => Text(
-                                surah,
-                                style: const TextStyle(
-                                    fontSize: 18, fontWeight: FontWeight.bold),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Surah title
+                              ValueListenableBuilder(
+                                valueListenable:
+                                    pageManager.currentSongTitleNotifier,
+                                builder: (_, surah, __) => Text(
+                                  surah,
+                                  style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold),
+                                ),
                               ),
-                            ),
 
-                            // Recitator
-                            ValueListenableBuilder(
-                              valueListenable: pageManager.currentRecitator,
-                              builder: (_, recitator, __) => Text(
-                                  recitator.name,
-                                  style: TextStyle(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .primary)),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+                              // Recitator
+                              ValueListenableBuilder(
+                                valueListenable: pageManager.currentRecitator,
+                                builder: (_, recitator, __) => Text(
+                                    recitator.name,
+                                    style: TextStyle(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary)),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
 
-                    // play pause Button
-                    ValueListenableBuilder(
-                        valueListenable: pageManager.playButtonNotifier,
-                        builder: (_, value, __) {
-                          switch (value) {
-                            case ButtonState.loading:
-                              return const Center(
-                                  child: CircularProgressIndicator());
-                            case ButtonState.paused:
-                              return IconButton(
-                                icon: const Icon(Icons.play_arrow),
-                                onPressed: pageManager.play,
-                              );
-                            case ButtonState.playing:
-                              return IconButton(
-                                  onPressed: pageManager.pause,
-                                  icon: const Icon(Icons.pause));
-                          }
-                        }),
-                  ],
+                      // play pause Button
+                      ValueListenableBuilder(
+                          valueListenable: pageManager.playButtonNotifier,
+                          builder: (_, value, __) {
+                            switch (value) {
+                              case ButtonState.loading:
+                                return const Center(
+                                    child: CircularProgressIndicator());
+                              case ButtonState.paused:
+                                return IconButton(
+                                  icon: const Icon(Icons.play_arrow),
+                                  onPressed: pageManager.play,
+                                );
+                              case ButtonState.playing:
+                                return IconButton(
+                                    onPressed: pageManager.pause,
+                                    icon: const Icon(Icons.pause));
+                            }
+                          }),
+                    ],
+                  ),
                 ),
-              ),
 
-              // song duration progress
-              ValueListenableBuilder(
-                  valueListenable: pageManager.progressNotifier,
-                  builder: (_, value, __) {
-                    final double currentPos;
+                // song duration progress
+                ValueListenableBuilder(
+                    valueListenable: pageManager.progressNotifier,
+                    builder: (_, value, __) {
+                      final double currentPos;
 
-                    if (value.total.inSeconds == 0) {
-                      currentPos = 0;
-                    } else {
-                      currentPos =
-                          value.current.inSeconds / value.total.inSeconds;
-                    }
+                      if (value.total.inSeconds == 0) {
+                        currentPos = 0;
+                      } else {
+                        currentPos =
+                            value.current.inSeconds / value.total.inSeconds;
+                      }
 
-                    return ClipRRect(
-                      borderRadius: const BorderRadius.vertical(
-                          bottom: Radius.circular(8)),
-                      child: LinearProgressIndicator(
-                          value: currentPos,
-                          color: Theme.of(context).colorScheme.onPrimary,
-                          backgroundColor:
-                              Theme.of(context).colorScheme.surface,
-                          minHeight: 5),
-                    );
-                  }),
-            ],
+                      return ClipRRect(
+                        borderRadius: const BorderRadius.vertical(
+                            bottom: Radius.circular(8)),
+                        child: LinearProgressIndicator(
+                            value: currentPos,
+                            color: Theme.of(context).colorScheme.onPrimary,
+                            backgroundColor:
+                                Theme.of(context).colorScheme.surface,
+                            minHeight: 5),
+                      );
+                    }),
+              ],
+            ),
           ),
         ),
       ),

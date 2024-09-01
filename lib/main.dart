@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:quran_fi/components/modal_sheet_player.dart';
 import 'package:quran_fi/components/my_drawer.dart';
@@ -54,14 +55,16 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  // get surahs provider
-  late final dynamic surahsProvider;
+  final pageManager = getIt<PageManager>();
+  late List<Surah> surahs;
+  late List<Surah> filteredSurahs;
 
   @override
   void initState() {
+    // TODO: implement initState
     super.initState();
-
-    surahsProvider = Provider.of<SurahsProvider>(context, listen: false);
+    surahs = pageManager.surahs;
+    filteredSurahs = surahs;
   }
 
   // go to a surah
@@ -80,71 +83,94 @@ class _MyHomePageState extends State<MyHomePage> {
         ));
   }
 
+  bool _isSearching = false;
+  TextEditingController _searchController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
-    final pageManager = getIt<PageManager>();
-
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
-        title: const Text("S U R A H S"),
+        title: _isSearching
+            ? TextField(
+                controller: _searchController,
+                autofocus: true,
+                decoration: const InputDecoration(
+                  hintText: 'Search...',
+                  border: InputBorder.none,
+                ),
+                onChanged: (query) {
+                  // Handle search query here
+                  print(query);
+                  setState(() {
+                    if (query != "") {
+                      filteredSurahs = surahs
+                          .where((element) => element.title
+                              .toLowerCase()
+                              .contains(query.toLowerCase()))
+                          .toList();
+                    } else {
+                      filteredSurahs = surahs;
+                    }
+                  });
+                },
+              )
+            : Text('S U R A H S'),
+        actions: [
+          IconButton(
+              onPressed: () {
+                setState(() {
+                  _isSearching = !_isSearching;
+                  if (!_isSearching) _searchController.clear();
+                });
+              },
+              icon: Icon(_isSearching ? Icons.close : Icons.search))
+        ],
       ),
       drawer: const MyDrawer(),
-      body: Consumer<SurahsProvider>(builder: (context, value, child) {
-        // get all surahs
-        final List<Surah> surahs = value.surahs;
-
-        // return list view UI
-        return Stack(
-          children: [
-            ListView.separated(
-              separatorBuilder: (context, index) => Divider(
-                color: Theme.of(context).colorScheme.secondary,
-              ),
-              itemCount: surahs.length,
-              itemBuilder: (context, index) {
-                // get individual surah
-                final Surah surah = surahs[index];
-
-                // return list tile UI
-                return ListTile(
-                  leading: Image.asset("assets/images/quran.jpg"),
-                  title: Text(surah.title),
-                  subtitle: Text("Surah ${index + 1}"),
-                  trailing: Text(surah.arabicTitle),
-                  onTap: () => goToSurah(index),
-                );
-              },
+      body: Stack(
+        children: [
+          ListView.separated(
+            separatorBuilder: (context, index) => Divider(
+              color: Theme.of(context).colorScheme.secondary,
             ),
+            itemCount: filteredSurahs.length,
+            itemBuilder: (context, index) {
+              // get individual surah
+              final Surah surah = filteredSurahs[index];
 
-            // little AudioPlayer
-            ValueListenableBuilder(
-              valueListenable: pageManager.currentSongTitleNotifier,
-              builder: (_, surah, __) {
-                if (surah == "") {
-                  return const SizedBox(
-                    width: 0,
-                    height: 0,
-                  );
-                } else {
-                  return const Align(
-                      alignment: Alignment.bottomCenter,
-                      child: Padding(
-                        padding: const EdgeInsets.all(18.0),
-                        child: LittleAudioPlayer(),
-                      ));
-                }
-              },
-            )
-            /*const Align(
-                alignment: Alignment.bottomCenter,
-                child: Padding(
-                  padding: const EdgeInsets.all(18.0),
-                  child: LittleAudioPlayer(),
-                ))*/
-          ],
-        );
-      }),
+              // return list tile UI
+              return ListTile(
+                leading: Image.asset("assets/images/quran.jpg"),
+                title: Text(surah.title),
+                subtitle: Text("Surah ${index + 1}"),
+                trailing: Text(surah.arabicTitle),
+                onTap: () => goToSurah(index),
+              );
+            },
+          ),
+
+          // little AudioPlayer
+          ValueListenableBuilder(
+            valueListenable: pageManager.currentSongTitleNotifier,
+            builder: (_, surah, __) {
+              if (surah == "") {
+                return const SizedBox(
+                  width: 0,
+                  height: 0,
+                );
+              } else {
+                return const Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Padding(
+                      padding: const EdgeInsets.all(18.0),
+                      child: LittleAudioPlayer(),
+                    ));
+              }
+            },
+          )
+        ],
+      ),
     );
   }
 }

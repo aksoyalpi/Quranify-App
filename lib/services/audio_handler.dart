@@ -1,8 +1,8 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:quran_fi/page_manager.dart';
 
 Future<AudioHandler> initAudioService() async {
-  print("initAudioService yes");
   return await AudioService.init(
     builder: () => MyAudioHandler(),
     config: const AudioServiceConfig(

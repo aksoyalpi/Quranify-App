@@ -209,8 +209,16 @@ class PageManager {
     quranVolume.value = volume;
   }
 
-  void play() => _audioHandler.play();
-  void pause() => _audioHandler.pause();
+  void play() {
+    _audioHandler.play();
+    if (currentSoundIndex.value != 0) _soundPlayer.play();
+  }
+
+  void pause() {
+    _audioHandler.pause();
+    if (currentSoundIndex.value != 0) _soundPlayer.pause();
+  }
+
   void seek(Duration position) => _audioHandler.seek(position);
   void previous() => _audioHandler.skipToPrevious();
   void next() => _audioHandler.skipToNext();
@@ -236,4 +244,5 @@ class PageManager {
   }
 
   List<Recitator> get recitators => _recitators;
+  List<Surah> get surahs => _surahs;
 }
