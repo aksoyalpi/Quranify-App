@@ -6,6 +6,7 @@ import 'package:quran_fi/models/recitator.dart';
 import 'package:quran_fi/models/surah.dart';
 import 'package:quran_fi/services/api.dart';
 import 'package:quran_fi/services/playlist_repository.dart';
+import 'package:quran_fi/services/shared_prefs.dart';
 import 'notifiers/play_button_notifier.dart';
 import 'notifiers/progress_notifier.dart';
 import 'package:audio_service/audio_service.dart';
@@ -52,6 +53,11 @@ class PageManager {
       (element) => element.id == id,
     );
     stop();
+    await _loadNewPlaylist();
+    play();
+  }
+
+  Future<void> _loadNewPlaylist() async {
     // remove all surahs from the queue
     _audioHandler.customAction("removeAll");
 
@@ -71,6 +77,27 @@ class PageManager {
             extras: {"url": surah["url"]}))
         .toList();
     await _audioHandler.addQueueItems(mediaItems);
+  }
+
+  Future<void> _initDefaultRecitator() async {
+    final defaultRecitator = await SharedPrefs.getDefaultRecitator();
+    if (defaultRecitator == null) {
+      currentRecitator.value = Recitator.fromJson(recitations[0]);
+    } else {
+      setDefaultRecitator(defaultRecitator);
+    }
+  }
+
+  /**
+   * Method to change the default recitator by the name of the recitator
+   */
+  Future<void> setDefaultRecitator(String recitatorName) async {
+    currentRecitator.value = Recitator.fromJson(recitations.firstWhere(
+      (recitator) => recitator["reciter_name"] == recitatorName,
+    ));
+
+    stop();
+    await _loadNewPlaylist();
     play();
   }
 
@@ -189,6 +216,7 @@ class PageManager {
   // Events: Calls coming from the UI
   void init() async {
     _soundPlayer.setLoopMode(LoopMode.all);
+    await _initDefaultRecitator();
     await _loadPlaylist();
     _listenToChangesInPlaylist();
     _listenToPlaybackState();

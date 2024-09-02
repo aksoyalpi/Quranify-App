@@ -2,6 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:quran_fi/consts/recitations.dart';
+import 'package:quran_fi/page_manager.dart';
+import 'package:quran_fi/services/service_locator.dart';
 import 'package:quran_fi/services/shared_prefs.dart';
 import 'package:quran_fi/themes/theme_provider.dart';
 
@@ -14,6 +16,7 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   late String? defaultRecitator;
+  final pageManager = getIt<PageManager>();
 
   @override
   void initState() {
@@ -34,12 +37,13 @@ class _SettingsPageState extends State<SettingsPage> {
     }
   }
 
-  void changeReciter(String? reciter) {
+  void changeReciter(String? reciter) async {
     if (reciter != null) {
       setState(() {
         defaultRecitator = reciter;
       });
       SharedPrefs.setDefaultRecitator(reciter);
+      await pageManager.setDefaultRecitator(reciter);
     }
   }
 
@@ -47,23 +51,20 @@ class _SettingsPageState extends State<SettingsPage> {
     showDialog(
         context: context,
         builder: (context) => Dialog(
-              child: Expanded(
-                child: ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: recitations.length,
-                    itemBuilder: (context, index) {
-                      final reciter =
-                          recitations[index]["reciter_name"].toString();
+              child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: recitations.length,
+                  itemBuilder: (context, index) {
+                    final reciter =
+                        recitations[index]["reciter_name"].toString();
 
-                      return ListTile(
-                          leading: Radio(
-                            groupValue: defaultRecitator,
-                            value: reciter,
-                            onChanged: changeReciter,
-                          ),
-                          title: Text(reciter));
-                    }),
-              ),
+                    return RadioListTile(
+                      title: Text(reciter),
+                      groupValue: defaultRecitator,
+                      value: reciter,
+                      onChanged: changeReciter,
+                    );
+                  }),
             ));
   }
 
