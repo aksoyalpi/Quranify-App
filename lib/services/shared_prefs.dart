@@ -5,13 +5,13 @@ class SharedPrefs {
     return await SharedPreferences.getInstance();
   }
 
-  static setDefaultRecitator(String recitator) async {
+  static Future<void> setDefaultRecitator(int recitatorId) async {
     final prefs = await getInstance();
-    prefs.setString("recitator", recitator);
+    prefs.setInt("recitator", recitatorId);
   }
 
-  static getDefaultRecitator() async {
+  static Future<int?> getDefaultRecitator() async {
     final prefs = await getInstance();
-    return prefs.getString("recitator");
+    return prefs.getInt("recitator");
   }
 }

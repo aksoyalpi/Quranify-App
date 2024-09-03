@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:quran_fi/consts/recitations.dart';
+import 'package:quran_fi/models/recitator.dart';
 import 'package:quran_fi/page_manager.dart';
 import 'package:quran_fi/services/service_locator.dart';
 import 'package:quran_fi/services/shared_prefs.dart';
@@ -15,35 +16,40 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  late String? defaultRecitator;
+  late Recitator? defaultRecitator;
   final pageManager = getIt<PageManager>();
+  late final List<Recitator> recitations;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    recitations = pageManager.recitators;
     _loadPrefs();
   }
 
   Future<void> _loadPrefs() async {
-    defaultRecitator = await SharedPrefs.getDefaultRecitator();
-    print("default Recitator $defaultRecitator");
-    if (defaultRecitator == null) {
+    final defaultRecitatorId = await SharedPrefs.getDefaultRecitator();
+    if (defaultRecitatorId == null) {
       setState(() {
-        defaultRecitator = recitations[0]["reciter_name"].toString();
+        defaultRecitator = recitations[0];
       });
-      await SharedPrefs.setDefaultRecitator(
-          recitations[0]["reciter_name"].toString());
+      await SharedPrefs.setDefaultRecitator(recitations[0].id);
+    } else {
+      setState(() {
+        defaultRecitator = recitations
+            .firstWhere((recitator) => recitator.id == defaultRecitatorId);
+      });
     }
   }
 
-  void changeReciter(String? reciter) async {
-    if (reciter != null) {
+  void changeReciter(Recitator? newRecitator) async {
+    if (newRecitator != null) {
       setState(() {
-        defaultRecitator = reciter;
+        defaultRecitator = newRecitator;
       });
-      SharedPrefs.setDefaultRecitator(reciter);
-      await pageManager.setDefaultRecitator(reciter);
+      SharedPrefs.setDefaultRecitator(newRecitator.id);
+      await pageManager.setDefaultRecitator(newRecitator.id);
     }
   }
 
@@ -55,14 +61,16 @@ class _SettingsPageState extends State<SettingsPage> {
                   shrinkWrap: true,
                   itemCount: recitations.length,
                   itemBuilder: (context, index) {
-                    final reciter =
-                        recitations[index]["reciter_name"].toString();
+                    final reciter = recitations[index];
 
                     return RadioListTile(
-                      title: Text(reciter),
-                      groupValue: defaultRecitator,
-                      value: reciter,
-                      onChanged: changeReciter,
+                      title: Text(reciter.name),
+                      groupValue: defaultRecitator!.id,
+                      value: reciter.id,
+                      onChanged: (int? newId) =>
+                          changeReciter(recitations.firstWhere(
+                        (recitator) => recitator.id == newId,
+                      )),
                     );
                   }),
             ));
@@ -100,7 +108,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   future: defaultRecitator,
                   builder: (_, snapshot) {
                     if (snapshot.hasData) {
-                      return Text(snapshot.data.toString());
+                      return Text(pageManager.recitators[snapshot.data!].name);
                     } else if (snapshot.connectionState ==
                         ConnectionState.waiting) {
                       return CircularProgressIndicator();

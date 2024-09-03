@@ -4,7 +4,6 @@ import 'package:quran_fi/consts/recitations.dart';
 import 'package:quran_fi/consts/surahs.dart';
 import 'package:quran_fi/models/recitator.dart';
 import 'package:quran_fi/models/surah.dart';
-import 'package:quran_fi/services/api.dart';
 import 'package:quran_fi/services/playlist_repository.dart';
 import 'package:quran_fi/services/shared_prefs.dart';
 import 'notifiers/play_button_notifier.dart';
@@ -46,9 +45,7 @@ class PageManager {
     "birds": Icons.emoji_nature
   };
 
-  Map<String, IconData> get sounds => _sounds;
-
-  void changeRecitator(int id) async {
+  Future<void> changeRecitator(int id) async {
     currentRecitator.value = _recitators.firstWhere(
       (element) => element.id == id,
     );
@@ -80,25 +77,27 @@ class PageManager {
   }
 
   Future<void> _initDefaultRecitator() async {
-    final defaultRecitator = await SharedPrefs.getDefaultRecitator();
-    if (defaultRecitator == null) {
-      currentRecitator.value = Recitator.fromJson(recitations[0]);
+    final int? defaultRecitatorId = await SharedPrefs.getDefaultRecitator();
+    if (defaultRecitatorId == null) {
+      currentRecitator.value = recitators[0];
     } else {
-      setDefaultRecitator(defaultRecitator);
+      setDefaultRecitator(defaultRecitatorId, init: true);
     }
   }
 
   /**
    * Method to change the default recitator by the name of the recitator
    */
-  Future<void> setDefaultRecitator(String recitatorName) async {
-    currentRecitator.value = Recitator.fromJson(recitations.firstWhere(
-      (recitator) => recitator["reciter_name"] == recitatorName,
-    ));
+  Future<void> setDefaultRecitator(int recitatorId, {bool init = false}) async {
+    currentRecitator.value = recitators.firstWhere(
+      (recitator) => recitator.id == recitatorId,
+    );
 
-    stop();
-    await _loadNewPlaylist();
-    play();
+    if (!init) {
+      stop();
+      await _loadNewPlaylist();
+      play();
+    }
   }
 
   void setSoundIndex(int index) async {
@@ -271,6 +270,11 @@ class PageManager {
     _audioHandler.stop();
   }
 
-  List<Recitator> get recitators => _recitators;
+  /**
+   * GETTERS
+   */
+
   List<Surah> get surahs => _surahs;
+  Map<String, IconData> get sounds => _sounds;
+  List<Recitator> get recitators => _recitators;
 }

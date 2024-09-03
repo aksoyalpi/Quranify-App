@@ -49,9 +49,9 @@ class SurahPage extends StatelessWidget {
                             : null,
                         value: recitator.id,
                         groupValue: currentRecitator.id,
-                        onChanged: (id) {
+                        onChanged: (id) async {
                           if (id != null) {
-                            pageManager.changeRecitator(id);
+                            await pageManager.changeRecitator(id);
 
                             pageManager.pause();
                             pageManager.play();
