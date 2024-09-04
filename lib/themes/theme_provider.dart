@@ -1,11 +1,18 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:quran_fi/services/shared_prefs.dart';
 import 'package:quran_fi/themes/dark_mode.dart';
 import 'package:quran_fi/themes/light_mode.dart';
 
 class ThemeProvider extends ChangeNotifier {
   // initially, light mode
-  ThemeData _themeData = lightMode;
+  late ThemeData _themeData = lightMode;
+
+  Future<void> init() async {
+    final isDarkMode = await SharedPrefs.getIsDarkMode();
+    _themeData = isDarkMode ?? false ? darkMode : lightMode;
+    notifyListeners();
+  }
 
   // get Theme
   ThemeData get themeData => _themeData;
@@ -16,7 +23,6 @@ class ThemeProvider extends ChangeNotifier {
   // set Theme
   set themeData(ThemeData themeData) {
     _themeData = themeData;
-    if (kDebugMode) print("switched");
     notifyListeners();
   }
 
@@ -25,7 +31,9 @@ class ThemeProvider extends ChangeNotifier {
     if (kDebugMode) print("toggled");
     if (_themeData == lightMode) {
       themeData = darkMode;
+      SharedPrefs.setIsDarkMode(true);
     } else {
+      SharedPrefs.setIsDarkMode(false);
       themeData = lightMode;
     }
   }

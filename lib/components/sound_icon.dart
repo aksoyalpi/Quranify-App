@@ -1,8 +1,4 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:quran_fi/models/surahs_provider.dart';
 import 'package:quran_fi/page_manager.dart';
 import 'package:quran_fi/services/service_locator.dart';
 
@@ -41,7 +37,6 @@ class _SoundIconState extends State<SoundIcon>
     RenderBox renderBox =
         _iconKey.currentContext!.findRenderObject() as RenderBox;
     Offset position = renderBox.localToGlobal(Offset.zero);
-    double iconWidth = renderBox.size.width;
     double iconHeight = renderBox.size.height;
     double containerWidth = 250;
     double containerHeigth = 150;

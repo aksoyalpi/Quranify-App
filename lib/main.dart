@@ -6,7 +6,6 @@ import 'package:quran_fi/components/my_drawer.dart';
 import 'package:quran_fi/models/surah.dart';
 import 'package:quran_fi/models/surahs_provider.dart';
 import 'package:quran_fi/page_manager.dart';
-import 'package:quran_fi/page_manager.dart';
 import 'package:quran_fi/pages/surah_page.dart';
 import 'package:quran_fi/services/service_locator.dart';
 import 'package:quran_fi/themes/theme_provider.dart';
@@ -34,11 +33,14 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     getIt<PageManager>().init();
+    //Provider.of<ThemeProvider>(context).init();
   }
 
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    Provider.of<ThemeProvider>(context).init();
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: Provider.of<ThemeProvider>(context).themeData,
@@ -84,7 +86,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   bool _isSearching = false;
-  TextEditingController _searchController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -101,7 +103,6 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 onChanged: (query) {
                   // Handle search query here
-                  print(query);
                   setState(() {
                     if (query != "") {
                       filteredSurahs = surahs
@@ -115,7 +116,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   });
                 },
               )
-            : Text('S U R A H S'),
+            : const Text('S U R A H S'),
         actions: [
           IconButton(
               onPressed: () {

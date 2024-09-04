@@ -108,12 +108,13 @@ class _SettingsPageState extends State<SettingsPage> {
                   future: defaultRecitator,
                   builder: (_, snapshot) {
                     if (snapshot.hasData) {
-                      return Text(pageManager.recitators[snapshot.data!].name);
+                      return Text(
+                          pageManager.recitators[snapshot.data! - 1].name);
                     } else if (snapshot.connectionState ==
                         ConnectionState.waiting) {
-                      return CircularProgressIndicator();
+                      return const CircularProgressIndicator();
                     }
-                    return Text("?");
+                    return const Text("?");
                   },
                 )),
           ),

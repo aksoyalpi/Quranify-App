@@ -14,4 +14,14 @@ class SharedPrefs {
     final prefs = await getInstance();
     return prefs.getInt("recitator");
   }
+
+  static Future<void> setIsDarkMode(bool isDarkMode) async {
+    final prefs = await getInstance();
+    prefs.setBool("isDarkTheme", isDarkMode);
+  }
+
+  static Future<bool?> getIsDarkMode() async {
+    final prefs = await getInstance();
+    return prefs.getBool("isDarkTheme");
+  }
 }
