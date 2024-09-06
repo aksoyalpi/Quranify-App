@@ -5,20 +5,16 @@ import 'package:provider/provider.dart';
 import 'package:quran_fi/components/modal_sheet_player.dart';
 import 'package:quran_fi/components/my_drawer.dart';
 import 'package:quran_fi/models/surah.dart';
-import 'package:quran_fi/models/surahs_provider.dart';
 import 'package:quran_fi/page_manager.dart';
 import 'package:quran_fi/pages/surah_page.dart';
 import 'package:quran_fi/services/service_locator.dart';
 import 'package:quran_fi/themes/theme_provider.dart';
-
-MyAudioHandler _audioHandler = MyAudioHandler();
 
 Future<void> main() async {
   await setupServiceLocator();
   runApp(MultiProvider(
     providers: [
       ChangeNotifierProvider(create: (_) => ThemeProvider()),
-      ChangeNotifierProvider(create: (_) => SurahsProvider())
     ],
     child: const MyApp(),
   ));
@@ -85,9 +81,7 @@ class _MyHomePageState extends State<MyHomePage> {
     Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => SurahPage(
-            audioHandler: _audioHandler,
-          ),
+          builder: (context) => SurahPage(),
         ));
   }
 

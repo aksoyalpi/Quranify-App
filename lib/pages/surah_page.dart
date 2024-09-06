@@ -5,7 +5,6 @@ import 'package:quran_fi/components/modal_sheet_player.dart';
 import 'package:quran_fi/components/neu_box.dart';
 import 'package:quran_fi/components/sound_icon.dart';
 import 'package:quran_fi/models/surah.dart';
-import 'package:quran_fi/models/surahs_provider.dart';
 import 'package:quran_fi/notifiers/play_button_notifier.dart';
 import 'package:quran_fi/page_manager.dart';
 import 'package:quran_fi/page_manager.dart';
@@ -14,9 +13,7 @@ import '../page_manager.dart';
 import '../services/service_locator.dart';
 
 class SurahPage extends StatelessWidget {
-  const SurahPage({super.key, required this.audioHandler});
-
-  final MyAudioHandler audioHandler;
+  const SurahPage({super.key});
 
   // conver duration into min:sec
   String formatTime(Duration duration) {
