@@ -1,6 +1,5 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:quran_fi/page_manager.dart';
 
 Future<AudioHandler> initAudioService() async {
   return await AudioService.init(
@@ -105,6 +104,14 @@ class MyAudioHandler extends BaseAudioHandler {
   }
 
   @override
+  Future<void> addQueueItem(MediaItem mediaItem) async {
+    _playlist.add(_createAudioSource(mediaItem));
+
+    final newQueue = queue.value..add(mediaItem);
+    queue.add(newQueue);
+  }
+
+  @override
   Future<void> setShuffleMode(AudioServiceShuffleMode shuffleMode) async {
     if (shuffleMode == AudioServiceShuffleMode.none) {
       _player.setShuffleModeEnabled(false);
@@ -159,4 +166,7 @@ class MyAudioHandler extends BaseAudioHandler {
 
   @override
   Future<void> seek(Duration position) => _player.seek(position);
+
+  /* GETTER */
+  int get queueLength => queue.value.length;
 }

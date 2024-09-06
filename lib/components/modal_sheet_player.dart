@@ -1,5 +1,3 @@
-import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:quran_fi/notifiers/play_button_notifier.dart';
 import 'package:quran_fi/page_manager.dart';
@@ -24,7 +22,6 @@ class _MyWidgetState extends State<LittleAudioPlayer> {
       onPanStart: (details) => _hasSwiped = false,
       onPanUpdate: (details) {
         if (!_hasSwiped) {
-          print("Delta dx ${details.delta.dx}");
           if (details.delta.dx > 5) {
             pageManager.previous();
           } else if (details.delta.dx < -5) {

@@ -4,6 +4,7 @@ import 'package:quran_fi/consts/recitations.dart';
 import 'package:quran_fi/consts/surahs.dart';
 import 'package:quran_fi/models/recitator.dart';
 import 'package:quran_fi/models/surah.dart';
+import 'package:quran_fi/services/api.dart';
 import 'package:quran_fi/services/playlist_repository.dart';
 import 'package:quran_fi/services/shared_prefs.dart';
 import 'notifiers/play_button_notifier.dart';
@@ -27,6 +28,8 @@ class PageManager {
   final currentSoundIndex = ValueNotifier<int>(0);
   final quranVolume = ValueNotifier<double>(1);
   final soundVolume = ValueNotifier<double>(1);
+
+  get playlist => _audioHandler.queue.value;
 
   // all surahs
   final List<Surah> _surahs = List.generate(
@@ -216,7 +219,7 @@ class PageManager {
   void init() async {
     _soundPlayer.setLoopMode(LoopMode.all);
     await _initDefaultRecitator();
-    await _loadPlaylist();
+    //await _loadPlaylist();
     _listenToChangesInPlaylist();
     _listenToPlaybackState();
     _listenToCurrentPosition();
@@ -225,9 +228,24 @@ class PageManager {
     _listenToChangesInSurah();
   }
 
-  void playSurah(int index) {
+  void playSurah(int index) async {
     print("skip to queue $index");
-    _audioHandler.skipToQueueItem(index);
+    stop();
+    final url = await getRecitionUrl(currentRecitator.value.id, index);
+    final surah = surahs[index];
+    final MediaItem item = MediaItem(
+        id: index.toString().padLeft(3, "0"),
+        album: "Quran",
+        title: surah.title,
+        artUri: Uri.parse(
+            "https://images.unsplash.com/photo-1576764402988-7143f9cca90a?q=80&w=1780&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"),
+        extras: {"url": url});
+
+    _audioHandler.addQueueItem(item);
+    //_audioHandler.skipToQueueItem();
+    if (_audioHandler.queue.value.length > 1) {
+      next();
+    }
     play();
   }
 

@@ -1,14 +1,8 @@
-import 'package:quran_fi/consts/recitations.dart';
 import 'package:quran_fi/consts/surahs.dart';
-import 'package:quran_fi/models/recitator.dart';
 import 'package:quran_fi/models/surah.dart';
-import 'package:quran_fi/page_manager.dart';
-import 'package:quran_fi/page_manager.dart';
 import 'package:quran_fi/page_manager.dart';
 import 'package:quran_fi/services/api.dart';
 import 'package:quran_fi/services/service_locator.dart';
-
-import '../page_manager.dart';
 
 abstract class PlaylistRepository {
   Future<List<Map<String, String>>> fetchInitialPlaylist();
@@ -22,10 +16,6 @@ class DemoPlaylist extends PlaylistRepository {
   // all surahs
   final List<Surah> _surahs = List.generate(
       allSurahs.length, (index) => Surah.fromJson(allSurahs[index]));
-
-  // all recitators
-  final List<Recitator> _recitators = List.generate(
-      recitations.length, (index) => Recitator.fromJson(recitations[index]));
 
   @override
   Future<List<Map<String, String>>> fetchInitialPlaylist(

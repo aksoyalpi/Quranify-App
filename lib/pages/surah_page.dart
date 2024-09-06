@@ -1,15 +1,12 @@
+import 'package:audio_service/audio_service.dart';
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:quran_fi/components/modal_sheet_player.dart';
 import 'package:quran_fi/components/neu_box.dart';
 import 'package:quran_fi/components/sound_icon.dart';
-import 'package:quran_fi/models/surah.dart';
 import 'package:quran_fi/notifiers/play_button_notifier.dart';
 import 'package:quran_fi/page_manager.dart';
-import 'package:quran_fi/page_manager.dart';
+import 'package:quran_fi/services/playlist_repository.dart';
 
-import '../page_manager.dart';
 import '../services/service_locator.dart';
 
 class SurahPage extends StatelessWidget {
@@ -65,6 +62,27 @@ class SurahPage extends StatelessWidget {
     );
   }
 
+  void showPlaylist(BuildContext context) {
+    final pageManager = getIt<PageManager>();
+
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => SingleChildScrollView(
+        child: Column(
+          children: List.generate(
+            pageManager.playlist.length,
+            (index) {
+              final MediaItem surah = pageManager.playlist[index];
+              return ListTile(
+                title: Text(surah.title),
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final pageManager = getIt<PageManager>();
@@ -91,10 +109,19 @@ class SurahPage extends StatelessWidget {
                     // title
                     const Text("S U R A H"),
 
-                    // menu button
-                    IconButton(
-                        onPressed: () => showMenu(context),
-                        icon: const Icon(Icons.menu))
+                    Row(
+                      children: [
+                        // Playlist button
+                        IconButton(
+                            onPressed: (() => showPlaylist(context)),
+                            icon: Icon(Icons.queue_music)),
+
+                        // menu button
+                        IconButton(
+                            onPressed: () => showMenu(context),
+                            icon: const Icon(Icons.menu))
+                      ],
+                    )
                   ],
                 ),
 

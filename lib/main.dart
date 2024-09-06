@@ -1,6 +1,6 @@
-import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
 import 'package:quran_fi/components/modal_sheet_player.dart';
 import 'package:quran_fi/components/my_drawer.dart';
@@ -9,6 +9,7 @@ import 'package:quran_fi/page_manager.dart';
 import 'package:quran_fi/pages/surah_page.dart';
 import 'package:quran_fi/services/service_locator.dart';
 import 'package:quran_fi/themes/theme_provider.dart';
+import 'package:slideable/slideable.dart';
 
 Future<void> main() async {
   await setupServiceLocator();
@@ -73,6 +74,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   // go to surah with index surahIndex
   void goToSurah(int surahIndex) async {
+    print("go to Surah $surahIndex");
     // update current surah index
     final pageManager = getIt<PageManager>();
     pageManager.playSurah(surahIndex);
@@ -141,13 +143,7 @@ class _MyHomePageState extends State<MyHomePage> {
               final Surah surah = filteredSurahs[index];
 
               // return list tile UI
-              return ListTile(
-                leading: Image.asset("assets/images/quran.jpg"),
-                title: Text(surah.title),
-                subtitle: Text("Surah ${index + 1}"),
-                trailing: Text(surah.arabicTitle),
-                onTap: () => goToSurah(index),
-              );
+              return surahTile(surah, index);
             },
           ),
 
@@ -174,4 +170,25 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
+
+  Widget surahTile(Surah surah, int index) => Slidable(
+        startActionPane: ActionPane(
+          motion: const StretchMotion(),
+          children: [
+            SlidableAction(
+              backgroundColor: Colors.green,
+              autoClose: true,
+              onPressed: (context) {},
+              icon: Icons.queue,
+            )
+          ],
+        ),
+        child: ListTile(
+          leading: Image.asset("assets/images/quran.jpg"),
+          title: Text(surah.title),
+          subtitle: Text("Surah ${index + 1}"),
+          trailing: Text(surah.arabicTitle),
+          onTap: () => goToSurah(index),
+        ),
+      );
 }
