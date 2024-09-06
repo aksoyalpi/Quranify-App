@@ -31,7 +31,6 @@ dependencies:
   flutter:
     sdk: flutter
 
-
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.6
@@ -42,11 +41,36 @@ dependencies:
   http: ^1.2.1
   audio_service: ^0.18.14
   font_awesome_flutter: ^10.7.0
-  permission_handler: ^11.3.1
+  get_it: ^7.7.0
+  audio_video_progress_bar: ^2.0.3
+  path_provider: ^2.1.3
+  flutter_launcher_icons: ^0.13.1
+  shared_preferences: ^2.3.2
+
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/icons/greenOnWhite.png"
+  min_sdk_android: 21 # android min sdk min:16, default 21
+  web:
+    generate: true
+    image_path: "assets/icons/greenOnWhite.png"
+    #background_color: "#hexcode"
+    #theme_color: "#hexcode"
+  windows:
+    generate: true
+    image_path: "assets/icons/greenOnWhite.png"
+    icon_size: 48 # min:48, max:256, default: 48
+  macos:
+    generate: true
+    image_path: "assets/icons/greenOnWhite.png"
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
+
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -70,6 +94,7 @@ flutter:
   assets:
    - assets/audio/
    - assets/images/
+   - assets/icons/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

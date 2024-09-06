@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:quran_fi/models/surahs_provider.dart';
+import 'package:quran_fi/page_manager.dart';
+import 'package:quran_fi/services/service_locator.dart';
 
 class SoundIcon extends StatefulWidget {
   const SoundIcon({super.key});
@@ -15,10 +15,10 @@ class _SoundIconState extends State<SoundIcon>
   OverlayEntry? _overlayEntry;
   final GlobalKey _iconKey = GlobalKey();
 
-  void _toggleOverlay(BuildContext context, SurahsProvider value) {
+  void _toggleOverlay(BuildContext context) {
     if (_isExpanded) {
       _overlayEntry?.remove();
-      _overlayEntry = _createOverlayEntry(context, value);
+      _overlayEntry = _createOverlayEntry(context);
       Overlay.of(context).insert(_overlayEntry!);
     } else {
       _overlayEntry?.remove();
@@ -32,11 +32,11 @@ class _SoundIconState extends State<SoundIcon>
     super.dispose();
   }
 
-  OverlayEntry _createOverlayEntry(BuildContext context, SurahsProvider prov) {
+  OverlayEntry _createOverlayEntry(BuildContext context) {
+    final pageManager = getIt<PageManager>();
     RenderBox renderBox =
         _iconKey.currentContext!.findRenderObject() as RenderBox;
     Offset position = renderBox.localToGlobal(Offset.zero);
-    double iconWidth = renderBox.size.width;
     double iconHeight = renderBox.size.height;
     double containerWidth = 250;
     double containerHeigth = 150;
@@ -55,39 +55,48 @@ class _SoundIconState extends State<SoundIcon>
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8),
                 color: Theme.of(context).colorScheme.secondary),
-            child: Consumer<SurahsProvider>(
-              builder: (context, value, child) => Column(
+            child: ValueListenableBuilder(
+              valueListenable: pageManager.currentSoundIndex,
+              builder: (_, soundIndex, __) => Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   // Slider for quran volume
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(value.quranVolume != 0
-                          ? Icons.record_voice_over_outlined
-                          : Icons.voice_over_off_outlined),
-                      Slider(
-                        activeColor: Theme.of(context).colorScheme.onPrimary,
-                        value: value.quranVolume,
-                        onChanged: (volume) => value.quranVolume = volume,
-                      ),
-                    ],
-                  ),
+                  ValueListenableBuilder(
+                      valueListenable: pageManager.quranVolume,
+                      builder: (_, quranVolume, __) => Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(quranVolume != 0
+                                  ? Icons.record_voice_over_outlined
+                                  : Icons.voice_over_off_outlined),
+                              Slider(
+                                activeColor:
+                                    Theme.of(context).colorScheme.onPrimary,
+                                value: quranVolume,
+                                onChanged: (volume) {
+                                  pageManager.setQuranVolume(volume);
+                                },
+                              ),
+                            ],
+                          )),
 
                   // Slider for sound volume
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(value.soundOn
+                      Icon(soundIndex != 0
                           ? Icons.music_note_outlined
                           : Icons.music_off_outlined),
-                      Slider(
-                        activeColor: value.soundOn
-                            ? Theme.of(context).colorScheme.onPrimary
-                            : Theme.of(context).colorScheme.primary,
-                        value: value.soundVolume,
-                        onChanged: (volume) => value.soundVolume = volume,
-                      ),
+                      ValueListenableBuilder(
+                          valueListenable: pageManager.soundVolume,
+                          builder: (_, soundVolume, __) => Slider(
+                                activeColor: soundIndex != 0
+                                    ? Theme.of(context).colorScheme.onPrimary
+                                    : Theme.of(context).colorScheme.primary,
+                                value: soundIndex == 0 ? 0 : soundVolume,
+                                onChanged: (volume) =>
+                                    pageManager.setSoundVolume(volume),
+                              )),
                     ],
                   ),
 
@@ -95,19 +104,19 @@ class _SoundIconState extends State<SoundIcon>
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: List.generate(
-                      value.soundIconDatas.length,
+                      pageManager.sounds.length,
                       (index) => GestureDetector(
                           onTap: () {
                             //setState(() {
                             //  _isExpanded = false;
                             //});
-                            value.soundIndex = index;
+                            pageManager.setSoundIndex(index);
                             //_overlayEntry?.remove();
                             //_overlayEntry = null;
                           },
                           child: Icon(
-                            value.soundIconDatas[index],
-                            color: index == value.soundIndex
+                            pageManager.sounds.values.elementAt(index),
+                            color: index == soundIndex
                                 ? Theme.of(context).colorScheme.onPrimary
                                 : null,
                           )),
@@ -124,28 +133,30 @@ class _SoundIconState extends State<SoundIcon>
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<SurahsProvider>(
-      builder: (context, value, child) => Column(
-        children: [
-          // animated container for selecting nature sound
+    final pageManager = getIt<PageManager>();
 
-          // Icon showing current nature sound
-          GestureDetector(
-              key: _iconKey,
-              onTap: () {
-                setState(() {
-                  _isExpanded = !_isExpanded;
-                  _toggleOverlay(context, value);
-                });
-              },
-              child: Icon(
-                value.soundIconData,
-                color: value.soundOn
-                    ? Theme.of(context).colorScheme.onPrimary
-                    : null,
-              )),
-        ],
-      ),
+    return Column(
+      children: [
+        // animated container for selecting nature sound
+
+        // Icon showing current nature sound
+        GestureDetector(
+            key: _iconKey,
+            onTap: () {
+              setState(() {
+                _isExpanded = !_isExpanded;
+                _toggleOverlay(context);
+              });
+            },
+            child: ValueListenableBuilder(
+                valueListenable: pageManager.currentSoundIndex,
+                builder: (_, soundIndex, __) => Icon(
+                      pageManager.sounds.values.elementAt(soundIndex),
+                      color: soundIndex != 0
+                          ? Theme.of(context).colorScheme.onPrimary
+                          : null,
+                    ))),
+      ],
     );
   }
 }

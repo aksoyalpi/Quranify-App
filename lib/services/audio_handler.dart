@@ -1,89 +1,162 @@
 import 'package:audio_service/audio_service.dart';
 import 'package:just_audio/just_audio.dart';
-//import 'package:audioplayers/audioplayers.dart';
-import 'package:quran_fi/models/surahs_provider.dart';
+import 'package:quran_fi/page_manager.dart';
 
-class MyAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
-  //final _player = SurahsProvider();
-  //final _player = AudioPlayer();
-  final _player = SurahsProvider();
+Future<AudioHandler> initAudioService() async {
+  return await AudioService.init(
+    builder: () => MyAudioHandler(),
+    config: const AudioServiceConfig(
+      androidNotificationChannelId: 'com.mycompany.myapp.audio',
+      androidNotificationChannelName: 'Audio Service Demo',
+      androidNotificationOngoing: true,
+      androidStopForegroundOnPause: true,
+    ),
+  );
+}
 
-  // Function to create an audio source from a MediaItem
-  UriAudioSource _createAudioSource(MediaItem item) {
-    return ProgressiveAudioSource(Uri.parse(item.id));
+class MyAudioHandler extends BaseAudioHandler {
+  final _player = AudioPlayer();
+  // final _soundPlayer = AudioPlayer();
+  final _playlist = ConcatenatingAudioSource(children: []);
+
+  MyAudioHandler() {
+    _loadEmptyPlaylist();
+    _notifyAudioHandlerAboutPlaybackEvents();
+    _listenForDurationChanges();
+    _listenForCurrentSurahIndexChanges();
   }
 
-  // Broadcast the current playback state based on the received PlaybackEvent
-  void _broadcastState(PlaybackEvent event) {
-    playbackState.add(playbackState.value.copyWith(
-      controls: [
-        if (_player.isPlaying) MediaControl.pause else MediaControl.play,
-      ],
-      systemActions: {
-        MediaAction.seek,
-        MediaAction.seekForward,
-        MediaAction.seekBackward,
-      },
-      processingState: const {
-        ProcessingState.idle: AudioProcessingState.idle,
-        ProcessingState.loading: AudioProcessingState.loading,
-        ProcessingState.buffering: AudioProcessingState.buffering,
-        ProcessingState.ready: AudioProcessingState.ready,
-        ProcessingState.completed: AudioProcessingState.completed,
-      }[_player.processingState]!,
-      playing: _player.isPlaying,
-      updatePosition: _player.position,
-      bufferedPosition: _player.bufferedPosition,
-      speed: _player.speed,
-      queueIndex: _player.currentSurahIndex,
-    ));
+  Future<void> _loadEmptyPlaylist() async {
+    try {
+      await _player.setAudioSource(_playlist);
+    } catch (e) {
+      print("Error: $e");
+    }
   }
 
-  // Function to initialize the surahs and set up the audio player
-  Future<void> initSurah({required MediaItem surah}) async {
-    // Listen for playback events and broadcast the state
-    _player.listenToPlaybackEvent(_broadcastState);
-
-    // Create a list of audio sources from the provided songs
-    final audioSource = _createAudioSource(surah);
-
-    // Set the audio source of the audio player to the concatenation of the audio sources
-    await _player.setAudioSource(audioSource);
-
-    // Listen for processing state changes and skip to the next song when completed
-    _player.makeWhenCompleted(skipToNext);
+  void _notifyAudioHandlerAboutPlaybackEvents() {
+    _player.playbackEventStream.listen((PlaybackEvent event) {
+      final playing = _player.playing;
+      playbackState.add(playbackState.value.copyWith(
+        controls: [
+          MediaControl.skipToPrevious,
+          if (playing) MediaControl.pause else MediaControl.play,
+          //MediaControl.stop,
+          MediaControl.skipToNext,
+        ],
+        systemActions: const {
+          MediaAction.seek,
+        },
+        androidCompactActionIndices: const [0, 1, 3],
+        processingState: const {
+          ProcessingState.idle: AudioProcessingState.idle,
+          ProcessingState.loading: AudioProcessingState.loading,
+          ProcessingState.buffering: AudioProcessingState.buffering,
+          ProcessingState.ready: AudioProcessingState.ready,
+          ProcessingState.completed: AudioProcessingState.completed,
+        }[_player.processingState]!,
+        playing: playing,
+        updatePosition: _player.position,
+        bufferedPosition: _player.bufferedPosition,
+        // speed: _player.speed,
+        queueIndex: event.currentIndex,
+      ));
+    });
   }
 
-  // Play function to start playback
+  void _listenForDurationChanges() {
+    _player.durationStream.listen((duration) {
+      final index = _player.currentIndex;
+      final newQueue = queue.value;
+      if (index == null || newQueue.isEmpty) return;
+      final oldMediaItem = newQueue[index];
+      final newMediaItem = oldMediaItem.copyWith(duration: duration);
+      newQueue[index] = newMediaItem;
+      queue.add(newQueue);
+      mediaItem.add(newMediaItem);
+    });
+  }
+
+  UriAudioSource _createAudioSource(MediaItem mediaItem) {
+    return AudioSource.uri(Uri.parse(mediaItem.extras!["url"] as String),
+        tag: mediaItem);
+  }
+
+  void _listenForCurrentSurahIndexChanges() {
+    _player.currentIndexStream.listen((index) {
+      final playlist = queue.value;
+      if (index == null || playlist.isEmpty) return;
+      if (_player.shuffleModeEnabled) {
+        index = _player.shuffleIndices!.indexOf(index);
+      }
+      mediaItem.add(playlist[index]);
+    });
+  }
+
+  @override
+  Future<void> addQueueItems(List<MediaItem> mediaItems) async {
+    // manage Just Audio
+    final audioSource = mediaItems.map(_createAudioSource);
+    _playlist.addAll(audioSource.toList());
+
+    // notify system
+    final newQueue = queue.value..addAll(mediaItems);
+    queue.add(newQueue);
+  }
+
+  @override
+  Future<void> setShuffleMode(AudioServiceShuffleMode shuffleMode) async {
+    if (shuffleMode == AudioServiceShuffleMode.none) {
+      _player.setShuffleModeEnabled(false);
+    } else {
+      await _player.shuffle();
+      _player.setShuffleModeEnabled(true);
+    }
+  }
+
+  @override
+  Future<void> skipToQueueItem(int index) async {
+    if (index < 0 || index >= queue.value.length) return;
+    if (_player.shuffleModeEnabled) {
+      index = _player.shuffleIndices!.indexOf(index);
+    }
+    _player.seek(Duration.zero, index: index);
+  }
+
   @override
   Future<void> play() => _player.play();
 
-  // Pause function to pause playback
+  @override
+  Future<void> skipToNext() => _player.seekToNext();
+
+  @override
+  Future<void> skipToPrevious() => _player.seekToPrevious();
+
   @override
   Future<void> pause() => _player.pause();
 
-  // Seek function to change the playback position
   @override
-  Future<void> seek(Duration position) => _player.seek(position);
-
-  // Skip to a specific surah  and start playback
-  Future<void> playSurah(int index) async {
-    _player.currentSurahIndex = index;
-    //_player.listenToPlaybackEvent(_broadcastState);
-
-    // Set the audio source of the audio player to the concatenation of the audio sources
-    await _player.setAudioSourceFromCurrentIndex();
-
-    // Listen for processing state changes and skip to the next song when completed
-    //_player.makeWhenCompleted(skipToNext);
-    play();
+  Future<void> stop() async {
+    await _player.stop();
+    return super.stop();
   }
 
-  // Skip to the next item in the queue
   @override
-  Future<void> skipToNext() => _player.playNextSurah();
+  Future<void> customAction(
+    String name, [
+    Map<String, dynamic>? extras,
+  ]) async {
+    if (name == 'dispose') {
+      await _player.dispose();
+      super.stop();
+    } else if (name == "removeAll") {
+      // manage Just Audio
+      _playlist.removeRange(0, 114);
+    } else if (name == "setVolume") {
+      await _player.setVolume(extras!["volume"]);
+    }
+  }
 
-  // Skip to the previous item in the queue
   @override
-  Future<void> skipToPrevious() => _player.playPreviousSurah();
+  Future<void> seek(Duration position) => _player.seek(position);
 }
