@@ -249,7 +249,9 @@ class PageManager {
   void seek(Duration position) => _audioHandler.seek(position);
   void previous() => _audioHandler.skipToPrevious();
   void next() => _audioHandler.skipToNext();
-  void repeat() {}
+  void repeat() {
+    // TODO
+  }
   void shuffle() {
     final enable = !isShuffleModeEnabledNotifier.value;
     isShuffleModeEnabledNotifier.value = enable;

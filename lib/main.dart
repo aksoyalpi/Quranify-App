@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:quran_fi/components/modal_sheet_player.dart';
 import 'package:quran_fi/components/my_drawer.dart';
@@ -69,11 +68,9 @@ class _MyHomePageState extends State<MyHomePage> {
     filteredSurahs = surahs;
   }
 
-  // go to a surah
+  // go to surah with index surahIndex
   void goToSurah(int surahIndex) async {
-    print("Surah Index: $surahIndex");
     // update current surah index
-    //surahsProvider.currentSurahIndex = surahIndex;
     final pageManager = getIt<PageManager>();
     pageManager.playSurah(surahIndex);
 
