@@ -42,6 +42,7 @@ class DemoPlaylist extends PlaylistRepository {
     return {
       'id': _surahIndex.toString().padLeft(3, '0'),
       'title': _surahs[_surahIndex - 1].title,
+      "arabicTitle": _surahs[_surahIndex - 1].arabicTitle,
       'album': 'Quran',
       'url': url,
     };

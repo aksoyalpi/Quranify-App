@@ -25,6 +25,10 @@ class MyAudioHandler extends BaseAudioHandler {
     _listenForCurrentSurahIndexChanges();
   }
 
+  int getCurrentIndex() {
+    return _player.currentIndex ?? 0;
+  }
+
   Future<void> _loadEmptyPlaylist() async {
     try {
       await _player.setAudioSource(_playlist);
@@ -112,6 +116,14 @@ class MyAudioHandler extends BaseAudioHandler {
   }
 
   @override
+  Future<void> insertQueueItem(int index, MediaItem mediaItem) async {
+    await _playlist.insert(index, _createAudioSource(mediaItem));
+
+    final newQueue = queue.value..insert(index, mediaItem);
+    queue.add(newQueue);
+  }
+
+  @override
   Future<void> setShuffleMode(AudioServiceShuffleMode shuffleMode) async {
     if (shuffleMode == AudioServiceShuffleMode.none) {
       _player.setShuffleModeEnabled(false);
@@ -169,4 +181,6 @@ class MyAudioHandler extends BaseAudioHandler {
 
   /* GETTER */
   int get queueLength => queue.value.length;
+  int get currentPlaylistIndex =>
+      _player.currentIndex ?? queue.value.length - 1;
 }

@@ -9,7 +9,6 @@ import 'package:quran_fi/page_manager.dart';
 import 'package:quran_fi/pages/surah_page.dart';
 import 'package:quran_fi/services/service_locator.dart';
 import 'package:quran_fi/themes/theme_provider.dart';
-import 'package:slideable/slideable.dart';
 
 Future<void> main() async {
   await setupServiceLocator();
@@ -66,25 +65,43 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     surahs = pageManager.surahs;
     filteredSurahs = surahs;
   }
 
   // go to surah with index surahIndex
-  void goToSurah(int surahIndex) async {
-    print("go to Surah $surahIndex");
+  void goToSurah(Surah surah) async {
     // update current surah index
     final pageManager = getIt<PageManager>();
-    pageManager.playSurah(surahIndex);
+    pageManager.playSurah(surah);
 
     // navigate to surah page
     Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => SurahPage(),
+          builder: (context) => const SurahPage(),
         ));
+  }
+
+  void addSurahToPlaylist(BuildContext context, Surah surah) async {
+    final pageManager = getIt<PageManager>();
+    String text = "Added";
+    SnackBarAction? action = SnackBarAction(
+      label: "Undo",
+      onPressed: () {},
+    );
+
+    bool alreadyInPlaylist = await pageManager.add(surah);
+
+    if (alreadyInPlaylist) {
+      text = "Surah already in playlist";
+      action = null;
+    }
+
+    final snackBar = SnackBar(content: Text(text), action: action);
+
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   bool _isSearching = false;
@@ -124,7 +141,10 @@ class _MyHomePageState extends State<MyHomePage> {
               onPressed: () {
                 setState(() {
                   _isSearching = !_isSearching;
-                  if (!_isSearching) _searchController.clear();
+                  if (!_isSearching) {
+                    _searchController.clear();
+                    filteredSurahs = surahs;
+                  }
                 });
               },
               icon: Icon(_isSearching ? Icons.close : Icons.search))
@@ -143,7 +163,7 @@ class _MyHomePageState extends State<MyHomePage> {
               final Surah surah = filteredSurahs[index];
 
               // return list tile UI
-              return surahTile(surah, index);
+              return surahTile(context, surah, index);
             },
           ),
 
@@ -171,15 +191,15 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Widget surahTile(Surah surah, int index) => Slidable(
+  Widget surahTile(BuildContext context, surah, int index) => Slidable(
         startActionPane: ActionPane(
           motion: const StretchMotion(),
           children: [
             SlidableAction(
               backgroundColor: Colors.green,
               autoClose: true,
-              onPressed: (context) {},
-              icon: Icons.queue,
+              onPressed: (context) => addSurahToPlaylist(context, surah),
+              icon: Icons.queue_music,
             )
           ],
         ),
@@ -188,7 +208,7 @@ class _MyHomePageState extends State<MyHomePage> {
           title: Text(surah.title),
           subtitle: Text("Surah ${index + 1}"),
           trailing: Text(surah.arabicTitle),
-          onTap: () => goToSurah(index),
+          onTap: () => goToSurah(surah),
         ),
       );
 }

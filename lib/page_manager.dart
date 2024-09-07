@@ -53,30 +53,9 @@ class PageManager {
       (element) => element.id == id,
     );
     stop();
-    await _loadNewPlaylist();
+    // TODO: change current playing song
+    //await _loadNewPlaylist();
     play();
-  }
-
-  Future<void> _loadNewPlaylist() async {
-    // remove all surahs from the queue
-    _audioHandler.customAction("removeAll");
-
-    final songRepository = getIt<PlaylistRepository>();
-    final playlist = await songRepository.fetchInitialPlaylist();
-    final artUri = Uri.parse(
-        "https://images.unsplash.com/photo-1576764402988-7143f9cca90a?q=80&w=1780&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D");
-    //Uri.file("assets/images/quran.jpg");
-    print("Art uri $artUri");
-    final mediaItems = playlist
-        .map((surah) => MediaItem(
-            id: surah["id"] ?? "",
-            album: surah["album"] ?? "",
-            artist: currentRecitator.value.name,
-            title: surah["title"] ?? "",
-            artUri: artUri,
-            extras: {"url": surah["url"]}))
-        .toList();
-    await _audioHandler.addQueueItems(mediaItems);
   }
 
   Future<void> _initDefaultRecitator() async {
@@ -89,7 +68,7 @@ class PageManager {
   }
 
   /**
-   * Method to change the default recitator by the name of the recitator
+   * Method to change the default recitator by the id of the recitator
    */
   Future<void> setDefaultRecitator(int recitatorId, {bool init = false}) async {
     currentRecitator.value = recitators.firstWhere(
@@ -98,7 +77,7 @@ class PageManager {
 
     if (!init) {
       stop();
-      await _loadNewPlaylist();
+      //await _loadNewPlaylist();
       play();
     }
   }
@@ -148,21 +127,6 @@ class PageManager {
         _audioHandler.pause();
       }
     });
-  }
-
-  Future<void> _loadPlaylist() async {
-    final songRepository = getIt<PlaylistRepository>();
-    final playlist = await songRepository.fetchInitialPlaylist();
-    final mediaItems = playlist
-        .map((surah) => MediaItem(
-            id: surah["id"] ?? "",
-            album: surah["album"] ?? "",
-            title: surah["title"] ?? "",
-            artUri: Uri.parse(
-                "https://images.unsplash.com/photo-1576764402988-7143f9cca90a?q=80&w=1780&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"),
-            extras: {"url": surah["url"]}))
-        .toList();
-    _audioHandler.addQueueItems(mediaItems);
   }
 
   void _listenToCurrentPosition() {
@@ -228,22 +192,17 @@ class PageManager {
     _listenToChangesInSurah();
   }
 
-  void playSurah(int index) async {
-    print("skip to queue $index");
+  void playSurah(Surah surah) async {
     stop();
-    final url = await getRecitionUrl(currentRecitator.value.id, index);
-    final surah = surahs[index];
-    final MediaItem item = MediaItem(
-        id: index.toString().padLeft(3, "0"),
-        album: "Quran",
-        title: surah.title,
-        artUri: Uri.parse(
-            "https://images.unsplash.com/photo-1576764402988-7143f9cca90a?q=80&w=1780&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"),
-        extras: {"url": url});
-
-    _audioHandler.addQueueItem(item);
-    //_audioHandler.skipToQueueItem();
+    bool firstElement = true;
+    // adds surah to playlist
     if (_audioHandler.queue.value.length > 1) {
+      firstElement = false;
+      //next();
+    }
+    bool inPlaylist = await add(surah, placeAtCurrentPosition: !firstElement);
+
+    if (!inPlaylist && _audioHandler.queue.value.length > 1) {
       next();
     }
     play();
@@ -280,8 +239,65 @@ class PageManager {
     }
   }
 
-  void add() {}
-  void remove() {}
+  /// adds new Surah to Playlist
+  /// returns if the surah was already in the playlist
+  Future<bool> add(Surah surah, {bool placeAtCurrentPosition = false}) async {
+    final url = await getRecitionUrl(currentRecitator.value.id, surah.id);
+    final playlist = _audioHandler.queue.value;
+    final MediaItem item = MediaItem(
+        id: surah.id.toString().padLeft(3, "0"),
+        album: "Quran",
+        title: surah.title,
+        artUri: Uri.parse(
+            "https://images.unsplash.com/photo-1576764402988-7143f9cca90a?q=80&w=1780&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"),
+        extras: {"url": url, "arabicTitle": surah.arabicTitle});
+
+    //TODO does not work yet (if a surah is already in the playlist it should not be put again in the playlist)
+    /*if (!playlist.contains(item)) {
+      _audioHandler.addQueueItem(item);
+    }*/
+    bool inPlaylist = false;
+
+    // checks if surah is already in playlist
+    playlist.forEach((mediaItem) =>
+        int.parse(mediaItem.id) == surah.id ? inPlaylist = true : null);
+
+    if (!inPlaylist) {
+      if (placeAtCurrentPosition) {
+        int currentIndex =
+            _audioHandler.queue.value.indexOf(_audioHandler.mediaItem.value!);
+
+        await _audioHandler.insertQueueItem(currentIndex + 1, item);
+      } else {
+        await _audioHandler.addQueueItem(item);
+      }
+    } else if (inPlaylist && placeAtCurrentPosition) {
+      // returns the item(Surah) that already is in the playlist
+      final itemInPlaylist = playlist
+          .firstWhere((mediaItem) => int.parse(mediaItem.id) == surah.id);
+
+      // returns the index of the item in the playlist
+      int indexOfSurah = _audioHandler.queue.value.indexOf(itemInPlaylist);
+
+      // skips to the Surah that was searched for
+      _audioHandler.skipToQueueItem(indexOfSurah);
+    }
+
+    return inPlaylist;
+  }
+
+  void remove(Surah surah) {
+    final playlist = _audioHandler.queue.value;
+
+    final itemInPlaylist =
+        playlist.firstWhere((mediaItem) => int.parse(mediaItem.id) == surah.id);
+
+    // returns the index of the item in the playlist
+    int indexOfSurah = _audioHandler.queue.value.indexOf(itemInPlaylist);
+
+    _audioHandler.removeQueueItemAt(indexOfSurah);
+  }
+
   void dispose() {
     _audioHandler.customAction("dispose");
   }

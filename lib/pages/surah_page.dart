@@ -3,9 +3,9 @@ import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:quran_fi/components/neu_box.dart';
 import 'package:quran_fi/components/sound_icon.dart';
+import 'package:quran_fi/models/surah.dart';
 import 'package:quran_fi/notifiers/play_button_notifier.dart';
 import 'package:quran_fi/page_manager.dart';
-import 'package:quran_fi/services/playlist_repository.dart';
 
 import '../services/service_locator.dart';
 
@@ -18,6 +18,12 @@ class SurahPage extends StatelessWidget {
         duration.inSeconds.remainder(60).toString().padLeft(2, "0");
     String formattedTime = "${duration.inMinutes}:$twoDigitSeconds";
     return formattedTime;
+  }
+
+  void removeSurahFromPlaylist(Surah surah) {
+    final pageManager = getIt<PageManager>();
+
+    pageManager.remove(surah);
   }
 
   void showMenu(BuildContext context) {
@@ -74,7 +80,17 @@ class SurahPage extends StatelessWidget {
             (index) {
               final MediaItem surah = pageManager.playlist[index];
               return ListTile(
+                leading: const Icon(Icons.drag_handle),
                 title: Text(surah.title),
+                subtitle: Text("Surah ${int.parse(surah.id)}",
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.primary,
+                    )),
+                trailing: IconButton(
+                  icon: Icon(Icons.delete),
+                  onPressed: () =>
+                      removeSurahFromPlaylist(Surah.fromMediaItem(surah)),
+                ),
               );
             },
           ),
