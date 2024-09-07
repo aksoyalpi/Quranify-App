@@ -124,6 +124,14 @@ class MyAudioHandler extends BaseAudioHandler {
   }
 
   @override
+  Future<void> removeQueueItemAt(int index) async {
+    await _playlist.removeAt(index);
+
+    final newQueue = queue.value..removeAt(index);
+    queue.add(newQueue);
+  }
+
+  @override
   Future<void> setShuffleMode(AudioServiceShuffleMode shuffleMode) async {
     if (shuffleMode == AudioServiceShuffleMode.none) {
       _player.setShuffleModeEnabled(false);

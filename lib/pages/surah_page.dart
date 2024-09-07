@@ -167,7 +167,6 @@ class SurahPage extends StatelessWidget {
                                   valueListenable:
                                       pageManager.currentSongTitleNotifier,
                                   builder: (_, surah, __) {
-                                    print("Surah" + surah);
                                     return Text(
                                       surah,
                                       style: const TextStyle(

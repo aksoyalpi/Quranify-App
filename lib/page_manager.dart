@@ -5,7 +5,6 @@ import 'package:quran_fi/consts/surahs.dart';
 import 'package:quran_fi/models/recitator.dart';
 import 'package:quran_fi/models/surah.dart';
 import 'package:quran_fi/services/api.dart';
-import 'package:quran_fi/services/playlist_repository.dart';
 import 'package:quran_fi/services/shared_prefs.dart';
 import 'notifiers/play_button_notifier.dart';
 import 'notifiers/progress_notifier.dart';
