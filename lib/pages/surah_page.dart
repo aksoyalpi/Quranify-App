@@ -26,6 +26,11 @@ class SurahPage extends StatelessWidget {
     pageManager.remove(surah);
   }
 
+  void playSurah(Surah surah) {
+    final pageManager = getIt<PageManager>();
+    pageManager.playSurah(surah);
+  }
+
   void showMenu(BuildContext context) {
     final pageManager = getIt<PageManager>();
 
@@ -71,32 +76,63 @@ class SurahPage extends StatelessWidget {
   void showPlaylist(BuildContext context) {
     final pageManager = getIt<PageManager>();
 
+    //final playlist =
+
     showModalBottomSheet(
-      context: context,
-      builder: (context) => SingleChildScrollView(
-        child: Column(
-          children: List.generate(
-            pageManager.playlist.length,
-            (index) {
-              final MediaItem surah = pageManager.playlist[index];
-              return ListTile(
-                leading: const Icon(Icons.drag_handle),
-                title: Text(surah.title),
-                subtitle: Text("Surah ${int.parse(surah.id)}",
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.primary,
-                    )),
-                trailing: IconButton(
-                  icon: Icon(Icons.delete),
-                  onPressed: () =>
-                      removeSurahFromPlaylist(Surah.fromMediaItem(surah)),
-                ),
-              );
-            },
-          ),
-        ),
-      ),
-    );
+        context: context,
+        builder: (context) => ReorderableListView(
+              children: List.generate(
+                pageManager.playlist.length,
+                (index) {
+                  final MediaItem surah = pageManager.playlist[index];
+                  // variable to ask if surah is the surah that is currently playing
+                  final isPlaying;
+                  if (pageManager.currentSongTitleNotifier.value ==
+                      surah.title) {
+                    isPlaying = true;
+                  } else {
+                    isPlaying = false;
+                  }
+
+                  return ListTile(
+                    key: Key(surah.id),
+                    iconColor: Theme.of(context).colorScheme.onPrimary,
+                    tileColor: isPlaying
+                        ? Theme.of(context).colorScheme.secondary
+                        : null,
+                    leading: const Icon(Icons.drag_handle),
+                    title: Text(
+                      surah.title,
+                    ),
+                    subtitle: Text("Surah ${int.parse(surah.id)}",
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.primary,
+                        )),
+                    onTap: () {
+                      playSurah(Surah.fromMediaItem(surah));
+                      Navigator.pop(context);
+                    },
+                    trailing: IconButton(
+                      icon: Icon(
+                        Icons.delete_outline,
+                        color: Theme.of(context).colorScheme.onSecondary,
+                      ),
+                      onPressed: () =>
+                          removeSurahFromPlaylist(Surah.fromMediaItem(surah)),
+                    ),
+                  );
+                },
+              ),
+              onReorder: (oldIndex, newIndex) {
+                if (oldIndex < newIndex) {
+                  newIndex -= 1;
+                }
+                final surah =
+                    Surah.fromMediaItem(pageManager.playlist[oldIndex]);
+                pageManager.remove(surah);
+                pageManager.add(surah, index: newIndex);
+              },
+            ));
   }
 
   @override

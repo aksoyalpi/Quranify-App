@@ -193,16 +193,26 @@ class PageManager {
 
   void playSurah(Surah surah) async {
     stop();
-    bool firstElement = true;
-    // adds surah to playlist
-    if (_audioHandler.queue.value.length > 1) {
-      firstElement = false;
-      //next();
-    }
-    bool inPlaylist = await add(surah, placeAtCurrentPosition: !firstElement);
+    bool inPlaylist = false;
 
-    if (!inPlaylist && _audioHandler.queue.value.length > 1) {
-      next();
+    // checks if surah is already in playlist
+    playlist.forEach((mediaItem) =>
+        int.parse(mediaItem.id) == surah.id ? inPlaylist = true : null);
+
+    if (inPlaylist) {
+      // returns the item(Surah) that already is in the playlist
+      final itemInPlaylist = playlist
+          .firstWhere((mediaItem) => int.parse(mediaItem.id) == surah.id);
+
+      // returns the index of the item in the playlist
+      int indexOfSurah = _audioHandler.queue.value.indexOf(itemInPlaylist);
+      _audioHandler.skipToQueueItem(indexOfSurah);
+    } else {
+      await add(surah, placeAtCurrentPosition: true);
+
+      if (playlist.length > 1) {
+        next();
+      }
     }
     play();
   }
@@ -240,7 +250,8 @@ class PageManager {
 
   /// adds new Surah to Playlist
   /// returns if the surah was already in the playlist
-  Future<bool> add(Surah surah, {bool placeAtCurrentPosition = false}) async {
+  Future<bool> add(Surah surah,
+      {bool placeAtCurrentPosition = false, index = -1}) async {
     final url = await getRecitionUrl(currentRecitator.value.id, surah.id);
     final playlist = _audioHandler.queue.value;
     final MediaItem item = MediaItem(
@@ -261,28 +272,19 @@ class PageManager {
     playlist.forEach((mediaItem) =>
         int.parse(mediaItem.id) == surah.id ? inPlaylist = true : null);
 
-    if (!inPlaylist) {
-      if (placeAtCurrentPosition) {
-        int currentIndex =
-            _audioHandler.queue.value.indexOf(_audioHandler.mediaItem.value!);
+    if (inPlaylist) return true;
 
-        await _audioHandler.insertQueueItem(currentIndex + 1, item);
-      } else {
-        await _audioHandler.addQueueItem(item);
-      }
-    } else if (inPlaylist && placeAtCurrentPosition) {
-      // returns the item(Surah) that already is in the playlist
-      final itemInPlaylist = playlist
-          .firstWhere((mediaItem) => int.parse(mediaItem.id) == surah.id);
+    if (placeAtCurrentPosition) {
+      int currentIndex =
+          _audioHandler.queue.value.indexOf(_audioHandler.mediaItem.value!);
 
-      // returns the index of the item in the playlist
-      int indexOfSurah = _audioHandler.queue.value.indexOf(itemInPlaylist);
-
-      // skips to the Surah that was searched for
-      _audioHandler.skipToQueueItem(indexOfSurah);
+      await _audioHandler.insertQueueItem(currentIndex + 1, item);
+    } else if (index == -1) {
+      await _audioHandler.addQueueItem(item);
+    } else {
+      await _audioHandler.insertQueueItem(index, item);
     }
-
-    return inPlaylist;
+    return false;
   }
 
   void remove(Surah surah) {
