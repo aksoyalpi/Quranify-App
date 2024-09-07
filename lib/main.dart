@@ -157,13 +157,18 @@ class _MyHomePageState extends State<MyHomePage> {
             separatorBuilder: (context, index) => Divider(
               color: Theme.of(context).colorScheme.secondary,
             ),
-            itemCount: filteredSurahs.length,
+            itemCount: filteredSurahs.length + 1,
             itemBuilder: (context, index) {
-              // get individual surah
-              final Surah surah = filteredSurahs[index];
-
-              // return list tile UI
-              return surahTile(context, surah, index);
+              if (index == filteredSurahs.length) {
+                return const SizedBox(
+                  height: 100,
+                );
+              } else {
+                // get individual surah
+                final Surah surah = filteredSurahs[index];
+                // return list tile UI
+                return surahTile(context, surah, index);
+              }
             },
           ),
 
@@ -185,7 +190,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     ));
               }
             },
-          )
+          ),
         ],
       ),
     );
