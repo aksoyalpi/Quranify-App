@@ -1,3 +1,6 @@
+import 'package:quran_fi/models/surah.dart';
+import 'package:quran_fi/page_manager.dart';
+import 'package:quran_fi/services/service_locator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SharedPrefs {
@@ -23,5 +26,32 @@ class SharedPrefs {
   static Future<bool?> getIsDarkMode() async {
     final prefs = await getInstance();
     return prefs.getBool("isDarkTheme");
+  }
+
+  static Future<void> setFavorites(List<Surah> favorites) async {
+    final prefs = await getInstance();
+
+    // List with the ids of the favorite surahs as Strings
+    final favoriteIds = favorites
+        .map(
+          (surah) => surah.id.toString(),
+        )
+        .toList();
+
+    prefs.setStringList("favorites", favoriteIds);
+  }
+
+  static Future<List<Surah>> getFavorites() async {
+    final prefs = await getInstance();
+    final pageManager = getIt<PageManager>();
+    final favoriteIds = prefs.getStringList("favorites");
+
+    if (favoriteIds != null) {
+      return favoriteIds
+          .map((id) => pageManager.surahs[int.parse(id) - 1])
+          .toList();
+    } else {
+      return [];
+    }
   }
 }

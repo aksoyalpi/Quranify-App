@@ -8,6 +8,7 @@ import 'package:quran_fi/page_manager.dart';
 import 'package:quran_fi/pages/settings_page.dart';
 import 'package:quran_fi/pages/surah_page.dart';
 import 'package:quran_fi/services/service_locator.dart';
+import 'package:quran_fi/services/shared_prefs.dart';
 import 'package:quran_fi/themes/theme_provider.dart';
 
 Future<void> main() async {
@@ -62,7 +63,7 @@ class _MyHomePageState extends State<MyHomePage> {
   final pageManager = getIt<PageManager>();
   late List<Surah> surahs;
   late List<Surah> filteredSurahs;
-  final List<Surah> favorites = [];
+  late List<Surah> favorites = [];
   int pageIndex = 1;
 
   @override
@@ -70,6 +71,12 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
     surahs = pageManager.surahs;
     filteredSurahs = surahs;
+    loadFavoriteSurahs();
+  }
+
+  void loadFavoriteSurahs() async {
+    favorites = await SharedPrefs.getFavorites();
+    setState(() {});
   }
 
   // go to surah with index surahIndex
@@ -263,6 +270,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     } else {
                       favorites.add(surah);
                     }
+                    SharedPrefs.setFavorites(favorites);
                   });
                 },
                 icon: Icon(
