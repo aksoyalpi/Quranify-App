@@ -28,7 +28,7 @@ class PageManager {
   final quranVolume = ValueNotifier<double>(1);
   final soundVolume = ValueNotifier<double>(1);
 
-  get playlist => _audioHandler.queue.value;
+  List<MediaItem> get playlist => _audioHandler.queue.value;
 
   // all surahs
   final List<Surah> _surahs = List.generate(
@@ -53,7 +53,7 @@ class PageManager {
     );
     stop();
     // TODO: change current playing song
-    //await _loadNewPlaylist();
+    await _loadNewPlaylist();
     play();
   }
 
@@ -76,8 +76,33 @@ class PageManager {
 
     if (!init) {
       stop();
-      //await _loadNewPlaylist();
+      await _loadNewPlaylist();
       play();
+    }
+  }
+
+  Future _loadNewPlaylist() async {
+    final recitator = currentRecitator.value;
+
+    final newMediaItems = playlist.map((item) async {
+      final url = await getRecitionUrl(recitator.id, int.parse(item.id));
+
+      return MediaItem(
+          id: item.id,
+          title: item.title,
+          album: item.album,
+          artist: recitator.name,
+          artUri: item.artUri,
+          extras: {"url": url});
+    }).toList();
+
+    await _audioHandler.customAction("removeAll");
+
+    for (var element in newMediaItems) {
+      print(recitator.name);
+      element.then(
+        (value) async => await _audioHandler.addQueueItem(value),
+      );
     }
   }
 
@@ -275,10 +300,17 @@ class PageManager {
     if (inPlaylist) return true;
 
     if (placeAtCurrentPosition) {
-      int currentIndex =
-          _audioHandler.queue.value.indexOf(_audioHandler.mediaItem.value!);
+      MediaItem? current = _audioHandler.mediaItem.value;
 
-      await _audioHandler.insertQueueItem(currentIndex + 1, item);
+      // checks if there is already a item playing (in the queue) or not
+      if (current == null) {
+        await _audioHandler.addQueueItem(item);
+      } else {
+        int currentIndex =
+            _audioHandler.queue.value.indexOf(_audioHandler.mediaItem.value!);
+
+        await _audioHandler.insertQueueItem(currentIndex + 1, item);
+      }
     } else if (index == -1) {
       await _audioHandler.addQueueItem(item);
     } else {
