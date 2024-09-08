@@ -62,6 +62,8 @@ class _MyHomePageState extends State<MyHomePage> {
   final pageManager = getIt<PageManager>();
   late List<Surah> surahs;
   late List<Surah> filteredSurahs;
+  final List<Surah> favorites = [];
+  int pageIndex = 1;
 
   @override
   void initState() {
@@ -111,6 +113,21 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
+      bottomNavigationBar: BottomNavigationBar(
+        onTap: (value) => setState(() {
+          pageIndex = value;
+        }),
+        type: BottomNavigationBarType.shifting,
+        currentIndex: pageIndex,
+        showUnselectedLabels: false,
+        selectedItemColor: Theme.of(context).colorScheme.onPrimary,
+        items: const [
+          BottomNavigationBarItem(
+              icon: Icon(Icons.favorite), label: "Favorites"),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
+          BottomNavigationBarItem(icon: Icon(Icons.settings), label: "Settings")
+        ],
+      ),
       appBar: AppBar(
         title: _isSearching
             ? TextField(
@@ -196,24 +213,47 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Widget surahTile(BuildContext context, surah, int index) => Slidable(
-        startActionPane: ActionPane(
-          motion: const StretchMotion(),
+  Widget surahTile(BuildContext context, Surah surah, int index) {
+    bool isFavorite = favorites.contains(surah);
+
+    return Slidable(
+      startActionPane: ActionPane(
+        motion: const StretchMotion(),
+        children: [
+          SlidableAction(
+            backgroundColor: Colors.green,
+            autoClose: true,
+            onPressed: (context) => addSurahToPlaylist(context, surah),
+            icon: Icons.queue_music,
+          )
+        ],
+      ),
+      child: ListTile(
+        leading: Image.asset("assets/images/quran.jpg"),
+        title: Text(surah.title),
+        subtitle: Text("Surah ${index + 1}"),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            SlidableAction(
-              backgroundColor: Colors.green,
-              autoClose: true,
-              onPressed: (context) => addSurahToPlaylist(context, surah),
-              icon: Icons.queue_music,
-            )
+            Text(surah.arabicTitle),
+            IconButton(
+                onPressed: () {
+                  setState(() {
+                    if (favorites.contains(surah)) {
+                      favorites.remove(surah);
+                    } else {
+                      favorites.add(surah);
+                    }
+                  });
+                },
+                icon: Icon(
+                  isFavorite ? Icons.favorite : Icons.favorite_border,
+                  color: Theme.of(context).colorScheme.onPrimary,
+                ))
           ],
         ),
-        child: ListTile(
-          leading: Image.asset("assets/images/quran.jpg"),
-          title: Text(surah.title),
-          subtitle: Text("Surah ${index + 1}"),
-          trailing: Text(surah.arabicTitle),
-          onTap: () => goToSurah(surah),
-        ),
-      );
+        onTap: () => goToSurah(surah),
+      ),
+    );
+  }
 }

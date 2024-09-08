@@ -99,7 +99,6 @@ class PageManager {
     await _audioHandler.customAction("removeAll");
 
     for (var element in newMediaItems) {
-      print(recitator.name);
       element.then(
         (value) async => await _audioHandler.addQueueItem(value),
       );
