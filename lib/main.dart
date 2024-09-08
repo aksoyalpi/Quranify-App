@@ -114,9 +114,17 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       bottomNavigationBar: BottomNavigationBar(
-        onTap: (value) => setState(() {
-          pageIndex = value;
-        }),
+        onTap: (value) {
+          setState(() {
+            pageIndex = value;
+
+            if (value == 0) {
+              filteredSurahs = favorites;
+            } else if (value == 1) {
+              filteredSurahs = surahs;
+            }
+          });
+        },
         type: BottomNavigationBarType.shifting,
         currentIndex: pageIndex,
         showUnselectedLabels: false,
@@ -140,19 +148,21 @@ class _MyHomePageState extends State<MyHomePage> {
                 onChanged: (query) {
                   // Handle search query here
                   setState(() {
+                    // checks if the user is on favorites or home page
+                    final listToSearchIn = pageIndex == 0 ? favorites : surahs;
                     if (query != "") {
-                      filteredSurahs = surahs
+                      filteredSurahs = listToSearchIn
                           .where((element) => element.title
                               .toLowerCase()
                               .contains(query.toLowerCase()))
                           .toList();
                     } else {
-                      filteredSurahs = surahs;
+                      filteredSurahs = pageIndex == 0 ? favorites : surahs;
                     }
                   });
                 },
               )
-            : const Text('S U R A H S'),
+            : Text(pageIndex == 0 ? "F A V O R I T E S" : 'S U R A H S'),
         actions: [
           IconButton(
               onPressed: () {
@@ -231,7 +241,7 @@ class _MyHomePageState extends State<MyHomePage> {
       child: ListTile(
         leading: Image.asset("assets/images/quran.jpg"),
         title: Text(surah.title),
-        subtitle: Text("Surah ${index + 1}"),
+        subtitle: Text("Surah ${surah.id}"),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
