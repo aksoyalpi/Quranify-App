@@ -79,45 +79,39 @@ class _SettingsPageState extends State<SettingsPage> {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final defaultRecitator = SharedPrefs.getDefaultRecitator();
 
-    return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: AppBar(
-        title: const Text("S E T T I N G S"),
-      ),
-      body: Column(
-        children: [
-          // dark and light mode
-          SettingsTile(context,
-              title: "Dark Mode",
-              child:
+    return Column(
+      children: [
+        // dark and light mode
+        SettingsTile(context,
+            title: "Dark Mode",
+            child:
 
-                  // switch
-                  CupertinoSwitch(
-                value: themeProvider.isDarkMode,
-                onChanged: (_) => themeProvider.toggleTheme(),
+                // switch
+                CupertinoSwitch(
+              value: themeProvider.isDarkMode,
+              onChanged: (_) => themeProvider.toggleTheme(),
+            )),
+
+        // defualt recitator
+        InkWell(
+          onTap: openRecitatorsSetting,
+          child: SettingsTile(context,
+              title: "Default Recitator",
+              child: FutureBuilder(
+                future: defaultRecitator,
+                builder: (_, snapshot) {
+                  if (snapshot.hasData) {
+                    return Text(
+                        pageManager.recitators[snapshot.data! - 1].name);
+                  } else if (snapshot.connectionState ==
+                      ConnectionState.waiting) {
+                    return const CircularProgressIndicator();
+                  }
+                  return const Text("?");
+                },
               )),
-
-          // defualt recitator
-          InkWell(
-            onTap: openRecitatorsSetting,
-            child: SettingsTile(context,
-                title: "Default Recitator",
-                child: FutureBuilder(
-                  future: defaultRecitator,
-                  builder: (_, snapshot) {
-                    if (snapshot.hasData) {
-                      return Text(
-                          pageManager.recitators[snapshot.data! - 1].name);
-                    } else if (snapshot.connectionState ==
-                        ConnectionState.waiting) {
-                      return const CircularProgressIndicator();
-                    }
-                    return const Text("?");
-                  },
-                )),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
