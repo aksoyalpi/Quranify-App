@@ -4,6 +4,7 @@ import 'package:quran_fi/consts/recitations.dart';
 import 'package:quran_fi/consts/surahs.dart';
 import 'package:quran_fi/models/recitator.dart';
 import 'package:quran_fi/models/surah.dart';
+import 'package:quran_fi/notifiers/repeat_mode_notifer.dart';
 import 'package:quran_fi/services/api.dart';
 import 'package:quran_fi/services/shared_prefs.dart';
 import 'notifiers/play_button_notifier.dart';
@@ -22,6 +23,7 @@ class PageManager {
   final playButtonNotifier = PlayButtonNotifier();
   final isLastSongNotifier = ValueNotifier<bool>(true);
   final isShuffleModeEnabledNotifier = ValueNotifier<bool>(false);
+  final repeatModeNotifier = RepeatModeNotifer();
   final currentRecitator =
       ValueNotifier<Recitator>(Recitator.fromJson(recitations[0]));
   final currentSoundIndex = ValueNotifier<int>(0);
@@ -174,12 +176,12 @@ class PageManager {
   }
 
   void _listenToTotalDuration() {
-    _audioHandler.mediaItem.listen((MediaItem) {
+    _audioHandler.mediaItem.listen((mediaItem) {
       final oldState = progressNotifier.value;
       progressNotifier.value = ProgressBarState(
           current: oldState.current,
           buffered: oldState.buffered,
-          total: MediaItem?.duration ?? Duration.zero);
+          total: mediaItem?.duration ?? Duration.zero);
     });
   }
 
@@ -206,7 +208,6 @@ class PageManager {
   void init() async {
     _soundPlayer.setLoopMode(LoopMode.all);
     await _initDefaultRecitator();
-    //await _loadPlaylist();
     _listenToChangesInPlaylist();
     _listenToPlaybackState();
     _listenToCurrentPosition();
@@ -259,9 +260,25 @@ class PageManager {
   void seek(Duration position) => _audioHandler.seek(position);
   void previous() => _audioHandler.skipToPrevious();
   void next() => _audioHandler.skipToNext();
+
   void repeat() {
-    // TODO
+    final currentRepeatMode = repeatModeNotifier.value;
+    switch (currentRepeatMode) {
+      case RepeatModeState.none:
+        repeatModeNotifier.value = RepeatModeState.all;
+        _audioHandler.setRepeatMode(AudioServiceRepeatMode.all);
+        break;
+      case RepeatModeState.all:
+        repeatModeNotifier.value = RepeatModeState.one;
+        _audioHandler.setRepeatMode(AudioServiceRepeatMode.one);
+        break;
+      case RepeatModeState.one:
+        repeatModeNotifier.value = RepeatModeState.none;
+        _audioHandler.setRepeatMode(AudioServiceRepeatMode.none);
+        break;
+    }
   }
+
   void shuffle() {
     final enable = !isShuffleModeEnabledNotifier.value;
     isShuffleModeEnabledNotifier.value = enable;

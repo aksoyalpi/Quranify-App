@@ -5,6 +5,7 @@ import 'package:quran_fi/components/neu_box.dart';
 import 'package:quran_fi/components/sound_icon.dart';
 import 'package:quran_fi/models/surah.dart';
 import 'package:quran_fi/notifiers/play_button_notifier.dart';
+import 'package:quran_fi/notifiers/repeat_mode_notifer.dart';
 import 'package:quran_fi/page_manager.dart';
 
 import '../services/service_locator.dart';
@@ -261,7 +262,36 @@ class SurahPage extends StatelessWidget {
                           const SoundIcon(),
 
                           // repeat icon
-                          const Icon(Icons.repeat),
+                          ValueListenableBuilder(
+                            valueListenable: pageManager.repeatModeNotifier,
+                            builder: (_, repeatMode, __) {
+                              IconData iconData;
+                              Color? iconColor;
+                              switch (repeatMode) {
+                                case RepeatModeState.none:
+                                  iconData = Icons.repeat;
+                                  break;
+                                case RepeatModeState.all:
+                                  iconData = Icons.repeat_outlined;
+                                  iconColor =
+                                      Theme.of(context).colorScheme.onPrimary;
+                                  break;
+
+                                case RepeatModeState.one:
+                                  iconData = Icons.repeat_one_outlined;
+                                  iconColor =
+                                      Theme.of(context).colorScheme.onPrimary;
+                                  break;
+                              }
+
+                              return IconButton(
+                                  onPressed: pageManager.repeat,
+                                  icon: Icon(
+                                    iconData,
+                                    color: iconColor,
+                                  ));
+                            },
+                          )
                         ],
                       ),
                     ),
