@@ -142,6 +142,24 @@ class MyAudioHandler extends BaseAudioHandler {
   }
 
   @override
+  Future<void> setRepeatMode(AudioServiceRepeatMode repeatMode) async {
+    switch (repeatMode) {
+      case AudioServiceRepeatMode.all:
+        _player.setLoopMode(LoopMode.all);
+        break;
+      case AudioServiceRepeatMode.one:
+        _player.setLoopMode(LoopMode.one);
+        break;
+      case AudioServiceRepeatMode.none:
+        _player.setLoopMode(LoopMode.off);
+        break;
+      default:
+        _player.setLoopMode(LoopMode.off);
+        break;
+    }
+  }
+
+  @override
   Future<void> skipToQueueItem(int index) async {
     if (index < 0 || index >= queue.value.length) return;
     if (_player.shuffleModeEnabled) {
