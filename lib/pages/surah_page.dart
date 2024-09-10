@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:audio_service/audio_service.dart';
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:flutter/material.dart';
@@ -18,6 +20,8 @@ class SurahPage extends StatefulWidget {
 }
 
 class _SurahPageState extends State<SurahPage> {
+  final pageManager = getIt<PageManager>();
+
   // conver duration into min:sec
   String formatTime(Duration duration) {
     String twoDigitSeconds =
@@ -152,284 +156,293 @@ class _SurahPageState extends State<SurahPage> {
 
   @override
   Widget build(BuildContext context) {
-    final pageManager = getIt<PageManager>();
-
     return Hero(
       tag: "audioplayer",
       child: Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.only(left: 25, right: 25, bottom: 25),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // app bar
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    // back button
-                    IconButton(
-                        onPressed: () => Navigator.pop(context),
-                        icon: const Icon(Icons.arrow_back)),
-
-                    // title
-                    const Text("S U R A H"),
-
-                    Row(
-                      children: [
-                        // Playlist button
-                        IconButton(
-                            onPressed: (() => showPlaylist(context)),
-                            icon: Icon(Icons.queue_music)),
-
-                        // menu button
-                        IconButton(
-                            onPressed: () => showMenu(context),
-                            icon: const Icon(Icons.menu))
-                      ],
-                    )
-                  ],
-                ),
-
-                const SizedBox(
-                  height: 25,
-                ),
-
-                // album network
-                NeuBox(
-                    child: Column(
-                  children: [
-                    // image
-                    ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: Image.asset("assets/images/quran.jpg")),
-
-                    Padding(
-                      padding: const EdgeInsets.all(15),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          // surah and recitator name
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              ValueListenableBuilder(
-                                  valueListenable:
-                                      pageManager.currentSongTitleNotifier,
-                                  builder: (_, surah, __) {
-                                    return Text(
-                                      surah,
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 20),
-                                    );
-                                  }),
-                              ValueListenableBuilder(
-                                  valueListenable: pageManager.currentRecitator,
-                                  builder: (_, recitator, __) =>
-                                      Text(recitator.name)),
-                            ],
-                          ),
-
-                          // heart Icon
-
-                          ValueListenableBuilder(
-                            valueListenable: pageManager.favoritesNotifier,
-                            builder: (__, favorites, _) {
-                              return ValueListenableBuilder(
-                                  valueListenable:
-                                      pageManager.currentSongTitleNotifier,
-                                  builder: (__, surahTitle, _) {
-                                    bool isFavorite = false;
-
-                                    for (var surah in favorites) {
-                                      if (surah.title == surahTitle) {
-                                        isFavorite = true;
-                                      }
-                                    }
-
-                                    IconData iconData = isFavorite
-                                        ? Icons.favorite
-                                        : Icons.favorite_border;
-
-                                    return IconButton(
-                                        onPressed: () {
-                                          final surah =
-                                              pageManager.surahs.firstWhere(
-                                            (element) =>
-                                                element.title == surahTitle,
-                                          );
-                                          if (isFavorite) {
-                                            favorites.remove(surah);
-                                          } else {
-                                            favorites.add(surah);
-                                          }
-                                          pageManager
-                                              .changeFavorites(favorites);
-                                        },
-                                        icon: Icon(iconData));
-                                  });
-                            },
-                          ),
-                        ],
-                      ),
-                    )
-                  ],
-                )),
-
-                const SizedBox(
-                  height: 25,
-                ),
-
-                Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          // shuffle icon
-                          ValueListenableBuilder(
-                              valueListenable:
-                                  pageManager.isShuffleModeEnabledNotifier,
-                              builder: (_, isShuffleModeEnabled, __) {
-                                return IconButton(
-                                  icon: Icon(
-                                    Icons.shuffle,
-                                    color: isShuffleModeEnabled
-                                        ? Theme.of(context)
-                                            .colorScheme
-                                            .onPrimary
-                                        : null,
-                                  ),
-                                  onPressed: pageManager.shuffle,
-                                );
-                              }),
-
-                          // nature sound icon
-                          const SoundIcon(),
-
-                          // repeat icon
-                          ValueListenableBuilder(
-                            valueListenable: pageManager.repeatModeNotifier,
-                            builder: (_, repeatMode, __) {
-                              IconData iconData;
-                              Color? iconColor;
-                              switch (repeatMode) {
-                                case RepeatModeState.none:
-                                  iconData = Icons.repeat;
-                                  break;
-                                case RepeatModeState.all:
-                                  iconData = Icons.repeat_outlined;
-                                  iconColor =
-                                      Theme.of(context).colorScheme.onPrimary;
-                                  break;
-
-                                case RepeatModeState.one:
-                                  iconData = Icons.repeat_one_outlined;
-                                  iconColor =
-                                      Theme.of(context).colorScheme.onPrimary;
-                                  break;
-                              }
-
-                              return IconButton(
-                                  onPressed: pageManager.repeat,
-                                  icon: Icon(
-                                    iconData,
-                                    color: iconColor,
-                                  ));
-                            },
-                          )
-                        ],
-                      ),
-                    ),
-
-                    // song duration progress
-                    ValueListenableBuilder(
-                        valueListenable: pageManager.progressNotifier,
-                        builder: (_, value, __) {
-                          return ProgressBar(
-                            thumbColor: Theme.of(context).colorScheme.onPrimary,
-                            progressBarColor:
-                                Theme.of(context).colorScheme.onPrimary,
-                            progress: value.current,
-                            buffered: value.buffered,
-                            total: value.total,
-                            onSeek: pageManager.seek,
-                          );
-                        }),
-                  ],
-                ),
-
-                const SizedBox(
-                  height: 25,
-                ),
-
-                // playback controls
-                Row(
-                  children: [
-                    // skip previous
-                    Expanded(
-                        child: ValueListenableBuilder(
-                            valueListenable: pageManager.isFirstSongNotifier,
-                            builder: (_, isFirst, __) {
-                              return GestureDetector(
-                                  onTap: /*(isFirst) ? null :*/
-                                      pageManager.previous,
-                                  child: const NeuBox(
-                                      child: Icon(Icons.skip_previous)));
-                            })),
-
-                    const SizedBox(
-                      width: 20,
-                    ),
-
-                    // play pause
-                    Expanded(
-                        flex: 2,
-                        child: NeuBox(
-                          child: ValueListenableBuilder(
-                              valueListenable: pageManager.playButtonNotifier,
-                              builder: (_, value, __) {
-                                switch (value) {
-                                  case ButtonState.loading:
-                                    return const Center(
-                                        child: CircularProgressIndicator());
-                                  case ButtonState.paused:
-                                    return IconButton(
-                                      icon: const Icon(Icons.play_arrow),
-                                      onPressed: pageManager.play,
-                                    );
-                                  case ButtonState.playing:
-                                    return IconButton(
-                                        onPressed: pageManager.pause,
-                                        icon: const Icon(Icons.pause));
-                                }
-                              }),
-                        )),
-
-                    const SizedBox(
-                      width: 20,
-                    ),
-
-                    // skip forward
-                    Expanded(
-                        child: ValueListenableBuilder(
-                            valueListenable: pageManager.isLastSongNotifier,
-                            builder: (_, isLast, __) {
-                              return GestureDetector(
-                                  onTap: /*isLast ? null :*/ pageManager.next,
-                                  child: const NeuBox(
-                                      child: Icon(Icons.skip_next)));
-                            })),
-                  ],
-                )
-              ],
-            ),
-          ),
-        ),
-      ),
+          //backgroundColor: Theme.of(context).colorScheme.surface,
+          body: Stack(
+        children: [
+          SizedBox.expand(
+              child: Container(
+            decoration: BoxDecoration(
+                image: DecorationImage(
+                    image: const AssetImage("assets/images/mosque.jpg"),
+                    fit: BoxFit.cover,
+                    colorFilter: ColorFilter.mode(
+                        Colors.black.withOpacity(0.25), BlendMode.darken))),
+          )),
+          surahPage(),
+        ],
+      )),
     );
   }
+
+  Widget surahPage() => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.only(left: 25, right: 25, bottom: 25),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // app bar
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // back button
+                  IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(Icons.arrow_back)),
+
+                  // title
+                  const Text("S U R A H"),
+
+                  Row(
+                    children: [
+                      // Playlist button
+                      IconButton(
+                          onPressed: (() => showPlaylist(context)),
+                          icon: Icon(Icons.queue_music)),
+
+                      // menu button
+                      IconButton(
+                          onPressed: () => showMenu(context),
+                          icon: const Icon(Icons.menu))
+                    ],
+                  )
+                ],
+              ),
+
+              const SizedBox(
+                height: 25,
+              ),
+
+              // album network
+              NeuBox(
+                  child: Column(
+                children: [
+                  // image
+                  ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.asset("assets/images/quran.jpg")),
+
+                  Padding(
+                    padding: const EdgeInsets.all(15),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        // surah and recitator name
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ValueListenableBuilder(
+                                valueListenable:
+                                    pageManager.currentSongTitleNotifier,
+                                builder: (_, surah, __) {
+                                  return Text(
+                                    surah,
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 20),
+                                  );
+                                }),
+                            ValueListenableBuilder(
+                                valueListenable: pageManager.currentRecitator,
+                                builder: (_, recitator, __) =>
+                                    Text(recitator.name)),
+                          ],
+                        ),
+
+                        // heart Icon
+
+                        ValueListenableBuilder(
+                          valueListenable: pageManager.favoritesNotifier,
+                          builder: (__, favorites, _) {
+                            return ValueListenableBuilder(
+                                valueListenable:
+                                    pageManager.currentSongTitleNotifier,
+                                builder: (__, surahTitle, _) {
+                                  bool isFavorite = false;
+
+                                  for (var surah in favorites) {
+                                    if (surah.title == surahTitle) {
+                                      isFavorite = true;
+                                    }
+                                  }
+
+                                  IconData iconData = isFavorite
+                                      ? Icons.favorite
+                                      : Icons.favorite_border;
+
+                                  return IconButton(
+                                      onPressed: () {
+                                        final surah =
+                                            pageManager.surahs.firstWhere(
+                                          (element) =>
+                                              element.title == surahTitle,
+                                        );
+                                        if (isFavorite) {
+                                          favorites.remove(surah);
+                                        } else {
+                                          favorites.add(surah);
+                                        }
+                                        pageManager.changeFavorites(favorites);
+                                      },
+                                      icon: Icon(iconData));
+                                });
+                          },
+                        ),
+                      ],
+                    ),
+                  )
+                ],
+              )),
+
+              const SizedBox(
+                height: 25,
+              ),
+
+              Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        // shuffle icon
+                        ValueListenableBuilder(
+                            valueListenable:
+                                pageManager.isShuffleModeEnabledNotifier,
+                            builder: (_, isShuffleModeEnabled, __) {
+                              return IconButton(
+                                icon: Icon(
+                                  Icons.shuffle,
+                                  color: isShuffleModeEnabled
+                                      ? Theme.of(context).colorScheme.onPrimary
+                                      : null,
+                                ),
+                                onPressed: pageManager.shuffle,
+                              );
+                            }),
+
+                        // nature sound icon
+                        const SoundIcon(),
+
+                        // repeat icon
+                        ValueListenableBuilder(
+                          valueListenable: pageManager.repeatModeNotifier,
+                          builder: (_, repeatMode, __) {
+                            IconData iconData;
+                            Color? iconColor;
+                            switch (repeatMode) {
+                              case RepeatModeState.none:
+                                iconData = Icons.repeat;
+                                break;
+                              case RepeatModeState.all:
+                                iconData = Icons.repeat_outlined;
+                                iconColor =
+                                    Theme.of(context).colorScheme.onPrimary;
+                                break;
+
+                              case RepeatModeState.one:
+                                iconData = Icons.repeat_one_outlined;
+                                iconColor =
+                                    Theme.of(context).colorScheme.onPrimary;
+                                break;
+                            }
+
+                            return IconButton(
+                                onPressed: pageManager.repeat,
+                                icon: Icon(
+                                  iconData,
+                                  color: iconColor,
+                                ));
+                          },
+                        )
+                      ],
+                    ),
+                  ),
+
+                  // song duration progress
+                  ValueListenableBuilder(
+                      valueListenable: pageManager.progressNotifier,
+                      builder: (_, value, __) {
+                        return ProgressBar(
+                          thumbColor: Theme.of(context).colorScheme.onPrimary,
+                          progressBarColor:
+                              Theme.of(context).colorScheme.onPrimary,
+                          progress: value.current,
+                          buffered: value.buffered,
+                          total: value.total,
+                          onSeek: pageManager.seek,
+                        );
+                      }),
+                ],
+              ),
+
+              const SizedBox(
+                height: 25,
+              ),
+
+              // playback controls
+              Row(
+                children: [
+                  // skip previous
+                  Expanded(
+                      child: ValueListenableBuilder(
+                          valueListenable: pageManager.isFirstSongNotifier,
+                          builder: (_, isFirst, __) {
+                            return GestureDetector(
+                                onTap: /*(isFirst) ? null :*/
+                                    pageManager.previous,
+                                child: const NeuBox(
+                                    child: Icon(Icons.skip_previous)));
+                          })),
+
+                  const SizedBox(
+                    width: 20,
+                  ),
+
+                  // play pause
+                  Expanded(
+                      flex: 2,
+                      child: NeuBox(
+                        child: ValueListenableBuilder(
+                            valueListenable: pageManager.playButtonNotifier,
+                            builder: (_, value, __) {
+                              switch (value) {
+                                case ButtonState.loading:
+                                  return const Center(
+                                      child: CircularProgressIndicator());
+                                case ButtonState.paused:
+                                  return IconButton(
+                                    icon: const Icon(Icons.play_arrow),
+                                    onPressed: pageManager.play,
+                                  );
+                                case ButtonState.playing:
+                                  return IconButton(
+                                      onPressed: pageManager.pause,
+                                      icon: const Icon(Icons.pause));
+                              }
+                            }),
+                      )),
+
+                  const SizedBox(
+                    width: 20,
+                  ),
+
+                  // skip forward
+                  Expanded(
+                      child: ValueListenableBuilder(
+                          valueListenable: pageManager.isLastSongNotifier,
+                          builder: (_, isLast, __) {
+                            return GestureDetector(
+                                onTap: /*isLast ? null :*/ pageManager.next,
+                                child:
+                                    const NeuBox(child: Icon(Icons.skip_next)));
+                          })),
+                ],
+              )
+            ],
+          ),
+        ),
+      );
 }
