@@ -217,83 +217,87 @@ class _SurahPageState extends State<SurahPage> {
 
               // album network
               NeuBox(
-                  child: Column(
-                children: [
-                  // image
-                  ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: Image.asset("assets/images/quran.jpg")),
+                  child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Column(
+                  children: [
+                    // image
+                    ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.asset("assets/images/quran.jpg")),
 
-                  Padding(
-                    padding: const EdgeInsets.all(15),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        // surah and recitator name
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            ValueListenableBuilder(
-                                valueListenable:
-                                    pageManager.currentSongTitleNotifier,
-                                builder: (_, surah, __) {
-                                  return Text(
-                                    surah,
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 20),
-                                  );
-                                }),
-                            ValueListenableBuilder(
-                                valueListenable: pageManager.currentRecitator,
-                                builder: (_, recitator, __) =>
-                                    Text(recitator.name)),
-                          ],
-                        ),
+                    Padding(
+                      padding: const EdgeInsets.all(15),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          // surah and recitator name
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ValueListenableBuilder(
+                                  valueListenable:
+                                      pageManager.currentSongTitleNotifier,
+                                  builder: (_, surah, __) {
+                                    return Text(
+                                      surah,
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 20),
+                                    );
+                                  }),
+                              ValueListenableBuilder(
+                                  valueListenable: pageManager.currentRecitator,
+                                  builder: (_, recitator, __) =>
+                                      Text(recitator.name)),
+                            ],
+                          ),
 
-                        // heart Icon
+                          // heart Icon
 
-                        ValueListenableBuilder(
-                          valueListenable: pageManager.favoritesNotifier,
-                          builder: (__, favorites, _) {
-                            return ValueListenableBuilder(
-                                valueListenable:
-                                    pageManager.currentSongTitleNotifier,
-                                builder: (__, surahTitle, _) {
-                                  bool isFavorite = false;
+                          ValueListenableBuilder(
+                            valueListenable: pageManager.favoritesNotifier,
+                            builder: (__, favorites, _) {
+                              return ValueListenableBuilder(
+                                  valueListenable:
+                                      pageManager.currentSongTitleNotifier,
+                                  builder: (__, surahTitle, _) {
+                                    bool isFavorite = false;
 
-                                  for (var surah in favorites) {
-                                    if (surah.title == surahTitle) {
-                                      isFavorite = true;
+                                    for (var surah in favorites) {
+                                      if (surah.title == surahTitle) {
+                                        isFavorite = true;
+                                      }
                                     }
-                                  }
 
-                                  IconData iconData = isFavorite
-                                      ? Icons.favorite
-                                      : Icons.favorite_border;
+                                    IconData iconData = isFavorite
+                                        ? Icons.favorite
+                                        : Icons.favorite_border;
 
-                                  return IconButton(
-                                      onPressed: () {
-                                        final surah =
-                                            pageManager.surahs.firstWhere(
-                                          (element) =>
-                                              element.title == surahTitle,
-                                        );
-                                        if (isFavorite) {
-                                          favorites.remove(surah);
-                                        } else {
-                                          favorites.add(surah);
-                                        }
-                                        pageManager.changeFavorites(favorites);
-                                      },
-                                      icon: Icon(iconData));
-                                });
-                          },
-                        ),
-                      ],
-                    ),
-                  )
-                ],
+                                    return IconButton(
+                                        onPressed: () {
+                                          final surah =
+                                              pageManager.surahs.firstWhere(
+                                            (element) =>
+                                                element.title == surahTitle,
+                                          );
+                                          if (isFavorite) {
+                                            favorites.remove(surah);
+                                          } else {
+                                            favorites.add(surah);
+                                          }
+                                          pageManager
+                                              .changeFavorites(favorites);
+                                        },
+                                        icon: Icon(iconData));
+                                  });
+                            },
+                          ),
+                        ],
+                      ),
+                    )
+                  ],
+                ),
               )),
 
               const SizedBox(
