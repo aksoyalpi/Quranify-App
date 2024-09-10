@@ -7,12 +7,18 @@ import 'package:quran_fi/models/surah.dart';
 import 'package:quran_fi/notifiers/play_button_notifier.dart';
 import 'package:quran_fi/notifiers/repeat_mode_notifer.dart';
 import 'package:quran_fi/page_manager.dart';
+import 'package:quran_fi/services/shared_prefs.dart';
 
 import '../services/service_locator.dart';
 
-class SurahPage extends StatelessWidget {
+class SurahPage extends StatefulWidget {
   const SurahPage({super.key});
 
+  @override
+  State<SurahPage> createState() => _SurahPageState();
+}
+
+class _SurahPageState extends State<SurahPage> {
   // conver duration into min:sec
   String formatTime(Duration duration) {
     String twoDigitSeconds =
@@ -219,10 +225,45 @@ class SurahPage extends StatelessWidget {
                           ),
 
                           // heart Icon
-                          const Icon(
-                            Icons.favorite,
-                            color: Colors.red,
-                          )
+
+                          ValueListenableBuilder(
+                            valueListenable: pageManager.favoritesNotifier,
+                            builder: (__, favorites, _) {
+                              return ValueListenableBuilder(
+                                  valueListenable:
+                                      pageManager.currentSongTitleNotifier,
+                                  builder: (__, surahTitle, _) {
+                                    bool isFavorite = false;
+
+                                    for (var surah in favorites) {
+                                      if (surah.title == surahTitle) {
+                                        isFavorite = true;
+                                      }
+                                    }
+
+                                    IconData iconData = isFavorite
+                                        ? Icons.favorite
+                                        : Icons.favorite_border;
+
+                                    return IconButton(
+                                        onPressed: () {
+                                          final surah =
+                                              pageManager.surahs.firstWhere(
+                                            (element) =>
+                                                element.title == surahTitle,
+                                          );
+                                          if (isFavorite) {
+                                            favorites.remove(surah);
+                                          } else {
+                                            favorites.add(surah);
+                                          }
+                                          pageManager
+                                              .changeFavorites(favorites);
+                                        },
+                                        icon: Icon(iconData));
+                                  });
+                            },
+                          ),
                         ],
                       ),
                     )

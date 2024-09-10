@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:quran_fi/consts/sounds.dart';
 import 'package:quran_fi/page_manager.dart';
 import 'package:quran_fi/services/service_locator.dart';
 
@@ -104,7 +105,7 @@ class _SoundIconState extends State<SoundIcon>
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: List.generate(
-                      pageManager.sounds.length,
+                      sounds.length,
                       (index) => GestureDetector(
                           onTap: () {
                             //setState(() {
@@ -115,7 +116,7 @@ class _SoundIconState extends State<SoundIcon>
                             //_overlayEntry = null;
                           },
                           child: Icon(
-                            pageManager.sounds.values.elementAt(index),
+                            sounds.values.elementAt(index),
                             color: index == soundIndex
                                 ? Theme.of(context).colorScheme.onPrimary
                                 : null,
@@ -151,7 +152,7 @@ class _SoundIconState extends State<SoundIcon>
             child: ValueListenableBuilder(
                 valueListenable: pageManager.currentSoundIndex,
                 builder: (_, soundIndex, __) => Icon(
-                      pageManager.sounds.values.elementAt(soundIndex),
+                      sounds.values.elementAt(soundIndex),
                       color: soundIndex != 0
                           ? Theme.of(context).colorScheme.onPrimary
                           : null,

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:just_audio/just_audio.dart';
 import 'package:quran_fi/consts/recitations.dart';
 import 'package:quran_fi/consts/surahs.dart';
 import 'package:quran_fi/models/recitator.dart';
@@ -14,7 +13,6 @@ import 'services/service_locator.dart';
 
 class PageManager {
   final _audioHandler = getIt<AudioHandler>();
-  final _soundPlayer = AudioPlayer();
   // Listeners: Updates going to the UI
   final currentSongTitleNotifier = ValueNotifier<String>('');
   final playlistNotifier = ValueNotifier<List<String>>([]);
@@ -29,6 +27,7 @@ class PageManager {
   final currentSoundIndex = ValueNotifier<int>(0);
   final quranVolume = ValueNotifier<double>(1);
   final soundVolume = ValueNotifier<double>(1);
+  final favoritesNotifier = ValueNotifier<List<Surah>>([]);
 
   List<MediaItem> get playlist => _audioHandler.queue.value;
 
@@ -40,14 +39,14 @@ class PageManager {
   final List<Recitator> _recitators = List.generate(
       recitations.length, (index) => Recitator.fromJson(recitations[index]));
 
-  // Map with all sounds and their IconData
-  final Map<String, IconData> _sounds = {
-    "empty": Icons.cloud_off,
-    "rain": Icons.cloudy_snowing,
-    "beach": Icons.waves,
-    "fire": Icons.local_fire_department,
-    "birds": Icons.emoji_nature
-  };
+  Future _initFavorites() async {
+    favoritesNotifier.value = await SharedPrefs.getFavorites();
+  }
+
+  Future changeFavorites(List<Surah> newFavorites) async {
+    favoritesNotifier.value = newFavorites;
+    await SharedPrefs.setFavorites(newFavorites);
+  }
 
   Future<void> changeRecitator(int id) async {
     currentRecitator.value = _recitators.firstWhere(
@@ -108,19 +107,13 @@ class PageManager {
   }
 
   void setSoundIndex(int index) async {
-    _soundPlayer.pause();
     currentSoundIndex.value = index;
-    _soundPlayer.pause();
-    if (currentSoundIndex.value != 0) {
-      await _soundPlayer.setAudioSource(AudioSource.asset(
-          "assets/audio/${_sounds.keys.elementAt(currentSoundIndex.value)}.mp3"));
-      _soundPlayer.play();
-    }
+    _audioHandler.customAction("setSoundIndex", {"index": index});
   }
 
   void setSoundVolume(double volume) {
-    _soundPlayer.setVolume(volume);
     soundVolume.value = volume;
+    _audioHandler.customAction("setSoundVolume", {"volume": volume});
   }
 
   void _listenToChangesInPlaylist() {
@@ -206,8 +199,8 @@ class PageManager {
 
   // Events: Calls coming from the UI
   void init() async {
-    _soundPlayer.setLoopMode(LoopMode.all);
     await _initDefaultRecitator();
+    await _initFavorites();
     _listenToChangesInPlaylist();
     _listenToPlaybackState();
     _listenToCurrentPosition();
@@ -249,12 +242,10 @@ class PageManager {
 
   void play() {
     _audioHandler.play();
-    if (currentSoundIndex.value != 0) _soundPlayer.play();
   }
 
   void pause() {
     _audioHandler.pause();
-    if (currentSoundIndex.value != 0) _soundPlayer.pause();
   }
 
   void seek(Duration position) => _audioHandler.seek(position);
@@ -290,7 +281,7 @@ class PageManager {
   }
 
   /// adds new Surah to Playlist
-  /// returns if the surah was already in the playlist
+  /// returns true if the surah was already in the playlist
   Future<bool> add(Surah surah,
       {bool placeAtCurrentPosition = false, index = -1}) async {
     final url = await getRecitionUrl(currentRecitator.value.id, surah.id);
@@ -360,6 +351,5 @@ class PageManager {
    */
 
   List<Surah> get surahs => _surahs;
-  Map<String, IconData> get sounds => _sounds;
   List<Recitator> get recitators => _recitators;
 }

@@ -1,5 +1,7 @@
 import 'package:audio_service/audio_service.dart';
+import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:quran_fi/consts/sounds.dart';
 
 Future<AudioHandler> initAudioService() async {
   return await AudioService.init(
@@ -15,10 +17,14 @@ Future<AudioHandler> initAudioService() async {
 
 class MyAudioHandler extends BaseAudioHandler {
   final _player = AudioPlayer();
+  final _soundPlayer = AudioPlayer();
   // final _soundPlayer = AudioPlayer();
   final _playlist = ConcatenatingAudioSource(children: []);
 
+  bool isSoundOn = false;
+
   MyAudioHandler() {
+    _soundPlayer.setLoopMode(LoopMode.all);
     _loadEmptyPlaylist();
     _notifyAudioHandlerAboutPlaybackEvents();
     _listenForDurationChanges();
@@ -169,7 +175,12 @@ class MyAudioHandler extends BaseAudioHandler {
   }
 
   @override
-  Future<void> play() => _player.play();
+  Future<void> play() async {
+    _player.play();
+    if (isSoundOn) {
+      _soundPlayer.play();
+    }
+  }
 
   @override
   Future<void> skipToNext() => _player.seekToNext();
@@ -178,7 +189,10 @@ class MyAudioHandler extends BaseAudioHandler {
   Future<void> skipToPrevious() => _player.seekToPrevious();
 
   @override
-  Future<void> pause() => _player.pause();
+  Future<void> pause() async {
+    _player.pause();
+    _soundPlayer.pause();
+  }
 
   @override
   Future<void> stop() async {
@@ -200,6 +214,19 @@ class MyAudioHandler extends BaseAudioHandler {
       queue.value = [];
     } else if (name == "setVolume") {
       await _player.setVolume(extras!["volume"]);
+    } else if (name == "setSoundIndex") {
+      _soundPlayer.pause();
+
+      if (extras!["index"] != 0) {
+        await _soundPlayer.setAudioSource(AudioSource.asset(
+            "assets/audio/${sounds.keys.elementAt(extras["index"])}.mp3"));
+        _soundPlayer.play();
+        isSoundOn = true;
+      } else {
+        isSoundOn = false;
+      }
+    } else if (name == "setSoundVolume") {
+      _soundPlayer.setVolume(extras!["volume"]);
     }
   }
 

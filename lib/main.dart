@@ -63,7 +63,6 @@ class _MyHomePageState extends State<MyHomePage> {
   final pageManager = getIt<PageManager>();
   late List<Surah> surahs;
   late List<Surah> filteredSurahs;
-  late List<Surah> favorites = [];
   int pageIndex = 1;
 
   @override
@@ -71,12 +70,6 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
     surahs = pageManager.surahs;
     filteredSurahs = surahs;
-    loadFavoriteSurahs();
-  }
-
-  void loadFavoriteSurahs() async {
-    favorites = await SharedPrefs.getFavorites();
-    setState(() {});
   }
 
   // go to surah with index surahIndex
@@ -126,7 +119,7 @@ class _MyHomePageState extends State<MyHomePage> {
               pageIndex = value;
 
               if (value == 0) {
-                filteredSurahs = favorites;
+                filteredSurahs = pageManager.favoritesNotifier.value;
               } else if (value == 1) {
                 filteredSurahs = surahs;
               }
@@ -158,6 +151,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           border: InputBorder.none,
                         ),
                         onChanged: (query) {
+                          final favorites = pageManager.favoritesNotifier.value;
                           // Handle search query here
                           setState(() {
                             // checks if the user is on favorites or home page
@@ -185,8 +179,9 @@ class _MyHomePageState extends State<MyHomePage> {
                           _isSearching = !_isSearching;
                           if (!_isSearching) {
                             _searchController.clear();
-                            filteredSurahs =
-                                pageIndex == 0 ? favorites : surahs;
+                            filteredSurahs = pageIndex == 0
+                                ? pageManager.favoritesNotifier.value
+                                : surahs;
                           }
                         });
                       },
@@ -240,7 +235,7 @@ class _MyHomePageState extends State<MyHomePage> {
       );
 
   Widget surahTile(BuildContext context, Surah surah, int index) {
-    bool isFavorite = favorites.contains(surah);
+    bool isFavorite = pageManager.favoritesNotifier.value.contains(surah);
 
     return Slidable(
       startActionPane: ActionPane(
@@ -262,21 +257,25 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(surah.arabicTitle),
-            IconButton(
-                onPressed: () {
-                  setState(() {
-                    if (favorites.contains(surah)) {
-                      favorites.remove(surah);
-                    } else {
-                      favorites.add(surah);
-                    }
-                    SharedPrefs.setFavorites(favorites);
-                  });
-                },
-                icon: Icon(
-                  isFavorite ? Icons.favorite : Icons.favorite_border,
-                  color: Theme.of(context).colorScheme.onPrimary,
-                ))
+            ValueListenableBuilder(
+                valueListenable: pageManager.favoritesNotifier,
+                builder: (_, favorites, __) {
+                  return IconButton(
+                      onPressed: () {
+                        setState(() {
+                          if (favorites.contains(surah)) {
+                            favorites.remove(surah);
+                          } else {
+                            favorites.add(surah);
+                          }
+                          pageManager.changeFavorites(favorites);
+                        });
+                      },
+                      icon: Icon(
+                        isFavorite ? Icons.favorite : Icons.favorite_border,
+                        color: Theme.of(context).colorScheme.onPrimary,
+                      ));
+                })
           ],
         ),
         onTap: () => goToSurah(surah),
