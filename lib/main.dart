@@ -8,7 +8,6 @@ import 'package:quran_fi/page_manager.dart';
 import 'package:quran_fi/pages/settings_page.dart';
 import 'package:quran_fi/pages/surah_page.dart';
 import 'package:quran_fi/services/service_locator.dart';
-import 'package:quran_fi/services/shared_prefs.dart';
 import 'package:quran_fi/themes/theme_provider.dart';
 
 Future<void> main() async {

@@ -7,7 +7,6 @@ import 'package:quran_fi/models/surah.dart';
 import 'package:quran_fi/notifiers/play_button_notifier.dart';
 import 'package:quran_fi/notifiers/repeat_mode_notifer.dart';
 import 'package:quran_fi/page_manager.dart';
-import 'package:quran_fi/services/shared_prefs.dart';
 
 import '../services/service_locator.dart';
 
@@ -130,14 +129,23 @@ class _SurahPageState extends State<SurahPage> {
                   );
                 },
               ),
-              onReorder: (oldIndex, newIndex) {
+              onReorder: (oldIndex, newIndex) async {
+                final currentSurahTitle =
+                    pageManager.currentSongTitleNotifier.value;
+                print("1. current $currentSurahTitle");
+                final surahThatIsDragged = pageManager.playlist[oldIndex].title;
                 if (oldIndex < newIndex) {
                   newIndex -= 1;
                 }
                 final surah =
                     Surah.fromMediaItem(pageManager.playlist[oldIndex]);
                 pageManager.remove(surah);
-                pageManager.add(surah, index: newIndex);
+                await pageManager.add(surah, index: newIndex);
+
+                //check if tile that is reordered is current playing surah
+                if (currentSurahTitle == surahThatIsDragged) {
+                  pageManager.playSurah(surah);
+                }
               },
             ));
   }

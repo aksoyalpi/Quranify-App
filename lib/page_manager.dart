@@ -224,6 +224,7 @@ class PageManager {
 
       // returns the index of the item in the playlist
       int indexOfSurah = _audioHandler.queue.value.indexOf(itemInPlaylist);
+      print("index: $indexOfSurah");
       _audioHandler.skipToQueueItem(indexOfSurah);
     } else {
       await add(surah, placeAtCurrentPosition: true);
@@ -283,7 +284,7 @@ class PageManager {
   /// adds new Surah to Playlist
   /// returns true if the surah was already in the playlist
   Future<bool> add(Surah surah,
-      {bool placeAtCurrentPosition = false, index = -1}) async {
+      {bool placeAtCurrentPosition = false, int? index}) async {
     final url = await getRecitionUrl(currentRecitator.value.id, surah.id);
     final playlist = _audioHandler.queue.value;
     final MediaItem item = MediaItem(
@@ -318,7 +319,7 @@ class PageManager {
 
         await _audioHandler.insertQueueItem(currentIndex + 1, item);
       }
-    } else if (index == -1) {
+    } else if (index == null || index < 0) {
       await _audioHandler.addQueueItem(item);
     } else {
       await _audioHandler.insertQueueItem(index, item);
