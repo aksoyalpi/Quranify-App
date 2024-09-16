@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
 import 'package:quran_fi/components/modal_sheet_player.dart';
+import 'package:quran_fi/consts/sounds.dart';
 import 'package:quran_fi/models/surah.dart';
 import 'package:quran_fi/page_manager.dart';
 import 'package:quran_fi/pages/settings_page.dart';
@@ -192,10 +193,53 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Widget surahsPage() => Stack(
         children: [
-          ListView.separated(
-            separatorBuilder: (context, index) => Divider(
-              color: Theme.of(context).colorScheme.secondary,
-            ),
+          ListView(
+            scrollDirection: Axis.vertical,
+            children: [
+              SizedBox(
+                height: 150,
+                child: ListView.builder( 
+                  shrinkWrap: true,
+
+                  scrollDirection: Axis.horizontal,
+                  itemCount: sounds.keys.length,
+                  itemBuilder: (context, index) {
+                    if(index == 0) return SizedBox(height: 0);
+                    final soundData = sounds.entries.elementAt(index);
+                  return Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle, 
+                            border: Border.all(color: Colors.white30)
+                            ), 
+                          child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Icon(soundData.value , size: 40,),
+                        ),),
+
+                        Text(soundData.key)
+                      ],
+                    ),
+                  );
+                },),
+              ),
+
+              ...List.generate(filteredSurahs.length, (index) {
+                // get individual surah
+                final Surah surah = filteredSurahs[index];
+                // return list tile UI
+                return surahTile(context, surah, index);
+              },),
+
+              const SizedBox(
+                  height: 100,
+                )
+              /*ListView.builder(
+                scrollDirection: Axis.vertical,
+                shrinkWrap: true,
             itemCount: filteredSurahs.length + 1,
             itemBuilder: (context, index) {
               if (index == filteredSurahs.length) {
@@ -209,7 +253,24 @@ class _MyHomePageState extends State<MyHomePage> {
                 return surahTile(context, surah, index);
               }
             },
+          ),*/
+            ],
           ),
+          /*ListView.builder(
+            itemCount: filteredSurahs.length + 1,
+            itemBuilder: (context, index) {
+              if (index == filteredSurahs.length) {
+                return const SizedBox(
+                  height: 100,
+                );
+              } else {
+                // get individual surah
+                final Surah surah = filteredSurahs[index];
+                // return list tile UI
+                return surahTile(context, surah, index);
+              }
+            },
+          ),*/
 
           // little AudioPlayer
           ValueListenableBuilder(
