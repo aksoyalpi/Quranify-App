@@ -169,7 +169,7 @@ class _SurahPageState extends State<SurahPage> {
                     image: const AssetImage("assets/images/mosque.jpg"),
                     fit: BoxFit.cover,
                     colorFilter: ColorFilter.mode(
-                        Colors.black.withOpacity(0.25), BlendMode.darken))),
+                        Colors.black.withOpacity(0.5), BlendMode.darken))),
           )),
           surahPage(),
         ],
@@ -179,7 +179,7 @@ class _SurahPageState extends State<SurahPage> {
 
   Widget surahPage() => SafeArea(
         child: Padding(
-          padding: const EdgeInsets.only(left: 25, right: 25, bottom: 25),
+          padding: const EdgeInsets.only(left: 25, right: 25),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -197,7 +197,7 @@ class _SurahPageState extends State<SurahPage> {
 
                   IconButton(
                       onPressed: () => showMenu(context),
-                      icon: const Icon(Icons.menu))
+                      icon: const Icon(Icons.more_horiz))
                 ],
               ),
 
@@ -214,7 +214,8 @@ class _SurahPageState extends State<SurahPage> {
                     // image
                     ClipRRect(
                         borderRadius: BorderRadius.circular(8),
-                        child: Image.asset("assets/images/quran.jpg")),
+                        child: Image.asset(
+                            /*"assets/images/quran.jpg"*/ "assets/animations/rain_animation.gif")),
 
                     Padding(
                       padding: const EdgeInsets.all(15),
@@ -296,7 +297,7 @@ class _SurahPageState extends State<SurahPage> {
 
               Column(
                 children: [
-                  SoundIcon(),
+                  const SoundIcon(),
 
                   const SizedBox(
                     height: 15,
@@ -410,10 +411,14 @@ class _SurahPageState extends State<SurahPage> {
               ),
 
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   IconButton(
                       onPressed: (() => showPlaylist(context)),
                       icon: const Icon(Icons.queue_music)),
+                  IconButton(
+                      onPressed: () => showMenu(context),
+                      icon: const Icon(Icons.person))
                 ],
               )
             ],

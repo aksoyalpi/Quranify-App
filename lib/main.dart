@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
 import 'package:quran_fi/components/modal_sheet_player.dart';
+import 'package:quran_fi/components/surah_icon.dart';
 import 'package:quran_fi/models/surah.dart';
 import 'package:quran_fi/page_manager.dart';
 import 'package:quran_fi/pages/settings_page.dart';
@@ -192,24 +193,24 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Widget surahsPage() => Stack(
         children: [
-          ListView.separated(
-            separatorBuilder: (context, index) => Divider(
-              color: Theme.of(context).colorScheme.secondary,
-            ),
-            itemCount: filteredSurahs.length + 1,
-            itemBuilder: (context, index) {
-              if (index == filteredSurahs.length) {
-                return const SizedBox(
-                  height: 100,
-                );
-              } else {
-                // get individual surah
-                final Surah surah = filteredSurahs[index];
-                // return list tile UI
-                return surahTile(context, surah, index);
-              }
-            },
-          ),
+          GridView.count(
+              padding: EdgeInsets.only(bottom: 50),
+              childAspectRatio: 0.7,
+              shrinkWrap: true,
+              crossAxisCount: 3,
+              children: List.generate(
+                filteredSurahs.length,
+                (index) {
+                  // get individual surah
+                  final Surah surah = filteredSurahs[index];
+                  // return list tile UI
+
+                  return Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 20, 12, 50),
+                    child: SurahIcon(surah: surah),
+                  );
+                },
+              )),
 
           // little AudioPlayer
           ValueListenableBuilder(
@@ -248,36 +249,41 @@ class _MyHomePageState extends State<MyHomePage> {
           )
         ],
       ),
-      child: ListTile(
-        leading: Image.asset("assets/images/quran.jpg"),
-        title: Text(surah.title),
-        subtitle: Text("Surah ${surah.id}"),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(surah.arabicTitle),
-            ValueListenableBuilder(
-                valueListenable: pageManager.favoritesNotifier,
-                builder: (_, favorites, __) {
-                  return IconButton(
-                      onPressed: () {
-                        setState(() {
-                          if (favorites.contains(surah)) {
-                            favorites.remove(surah);
-                          } else {
-                            favorites.add(surah);
-                          }
-                          pageManager.changeFavorites(favorites);
-                        });
-                      },
-                      icon: Icon(
-                        isFavorite ? Icons.favorite : Icons.favorite_border,
-                        color: Theme.of(context).colorScheme.onPrimary,
-                      ));
-                })
-          ],
+      child: Card(
+        elevation: 10,
+        child: ListTile(
+          leading: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.asset("assets/images/quran.jpg")),
+          title: Text(surah.title),
+          subtitle: Text("Surah ${surah.id}"),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(surah.arabicTitle),
+              ValueListenableBuilder(
+                  valueListenable: pageManager.favoritesNotifier,
+                  builder: (_, favorites, __) {
+                    return IconButton(
+                        onPressed: () {
+                          setState(() {
+                            if (favorites.contains(surah)) {
+                              favorites.remove(surah);
+                            } else {
+                              favorites.add(surah);
+                            }
+                            pageManager.changeFavorites(favorites);
+                          });
+                        },
+                        icon: Icon(
+                          isFavorite ? Icons.favorite : Icons.favorite_border,
+                          color: Theme.of(context).colorScheme.onPrimary,
+                        ));
+                  })
+            ],
+          ),
+          onTap: () => goToSurah(surah),
         ),
-        onTap: () => goToSurah(surah),
       ),
     );
   }
