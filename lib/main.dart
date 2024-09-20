@@ -207,7 +207,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
                   return Padding(
                     padding: const EdgeInsets.fromLTRB(12, 20, 12, 50),
-                    child: SurahIcon(surah: surah),
+                    child: GestureDetector(
+                      child: SurahIcon(surah: surah),
+                      onTap: () => goToSurah(surah),
+                    ),
                   );
                 },
               )),

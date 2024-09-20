@@ -215,7 +215,7 @@ class _SurahPageState extends State<SurahPage> {
                     ClipRRect(
                         borderRadius: BorderRadius.circular(8),
                         child: Image.asset(
-                            /*"assets/images/quran.jpg"*/ "assets/animations/rain_animation.gif")),
+                            "assets/images/quran.jpg" /*"assets/animations/rain_animation.gif"*/)),
 
                     Padding(
                       padding: const EdgeInsets.all(15),
