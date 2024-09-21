@@ -4,7 +4,6 @@ import 'package:animated_background/animated_background.dart';
 import 'package:audio_service/audio_service.dart';
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:quran_fi/components/heart_painter.dart';
 import 'package:quran_fi/components/neu_box.dart';
 import 'package:quran_fi/components/sound_icon.dart';
 import 'package:quran_fi/models/surah.dart';
@@ -155,8 +154,12 @@ class _SurahPageState extends State<SurahPage> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return Hero(
-      tag: "audioplayer",
+    return GestureDetector(
+      onPanUpdate: (details) {
+        if (details.delta.dy > 5) {
+          Navigator.pop(context);
+        }
+      },
       child: Scaffold(
         body: ValueListenableBuilder(
             valueListenable: pageManager.playButtonNotifier,
@@ -296,6 +299,9 @@ class _SurahPageState extends State<SurahPage> with TickerProviderStateMixin {
                                           }
                                           pageManager
                                               .changeFavorites(favorites);
+                                          setState(
+                                            () {},
+                                          );
                                         },
                                         icon: Icon(iconData));
                                   });

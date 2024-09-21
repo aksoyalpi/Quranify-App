@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
-import 'package:quran_fi/components/heart_painter.dart';
 import 'package:quran_fi/components/modal_sheet_player.dart';
 import 'package:quran_fi/components/surah_icon.dart';
 import 'package:quran_fi/models/surah.dart';
@@ -81,10 +81,18 @@ class _MyHomePageState extends State<MyHomePage> {
 
     // navigate to surah page
     Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const SurahPage(),
-        ));
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            const SurahPage(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+            SlideTransition(
+                child: child,
+                position: animation.drive(
+                    Tween(begin: Offset(0, 1), end: Offset.zero)
+                        .chain(CurveTween(curve: Curves.ease)))),
+      ),
+    );
   }
 
   void addSurahToPlaylist(BuildContext context, Surah surah) async {
@@ -102,7 +110,13 @@ class _MyHomePageState extends State<MyHomePage> {
       action = null;
     }
 
-    final snackBar = SnackBar(content: Text(text), action: action);
+    final snackBar = SnackBar(
+      content: Text(text),
+      action: action,
+      elevation: 10,
+      margin: const EdgeInsets.all(5),
+      behavior: SnackBarBehavior.floating,
+    );
 
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
@@ -244,7 +258,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 return const Align(
                     alignment: Alignment.bottomCenter,
                     child: Padding(
-                      padding: const EdgeInsets.all(18.0),
+                      padding: EdgeInsets.all(18.0),
                       child: LittleAudioPlayer(),
                     ));
               }
