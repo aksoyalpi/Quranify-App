@@ -210,11 +210,20 @@ class _MyHomePageState extends State<MyHomePage> {
                   // get individual surah
                   final Surah surah = filteredSurahs[index];
                   // return list tile UI
+                  final favorites = pageManager.favoritesNotifier.value;
 
                   return Padding(
                     padding: const EdgeInsets.fromLTRB(12, 20, 12, 50),
                     child: GestureDetector(
                       child: SurahIcon(surah: surah),
+                      onDoubleTap: () => setState(() {
+                        if (favorites.contains(surah)) {
+                          favorites.remove(surah);
+                        } else {
+                          favorites.add(surah);
+                        }
+                        pageManager.changeFavorites(favorites);
+                      }),
                       onTap: () => goToSurah(surah),
                     ),
                   );
