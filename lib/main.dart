@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
+import 'package:quran_fi/components/heart_painter.dart';
 import 'package:quran_fi/components/modal_sheet_player.dart';
 import 'package:quran_fi/components/surah_icon.dart';
 import 'package:quran_fi/models/surah.dart';
