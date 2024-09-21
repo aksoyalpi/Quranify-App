@@ -53,7 +53,6 @@ class PageManager {
       (element) => element.id == id,
     );
     stop();
-    // TODO: change current playing song
     await _loadNewPlaylist();
     play();
   }
@@ -94,15 +93,16 @@ class PageManager {
           album: item.album,
           artist: recitator.name,
           artUri: item.artUri,
-          extras: {"url": url});
+          extras: {
+            "url": url,
+            "arabicTitle": item.extras?["arabicTitle"] ?? ""
+          });
     }).toList();
 
     await _audioHandler.customAction("removeAll");
 
     for (var element in newMediaItems) {
-      element.then(
-        (value) async => await _audioHandler.addQueueItem(value),
-      );
+      await _audioHandler.addQueueItem(await element);
     }
   }
 
