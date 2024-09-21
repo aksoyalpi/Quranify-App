@@ -120,6 +120,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
               if (value == 0) {
                 filteredSurahs = pageManager.favoritesNotifier.value;
+                filteredSurahs.sort(
+                  (a, b) => a.id.compareTo(b.id),
+                );
               } else if (value == 1) {
                 filteredSurahs = surahs;
               }
@@ -152,6 +155,8 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                         onChanged: (query) {
                           final favorites = pageManager.favoritesNotifier.value;
+                          favorites.sort((a, b) => a.id.compareTo(b.id));
+
                           // Handle search query here
                           setState(() {
                             // checks if the user is on favorites or home page

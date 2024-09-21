@@ -18,7 +18,7 @@ class SurahIcon extends StatelessWidget {
           width: 75,
           decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(color: Colors.white24)),
+              border: Border.all(color: Theme.of(context).colorScheme.primary)),
           child: Center(
               child: Text(
             surah.id.toString(),
