@@ -216,6 +216,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     padding: const EdgeInsets.fromLTRB(12, 20, 12, 50),
                     child: GestureDetector(
                       child: SurahIcon(surah: surah),
+                      onLongPress: () => addSurahToPlaylist(context, surah),
                       onDoubleTap: () => setState(() {
                         if (favorites.contains(surah)) {
                           favorites.remove(surah);
