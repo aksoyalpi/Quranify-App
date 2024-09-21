@@ -1,8 +1,10 @@
 import 'dart:ui';
 
+import 'package:animated_background/animated_background.dart';
 import 'package:audio_service/audio_service.dart';
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:quran_fi/components/heart_painter.dart';
 import 'package:quran_fi/components/neu_box.dart';
 import 'package:quran_fi/components/sound_icon.dart';
 import 'package:quran_fi/models/surah.dart';
@@ -19,7 +21,7 @@ class SurahPage extends StatefulWidget {
   State<SurahPage> createState() => _SurahPageState();
 }
 
-class _SurahPageState extends State<SurahPage> {
+class _SurahPageState extends State<SurahPage> with TickerProviderStateMixin {
   final pageManager = getIt<PageManager>();
 
   // conver duration into min:sec
@@ -159,21 +161,39 @@ class _SurahPageState extends State<SurahPage> {
     return Hero(
       tag: "audioplayer",
       child: Scaffold(
-          //backgroundColor: Theme.of(context).colorScheme.surface,
-          body: Stack(
-        children: [
-          SizedBox.expand(
-              child: Container(
-            decoration: BoxDecoration(
-                image: DecorationImage(
-                    image: const AssetImage("assets/images/mosque.jpg"),
-                    fit: BoxFit.cover,
-                    colorFilter: ColorFilter.mode(
-                        Colors.black.withOpacity(0.5), BlendMode.darken))),
-          )),
-          surahPage(),
-        ],
-      )),
+        body: ValueListenableBuilder(
+            valueListenable: pageManager.playButtonNotifier,
+            builder: (_, value, __) => AnimatedBackground(
+                  behaviour: RandomParticleBehaviour(
+                    options: ParticleOptions(
+                        spawnMaxRadius: 50,
+                        spawnMinSpeed: value == ButtonState.paused ||
+                                value == ButtonState.loading
+                            ? 0
+                            : 25,
+                        particleCount: 60,
+                        spawnMaxSpeed: value == ButtonState.loading ||
+                                value == ButtonState.paused
+                            ? 0
+                            : 50,
+                        minOpacity: 0.1,
+                        maxOpacity: 1,
+                        opacityChangeRate: 0.25,
+                        spawnOpacity: 0,
+                        baseColor: Theme.of(context).colorScheme.primary),
+                  ),
+                  vsync: this,
+                  child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+                      child: Container(
+                        child: surahPage(),
+                        color: Theme.of(context)
+                            .colorScheme
+                            .surface
+                            .withOpacity(0.1),
+                      )),
+                )),
+      ),
     );
   }
 

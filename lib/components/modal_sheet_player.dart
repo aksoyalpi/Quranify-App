@@ -44,7 +44,6 @@ class _MyWidgetState extends State<LittleAudioPlayer> {
         tag: "audioplayer",
         child: Material(
           color: Colors.transparent,
-          elevation: 10,
           child: NeuBox(
             sigmaX: 3,
             sigmaY: 3,
