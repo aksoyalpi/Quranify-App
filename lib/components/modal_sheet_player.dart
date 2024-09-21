@@ -1,4 +1,7 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
+import 'package:quran_fi/components/neu_box.dart';
 import 'package:quran_fi/notifiers/play_button_notifier.dart';
 import 'package:quran_fi/page_manager.dart';
 import 'package:quran_fi/pages/surah_page.dart';
@@ -40,13 +43,12 @@ class _MyWidgetState extends State<LittleAudioPlayer> {
       child: Hero(
         tag: "audioplayer",
         child: Material(
+          color: Colors.transparent,
           elevation: 10,
-          borderRadius: BorderRadius.circular(8),
-          child: Container(
-            width: double.infinity,
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-                color: Theme.of(context).colorScheme.secondary),
+          child: NeuBox(
+            sigmaX: 3,
+            sigmaY: 3,
+            border: false,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -63,7 +65,7 @@ class _MyWidgetState extends State<LittleAudioPlayer> {
                             width: 60,
                             height: 60,
                             child: ClipRRect(
-                                borderRadius: BorderRadius.circular(8),
+                                borderRadius: BorderRadius.circular(12),
                                 child: Image.asset(
                                   "assets/images/quran.jpg",
                                   fit: BoxFit.cover,
