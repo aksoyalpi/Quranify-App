@@ -9,35 +9,38 @@ class RecentlyPlayedCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-          side: BorderSide(color: Theme.of(context).colorScheme.secondary)),
-      color: Theme.of(context).colorScheme.surface,
-      shadowColor: Theme.of(context).colorScheme.primary,
-      margin: const EdgeInsets.all(10),
-      elevation: 5,
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            //Surah
-            Text(
-              surah.title,
-              style: GoogleFonts.bodoniModa(fontSize: 18),
-            ),
+    return Container(
+      constraints: const BoxConstraints(minWidth: 150),
+      child: Card(
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: BorderSide(color: Theme.of(context).colorScheme.secondary)),
+        color: Theme.of(context).colorScheme.surface,
+        shadowColor: Theme.of(context).colorScheme.primary,
+        margin: const EdgeInsets.all(10),
+        elevation: 5,
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              //Surah
+              Text(
+                surah.title,
+                style: GoogleFonts.bodoniModa(fontSize: 18),
+              ),
 
-            const SizedBox(
-              height: 10,
-            ),
+              const SizedBox(
+                height: 10,
+              ),
 
-            Text(
-              surah.arabicTitle,
-              style: GoogleFonts.bodoniModa(fontSize: 15),
-            )
-          ],
+              Text(
+                surah.arabicTitle,
+                style: GoogleFonts.bodoniModa(fontSize: 15),
+              )
+            ],
+          ),
         ),
       ),
     );

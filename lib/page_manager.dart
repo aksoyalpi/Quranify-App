@@ -185,11 +185,8 @@ class PageManager {
 
   void _listenToChangesInSurah() {
     _audioHandler.mediaItem.listen((mediaItem) async {
-      print("media item: ${mediaItem?.title}");
-
       if (mediaItem != null &&
           currentSongTitleNotifier.value != mediaItem.title) {
-        print("adding to recents ${mediaItem.title}");
         final recentlyPlayed = recentlyPlayedNotifier.value;
         if (recentlyPlayed.length > 4) {
           recentlyPlayed.removeLast();
