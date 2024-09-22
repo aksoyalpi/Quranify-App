@@ -28,6 +28,7 @@ class PageManager {
   final quranVolume = ValueNotifier<double>(1);
   final soundVolume = ValueNotifier<double>(1);
   final favoritesNotifier = ValueNotifier<List<Surah>>([]);
+  final recentlyPlayedNotifier = ValueNotifier<List<Surah>>([]);
 
   List<MediaItem> get playlist => _audioHandler.queue.value;
 
@@ -41,6 +42,10 @@ class PageManager {
 
   Future _initFavorites() async {
     favoritesNotifier.value = await SharedPrefs.getFavorites();
+  }
+
+  Future _initRecentlyPlayed() async {
+    recentlyPlayedNotifier.value = await SharedPrefs.getRecentlyPlayed();
   }
 
   Future changeFavorites(List<Surah> newFavorites) async {
@@ -179,7 +184,21 @@ class PageManager {
   }
 
   void _listenToChangesInSurah() {
-    _audioHandler.mediaItem.listen((mediaItem) {
+    _audioHandler.mediaItem.listen((mediaItem) async {
+      print("media item: ${mediaItem?.title}");
+
+      if (mediaItem != null &&
+          currentSongTitleNotifier.value != mediaItem.title) {
+        print("adding to recents ${mediaItem.title}");
+        final recentlyPlayed = recentlyPlayedNotifier.value;
+        if (recentlyPlayed.length > 4) {
+          recentlyPlayed.removeLast();
+        }
+        recentlyPlayed.insert(0, Surah.fromMediaItem(mediaItem));
+        SharedPrefs.setRecentlyPlayed(recentlyPlayed);
+        recentlyPlayedNotifier.value = recentlyPlayed;
+      }
+
       currentSongTitleNotifier.value = mediaItem?.title ?? '';
       _updateSkipButtons();
     });
@@ -199,8 +218,9 @@ class PageManager {
 
   // Events: Calls coming from the UI
   void init() async {
-    await _initDefaultRecitator();
-    await _initFavorites();
+    _initDefaultRecitator();
+    _initFavorites();
+    _initRecentlyPlayed();
     _listenToChangesInPlaylist();
     _listenToPlaybackState();
     _listenToCurrentPosition();
