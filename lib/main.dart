@@ -102,6 +102,8 @@ class _MyHomePageState extends State<MyHomePage> {
                         .chain(CurveTween(curve: Curves.ease)))),
       ),
     );
+
+    setState(() {});
   }
 
   void addSurahToPlaylist(BuildContext context, Surah surah) async {
