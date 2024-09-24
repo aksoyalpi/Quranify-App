@@ -25,6 +25,6 @@ class Surah {
     return Surah(
         id: int.parse(mediaItem.id),
         title: mediaItem.title,
-        arabicTitle: mediaItem.extras!["arabicTitle"]);
+        arabicTitle: mediaItem.extras?["arabicTitle"] ?? "");
   }
 }

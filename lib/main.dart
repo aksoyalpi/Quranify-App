@@ -1,14 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:quran_fi/components/modal_sheet_player.dart';
+import 'package:quran_fi/components/recently_played_card.dart';
+import 'package:quran_fi/components/shuffle_card.dart';
+import 'package:quran_fi/components/sound_card.dart';
+import 'package:quran_fi/components/surah_icon.dart';
 import 'package:quran_fi/consts/sounds.dart';
 import 'package:quran_fi/models/surah.dart';
 import 'package:quran_fi/page_manager.dart';
 import 'package:quran_fi/pages/settings_page.dart';
 import 'package:quran_fi/pages/surah_page.dart';
 import 'package:quran_fi/services/service_locator.dart';
+import 'package:quran_fi/services/shared_prefs.dart';
 import 'package:quran_fi/themes/theme_provider.dart';
 
 Future<void> main() async {
@@ -22,6 +29,9 @@ Future<void> main() async {
 
   // Set preferred orientations for the app
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+
+  // TODO: should only be called the first time
+  //await SharedPrefs.initialize();
 }
 
 class MyApp extends StatefulWidget {
@@ -80,10 +90,20 @@ class _MyHomePageState extends State<MyHomePage> {
 
     // navigate to surah page
     Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const SurahPage(),
-        ));
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            const SurahPage(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+            SlideTransition(
+                child: child,
+                position: animation.drive(
+                    Tween(begin: Offset(0, 1), end: Offset.zero)
+                        .chain(CurveTween(curve: Curves.ease)))),
+      ),
+    );
+
+    setState(() {});
   }
 
   void addSurahToPlaylist(BuildContext context, Surah surah) async {
@@ -101,7 +121,13 @@ class _MyHomePageState extends State<MyHomePage> {
       action = null;
     }
 
-    final snackBar = SnackBar(content: Text(text), action: action);
+    final snackBar = SnackBar(
+      content: Text(text),
+      action: action,
+      elevation: 10,
+      margin: const EdgeInsets.all(5),
+      behavior: SnackBarBehavior.floating,
+    );
 
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
@@ -120,6 +146,9 @@ class _MyHomePageState extends State<MyHomePage> {
 
               if (value == 0) {
                 filteredSurahs = pageManager.favoritesNotifier.value;
+                filteredSurahs.sort(
+                  (a, b) => a.id.compareTo(b.id),
+                );
               } else if (value == 1) {
                 filteredSurahs = surahs;
               }
@@ -152,6 +181,8 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                         onChanged: (query) {
                           final favorites = pageManager.favoritesNotifier.value;
+                          favorites.sort((a, b) => a.id.compareTo(b.id));
+
                           // Handle search query here
                           setState(() {
                             // checks if the user is on favorites or home page
@@ -170,8 +201,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           });
                         },
                       )
-                    : Text(
-                        pageIndex == 0 ? "F A V O R I T E S" : 'S U R A H S'),
+                    : Text(pageIndex == 0 ? "F A V O R I T E S" : "H O M E"),
                 actions: [
                   IconButton(
                       onPressed: () {
@@ -191,108 +221,166 @@ class _MyHomePageState extends State<MyHomePage> {
         body: pageIndex == 2 ? const SettingsPage() : surahsPage());
   }
 
-  Widget surahsPage() => Stack(
+  Widget surahsPage() {
+    // section for grid view of all surahs
+    final allSurahsGrid = GridView.count(
+        padding: const EdgeInsets.only(bottom: 50),
+        childAspectRatio: 0.7,
+        shrinkWrap: true,
+        physics: const ClampingScrollPhysics(),
+        crossAxisCount: 3,
+        children: List.generate(
+          filteredSurahs.length,
+          (index) {
+            // get individual surah
+            final Surah surah = filteredSurahs[index];
+            // return list tile UI
+            final favorites = pageManager.favoritesNotifier.value;
+
+            return InkWell(
+              child: SurahIcon(surah: surah),
+              onLongPress: () => addSurahToPlaylist(context, surah),
+              onDoubleTap: () => setState(() {
+                if (favorites.contains(surah)) {
+                  favorites.remove(surah);
+                } else {
+                  favorites.add(surah);
+                }
+                pageManager.changeFavorites(favorites);
+              }),
+              onTap: () => goToSurah(surah),
+            );
+          },
+        ));
+
+    // Section for recently played list
+    final recentlyPlayedBlock = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          " Recently Played",
+          style: GoogleFonts.bodoniModa(fontSize: 25),
+        ),
+
+        // recently played Surahs
+        SizedBox(height: 120, child: recentlyPlayedList())
+      ],
+    );
+
+    // sound icons and shuffle mode
+    final soundsAndShuffle = SizedBox(
+      height: 200,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisSize: MainAxisSize.max,
         children: [
+          // Nature sound Icons
+          Expanded(
+            child: Column(
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                Expanded(
+                  child: Row(
+                    children: [
+                      Expanded(
+                          child: SoundCard(
+                        soundData: sounds.entries.elementAt(1),
+                      )),
+                      Expanded(
+                          child: SoundCard(
+                        soundData: sounds.entries.elementAt(2),
+                      ))
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: Row(
+                    children: [
+                      Expanded(
+                          child: SoundCard(
+                        soundData: sounds.entries.elementAt(3),
+                      )),
+                      Expanded(
+                          child: SoundCard(
+                        soundData: sounds.entries.elementAt(4),
+                      ))
+                    ],
+                  ),
+                )
+              ],
+            ),
+          ),
+
+          // Shuffle Card
+          Expanded(child: SizedBox(height: 200, child: ShuffleCard())),
+        ],
+      ),
+    );
+
+    return Stack(
+      children: [
+        if (pageIndex == 1)
           ListView(
-            scrollDirection: Axis.vertical,
             children: [
-              SizedBox(
-                height: 150,
-                child: ListView.builder( 
-                  shrinkWrap: true,
-
-                  scrollDirection: Axis.horizontal,
-                  itemCount: sounds.keys.length,
-                  itemBuilder: (context, index) {
-                    if(index == 0) return SizedBox(height: 0);
-                    final soundData = sounds.entries.elementAt(index);
-                  return Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle, 
-                            border: Border.all(color: Colors.white30)
-                            ), 
-                          child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Icon(soundData.value , size: 40,),
-                        ),),
-
-                        Text(soundData.key)
-                      ],
-                    ),
-                  );
-                },),
-              ),
-
-              ...List.generate(filteredSurahs.length, (index) {
-                // get individual surah
-                final Surah surah = filteredSurahs[index];
-                // return list tile UI
-                return surahTile(context, surah, index);
-              },),
+              // Recently Played
+              recentlyPlayedBlock,
 
               const SizedBox(
-                  height: 100,
-                )
-              /*ListView.builder(
-                scrollDirection: Axis.vertical,
-                shrinkWrap: true,
-            itemCount: filteredSurahs.length + 1,
-            itemBuilder: (context, index) {
-              if (index == filteredSurahs.length) {
-                return const SizedBox(
-                  height: 100,
-                );
-              } else {
-                // get individual surah
-                final Surah surah = filteredSurahs[index];
-                // return list tile UI
-                return surahTile(context, surah, index);
-              }
-            },
-          ),*/
-            ],
-          ),
-          /*ListView.builder(
-            itemCount: filteredSurahs.length + 1,
-            itemBuilder: (context, index) {
-              if (index == filteredSurahs.length) {
-                return const SizedBox(
-                  height: 100,
-                );
-              } else {
-                // get individual surah
-                final Surah surah = filteredSurahs[index];
-                // return list tile UI
-                return surahTile(context, surah, index);
-              }
-            },
-          ),*/
+                height: 25,
+              ),
 
-          // little AudioPlayer
-          ValueListenableBuilder(
-            valueListenable: pageManager.currentSongTitleNotifier,
-            builder: (_, surah, __) {
-              if (surah == "") {
-                return const SizedBox(
-                  width: 0,
-                  height: 0,
-                );
-              } else {
-                return const Align(
-                    alignment: Alignment.bottomCenter,
-                    child: Padding(
-                      padding: const EdgeInsets.all(18.0),
-                      child: LittleAudioPlayer(),
-                    ));
-              }
-            },
-          ),
-        ],
-      );
+              soundsAndShuffle,
+              const SizedBox(
+                height: 25,
+              ),
+
+              Text(
+                " All Surahs",
+                style: GoogleFonts.bodoniModa(fontSize: 25),
+              ),
+              const SizedBox(height: 10),
+              // All Surahs
+              allSurahsGrid
+            ],
+          )
+        else
+          allSurahsGrid,
+
+        // little AudioPlayer
+        ValueListenableBuilder(
+          valueListenable: pageManager.currentSongTitleNotifier,
+          builder: (_, surah, __) {
+            if (surah == "") {
+              return const SizedBox(
+                width: 0,
+                height: 0,
+              );
+            } else {
+              return const Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Padding(
+                    padding: EdgeInsets.all(18.0),
+                    child: LittleAudioPlayer(),
+                  ));
+            }
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget recentlyPlayedList() {
+    return ValueListenableBuilder(
+        valueListenable: pageManager.recentlyPlayedNotifier,
+        builder: (_, recentlyPlayed, __) => ListView.builder(
+              shrinkWrap: true,
+              scrollDirection: Axis.horizontal,
+              itemCount: recentlyPlayed.length,
+              itemBuilder: (context, index) => InkWell(
+                  onTap: () => goToSurah(recentlyPlayed[index]),
+                  child: RecentlyPlayedCard(surah: recentlyPlayed[index])),
+            ));
+  }
 
   Widget surahTile(BuildContext context, Surah surah, int index) {
     bool isFavorite = pageManager.favoritesNotifier.value.contains(surah);
@@ -309,36 +397,41 @@ class _MyHomePageState extends State<MyHomePage> {
           )
         ],
       ),
-      child: ListTile(
-        leading: Image.asset("assets/images/quran.jpg"),
-        title: Text(surah.title),
-        subtitle: Text("Surah ${surah.id}"),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(surah.arabicTitle),
-            ValueListenableBuilder(
-                valueListenable: pageManager.favoritesNotifier,
-                builder: (_, favorites, __) {
-                  return IconButton(
-                      onPressed: () {
-                        setState(() {
-                          if (favorites.contains(surah)) {
-                            favorites.remove(surah);
-                          } else {
-                            favorites.add(surah);
-                          }
-                          pageManager.changeFavorites(favorites);
-                        });
-                      },
-                      icon: Icon(
-                        isFavorite ? Icons.favorite : Icons.favorite_border,
-                        color: Theme.of(context).colorScheme.onPrimary,
-                      ));
-                })
-          ],
+      child: Card(
+        elevation: 10,
+        child: ListTile(
+          leading: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.asset("assets/images/quran.jpg")),
+          title: Text(surah.title),
+          subtitle: Text("Surah ${surah.id}"),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(surah.arabicTitle),
+              ValueListenableBuilder(
+                  valueListenable: pageManager.favoritesNotifier,
+                  builder: (_, favorites, __) {
+                    return IconButton(
+                        onPressed: () {
+                          setState(() {
+                            if (favorites.contains(surah)) {
+                              favorites.remove(surah);
+                            } else {
+                              favorites.add(surah);
+                            }
+                            pageManager.changeFavorites(favorites);
+                          });
+                        },
+                        icon: Icon(
+                          isFavorite ? Icons.favorite : Icons.favorite_border,
+                          color: Theme.of(context).colorScheme.onPrimary,
+                        ));
+                  })
+            ],
+          ),
+          onTap: () => goToSurah(surah),
         ),
-        onTap: () => goToSurah(surah),
       ),
     );
   }

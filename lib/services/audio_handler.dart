@@ -1,5 +1,8 @@
+import 'dart:ui';
+
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_launcher_icons/custom_exceptions.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:quran_fi/consts/sounds.dart';
 
@@ -24,7 +27,6 @@ class MyAudioHandler extends BaseAudioHandler {
   bool isSoundOn = false;
 
   MyAudioHandler() {
-    _soundPlayer.setLoopMode(LoopMode.all);
     _loadEmptyPlaylist();
     _notifyAudioHandlerAboutPlaybackEvents();
     _listenForDurationChanges();
@@ -221,6 +223,10 @@ class MyAudioHandler extends BaseAudioHandler {
         await _soundPlayer.setAudioSource(AudioSource.asset(
             "assets/audio/${sounds.keys.elementAt(extras["index"])}.mp3"));
         _soundPlayer.play();
+
+        // TODO can be done in init (just for testing of error that sound stops)
+        await _soundPlayer.setLoopMode(LoopMode.one);
+
         isSoundOn = true;
       } else {
         isSoundOn = false;

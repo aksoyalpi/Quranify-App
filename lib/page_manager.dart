@@ -28,6 +28,7 @@ class PageManager {
   final quranVolume = ValueNotifier<double>(1);
   final soundVolume = ValueNotifier<double>(1);
   final favoritesNotifier = ValueNotifier<List<Surah>>([]);
+  final recentlyPlayedNotifier = ValueNotifier<List<Surah>>([]);
 
   List<MediaItem> get playlist => _audioHandler.queue.value;
 
@@ -43,6 +44,10 @@ class PageManager {
     favoritesNotifier.value = await SharedPrefs.getFavorites();
   }
 
+  Future _initRecentlyPlayed() async {
+    recentlyPlayedNotifier.value = await SharedPrefs.getRecentlyPlayed();
+  }
+
   Future changeFavorites(List<Surah> newFavorites) async {
     favoritesNotifier.value = newFavorites;
     await SharedPrefs.setFavorites(newFavorites);
@@ -53,7 +58,6 @@ class PageManager {
       (element) => element.id == id,
     );
     stop();
-    // TODO: change current playing song
     await _loadNewPlaylist();
     play();
   }
@@ -94,15 +98,16 @@ class PageManager {
           album: item.album,
           artist: recitator.name,
           artUri: item.artUri,
-          extras: {"url": url});
+          extras: {
+            "url": url,
+            "arabicTitle": item.extras?["arabicTitle"] ?? ""
+          });
     }).toList();
 
     await _audioHandler.customAction("removeAll");
 
     for (var element in newMediaItems) {
-      element.then(
-        (value) async => await _audioHandler.addQueueItem(value),
-      );
+      await _audioHandler.addQueueItem(await element);
     }
   }
 
@@ -179,7 +184,18 @@ class PageManager {
   }
 
   void _listenToChangesInSurah() {
-    _audioHandler.mediaItem.listen((mediaItem) {
+    _audioHandler.mediaItem.listen((mediaItem) async {
+      if (mediaItem != null &&
+          currentSongTitleNotifier.value != mediaItem.title) {
+        final recentlyPlayed = recentlyPlayedNotifier.value;
+        if (recentlyPlayed.length > 4) {
+          recentlyPlayed.removeLast();
+        }
+        recentlyPlayed.insert(0, Surah.fromMediaItem(mediaItem));
+        SharedPrefs.setRecentlyPlayed(recentlyPlayed);
+        recentlyPlayedNotifier.value = recentlyPlayed;
+      }
+
       currentSongTitleNotifier.value = mediaItem?.title ?? '';
       _updateSkipButtons();
     });
@@ -199,8 +215,9 @@ class PageManager {
 
   // Events: Calls coming from the UI
   void init() async {
-    await _initDefaultRecitator();
-    await _initFavorites();
+    _initDefaultRecitator();
+    _initFavorites();
+    _initRecentlyPlayed();
     _listenToChangesInPlaylist();
     _listenToPlaybackState();
     _listenToCurrentPosition();

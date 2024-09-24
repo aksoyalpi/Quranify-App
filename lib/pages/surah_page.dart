@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:animated_background/animated_background.dart';
 import 'package:audio_service/audio_service.dart';
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:flutter/material.dart';
@@ -19,7 +20,7 @@ class SurahPage extends StatefulWidget {
   State<SurahPage> createState() => _SurahPageState();
 }
 
-class _SurahPageState extends State<SurahPage> {
+class _SurahPageState extends State<SurahPage> with TickerProviderStateMixin {
   final pageManager = getIt<PageManager>();
 
   // conver duration into min:sec
@@ -90,49 +91,46 @@ class _SurahPageState extends State<SurahPage> {
 
     showModalBottomSheet(
         context: context,
-        builder: (context) => ReorderableListView(
-              children: List.generate(
-                pageManager.playlist.length,
-                (index) {
-                  final MediaItem surah = pageManager.playlist[index];
-                  // variable to ask if surah is the surah that is currently playing
-                  final isPlaying;
-                  if (pageManager.currentSongTitleNotifier.value ==
-                      surah.title) {
-                    isPlaying = true;
-                  } else {
-                    isPlaying = false;
-                  }
+        builder: (context) => ReorderableListView.builder(
+              itemCount: pageManager.playlist.length,
+              itemBuilder: (context, index) {
+                final MediaItem surah = pageManager.playlist[index];
+                // variable to ask if surah is the surah that is currently playing
+                final isPlaying;
+                if (pageManager.currentSongTitleNotifier.value == surah.title) {
+                  isPlaying = true;
+                } else {
+                  isPlaying = false;
+                }
 
-                  return ListTile(
-                    key: Key(surah.id),
-                    iconColor: Theme.of(context).colorScheme.onPrimary,
-                    tileColor: isPlaying
-                        ? Theme.of(context).colorScheme.secondary
-                        : null,
-                    leading: const Icon(Icons.drag_handle),
-                    title: Text(
-                      surah.title,
+                return ListTile(
+                  key: Key(surah.id),
+                  iconColor: Theme.of(context).colorScheme.onPrimary,
+                  tileColor: isPlaying
+                      ? Theme.of(context).colorScheme.secondary
+                      : null,
+                  leading: const Icon(Icons.drag_handle),
+                  title: Text(
+                    surah.title,
+                  ),
+                  subtitle: Text("Surah ${int.parse(surah.id)}",
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.primary,
+                      )),
+                  onTap: () {
+                    playSurah(Surah.fromMediaItem(surah));
+                    Navigator.pop(context);
+                  },
+                  trailing: IconButton(
+                    icon: Icon(
+                      Icons.delete_outline,
+                      color: Theme.of(context).colorScheme.onSecondary,
                     ),
-                    subtitle: Text("Surah ${int.parse(surah.id)}",
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.primary,
-                        )),
-                    onTap: () {
-                      playSurah(Surah.fromMediaItem(surah));
-                      Navigator.pop(context);
-                    },
-                    trailing: IconButton(
-                      icon: Icon(
-                        Icons.delete_outline,
-                        color: Theme.of(context).colorScheme.onSecondary,
-                      ),
-                      onPressed: () =>
-                          removeSurahFromPlaylist(Surah.fromMediaItem(surah)),
-                    ),
-                  );
-                },
-              ),
+                    onPressed: () =>
+                        removeSurahFromPlaylist(Surah.fromMediaItem(surah)),
+                  ),
+                );
+              },
               onReorder: (oldIndex, newIndex) async {
                 final currentSurahTitle =
                     pageManager.currentSongTitleNotifier.value;
@@ -156,30 +154,52 @@ class _SurahPageState extends State<SurahPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Hero(
-      tag: "audioplayer",
+    return GestureDetector(
+      onPanUpdate: (details) {
+        if (details.delta.dy > 5) {
+          Navigator.pop(context);
+        }
+      },
       child: Scaffold(
-          //backgroundColor: Theme.of(context).colorScheme.surface,
-          body: Stack(
-        children: [
-          SizedBox.expand(
-              child: Container(
-            decoration: BoxDecoration(
-                image: DecorationImage(
-                    image: const AssetImage("assets/images/mosque.jpg"),
-                    fit: BoxFit.cover,
-                    colorFilter: ColorFilter.mode(
-                        Colors.black.withOpacity(0.25), BlendMode.darken))),
-          )),
-          surahPage(),
-        ],
-      )),
+        body: ValueListenableBuilder(
+            valueListenable: pageManager.playButtonNotifier,
+            builder: (_, value, __) => AnimatedBackground(
+                  behaviour: RandomParticleBehaviour(
+                    options: ParticleOptions(
+                        spawnMaxRadius: 50,
+                        spawnMinSpeed: value == ButtonState.paused ||
+                                value == ButtonState.loading
+                            ? 0
+                            : 25,
+                        particleCount: 60,
+                        spawnMaxSpeed: value == ButtonState.loading ||
+                                value == ButtonState.paused
+                            ? 0
+                            : 50,
+                        minOpacity: 0.1,
+                        maxOpacity: 1,
+                        opacityChangeRate: 0.25,
+                        spawnOpacity: 0,
+                        baseColor: Theme.of(context).colorScheme.primary),
+                  ),
+                  vsync: this,
+                  child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+                      child: Container(
+                        child: surahPage(),
+                        color: Theme.of(context)
+                            .colorScheme
+                            .surface
+                            .withOpacity(0.1),
+                      )),
+                )),
+      ),
     );
   }
 
   Widget surahPage() => SafeArea(
         child: Padding(
-          padding: const EdgeInsets.only(left: 25, right: 25, bottom: 25),
+          padding: const EdgeInsets.only(left: 25, right: 25),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -197,7 +217,7 @@ class _SurahPageState extends State<SurahPage> {
 
                   IconButton(
                       onPressed: () => showMenu(context),
-                      icon: const Icon(Icons.menu))
+                      icon: const Icon(Icons.more_horiz))
                 ],
               ),
 
@@ -214,7 +234,8 @@ class _SurahPageState extends State<SurahPage> {
                     // image
                     ClipRRect(
                         borderRadius: BorderRadius.circular(8),
-                        child: Image.asset("assets/images/quran.jpg")),
+                        child: Image.asset(
+                            "assets/images/quran.jpg" /*"assets/animations/rain_animation.gif"*/)),
 
                     Padding(
                       padding: const EdgeInsets.all(15),
@@ -278,6 +299,9 @@ class _SurahPageState extends State<SurahPage> {
                                           }
                                           pageManager
                                               .changeFavorites(favorites);
+                                          setState(
+                                            () {},
+                                          );
                                         },
                                         icon: Icon(iconData));
                                   });
@@ -296,7 +320,7 @@ class _SurahPageState extends State<SurahPage> {
 
               Column(
                 children: [
-                  SoundIcon(),
+                  const SoundIcon(),
 
                   const SizedBox(
                     height: 15,
@@ -410,10 +434,14 @@ class _SurahPageState extends State<SurahPage> {
               ),
 
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   IconButton(
                       onPressed: (() => showPlaylist(context)),
                       icon: const Icon(Icons.queue_music)),
+                  IconButton(
+                      onPressed: () => showMenu(context),
+                      icon: const Icon(Icons.person))
                 ],
               )
             ],

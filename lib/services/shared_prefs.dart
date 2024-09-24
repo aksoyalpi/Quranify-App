@@ -8,6 +8,14 @@ class SharedPrefs {
     return await SharedPreferences.getInstance();
   }
 
+  static Future initialize() async {
+    final prefs = await getInstance();
+    prefs.setInt("recitator", 7);
+    prefs.setBool("isDarkTheme", true);
+    prefs.setStringList("favorites", []);
+    prefs.setStringList("recentlyPlayed", []);
+  }
+
   static Future<void> setDefaultRecitator(int recitatorId) async {
     final prefs = await getInstance();
     prefs.setInt("recitator", recitatorId);
@@ -48,6 +56,33 @@ class SharedPrefs {
 
     if (favoriteIds != null) {
       return favoriteIds
+          .map((id) => pageManager.surahs[int.parse(id) - 1])
+          .toList();
+    } else {
+      return [];
+    }
+  }
+
+  static Future<void> setRecentlyPlayed(List<Surah> recentlyPlayed) async {
+    final prefs = await getInstance();
+
+    // List with the ids of the recently played surahs as Strings
+    final recentlyPlayedIds = recentlyPlayed
+        .map(
+          (surah) => surah.id.toString(),
+        )
+        .toList();
+
+    prefs.setStringList("recentlyPlayed", recentlyPlayedIds);
+  }
+
+  static Future<List<Surah>> getRecentlyPlayed() async {
+    final prefs = await getInstance();
+    final pageManager = getIt<PageManager>();
+    final recentlyPlayedIds = prefs.getStringList("recentlyPlayed");
+
+    if (recentlyPlayedIds != null) {
+      return recentlyPlayedIds
           .map((id) => pageManager.surahs[int.parse(id) - 1])
           .toList();
     } else {
