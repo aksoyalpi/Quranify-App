@@ -31,7 +31,7 @@ class SoundCard extends StatelessWidget {
           elevation: 10,
           margin: const EdgeInsets.all(18),
           shape: OvalBorder(
-              side: BorderSide(color: Theme.of(context).colorScheme.primary)),
+              side: BorderSide(color: Theme.of(context).colorScheme.secondary)),
           child: Icon(soundData.value),
         ),
       ),
