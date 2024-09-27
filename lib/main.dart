@@ -15,7 +15,6 @@ import 'package:quran_fi/page_manager.dart';
 import 'package:quran_fi/pages/settings_page.dart';
 import 'package:quran_fi/pages/surah_page.dart';
 import 'package:quran_fi/services/service_locator.dart';
-import 'package:quran_fi/services/shared_prefs.dart';
 import 'package:quran_fi/themes/theme_provider.dart';
 
 Future<void> main() async {
@@ -74,6 +73,7 @@ class _MyHomePageState extends State<MyHomePage> {
   late List<Surah> surahs;
   late List<Surah> filteredSurahs;
   int pageIndex = 1;
+  bool isListView = false;
 
   @override
   void initState() {
@@ -203,6 +203,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       )
                     : Text(pageIndex == 0 ? "F A V O R I T E S" : "H O M E"),
                 actions: [
+                  // S E A R C H    I C O N
                   IconButton(
                       onPressed: () {
                         setState(() {
@@ -215,13 +216,37 @@ class _MyHomePageState extends State<MyHomePage> {
                           }
                         });
                       },
-                      icon: Icon(_isSearching ? Icons.close : Icons.search))
+                      icon: Icon(_isSearching ? Icons.close : Icons.search)),
+
+                  // V I E W   S E T T I N G
+                  IconButton(
+                      onPressed: () => setState(() => isListView = !isListView),
+                      icon: Icon(isListView ? Icons.list : Icons.grid_view))
                 ],
               ),
         body: pageIndex == 2 ? const SettingsPage() : surahsPage());
   }
 
   Widget surahsPage() {
+    // section for list view of all surahs
+    final allSurahsList = ListView.builder(
+      physics: const ClampingScrollPhysics(),
+      shrinkWrap: true,
+      itemCount: filteredSurahs.length + 1,
+      itemBuilder: (context, index) {
+        if (index == filteredSurahs.length) {
+          return const SizedBox(
+            height: 100,
+          );
+        } else {
+          // get individual surah
+          final Surah surah = filteredSurahs[index];
+          // return list tile UI
+          return surahTile(context, surah, index);
+        }
+      },
+    );
+
     // section for grid view of all surahs
     final allSurahsGrid = GridView.count(
         padding: const EdgeInsets.only(bottom: 50),
@@ -257,10 +282,11 @@ class _MyHomePageState extends State<MyHomePage> {
     final recentlyPlayedBlock = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          " Recently Played",
-          style: GoogleFonts.bodoniModa(fontSize: 25),
-        ),
+        if (pageManager.recentlyPlayedNotifier.value.isNotEmpty)
+          Text(
+            " Recently Played",
+            style: GoogleFonts.bodoniModa(fontSize: 25),
+          ),
 
         // recently played Surahs
         SizedBox(height: 120, child: recentlyPlayedList())
@@ -312,7 +338,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
 
           // Shuffle Card
-          Expanded(child: SizedBox(height: 200, child: ShuffleCard())),
+          const Expanded(child: SizedBox(height: 200, child: ShuffleCard())),
         ],
       ),
     );
@@ -329,10 +355,11 @@ class _MyHomePageState extends State<MyHomePage> {
                 height: 25,
               ),
 
-              soundsAndShuffle,
+              // TODO for next version
+              /*soundsAndShuffle,
               const SizedBox(
                 height: 25,
-              ),
+              ),*/
 
               Text(
                 " All Surahs",
@@ -340,11 +367,11 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               const SizedBox(height: 10),
               // All Surahs
-              allSurahsGrid
+              isListView ? allSurahsList : allSurahsGrid
             ],
           )
         else
-          allSurahsGrid,
+          isListView ? allSurahsList : allSurahsGrid,
 
         // little AudioPlayer
         ValueListenableBuilder(

@@ -105,9 +105,8 @@ class _SurahPageState extends State<SurahPage> with TickerProviderStateMixin {
 
                 return ListTile(
                   key: Key(surah.id),
-                  iconColor: Theme.of(context).colorScheme.onPrimary,
-                  tileColor: isPlaying
-                      ? Theme.of(context).colorScheme.secondary
+                  iconColor: isPlaying
+                      ? Theme.of(context).colorScheme.onPrimary
                       : null,
                   leading: const Icon(Icons.drag_handle),
                   title: Text(
@@ -134,7 +133,6 @@ class _SurahPageState extends State<SurahPage> with TickerProviderStateMixin {
               onReorder: (oldIndex, newIndex) async {
                 final currentSurahTitle =
                     pageManager.currentSongTitleNotifier.value;
-                print("1. current $currentSurahTitle");
                 final surahThatIsDragged = pageManager.playlist[oldIndex].title;
                 if (oldIndex < newIndex) {
                   newIndex -= 1;
