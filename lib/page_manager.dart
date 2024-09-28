@@ -23,7 +23,7 @@ class PageManager {
   final isShuffleModeEnabledNotifier = ValueNotifier<bool>(false);
   final repeatModeNotifier = RepeatModeNotifer();
   final currentRecitator = ValueNotifier<Recitator>(
-      Recitator.fromJson(recitations[6])); // Mishari Rashid al-Afasy
+      Recitator.fromJson(recitations.toList().firstWhere((reciter)=> reciter["id"] == 92))); // Mishari Rashid al-Afasy
   final currentSoundIndex = ValueNotifier<int>(0);
   final quranVolume = ValueNotifier<double>(1);
   final soundVolume = ValueNotifier<double>(1);
@@ -57,6 +57,8 @@ class PageManager {
     currentRecitator.value = _recitators.firstWhere(
       (element) => element.id == id,
     );
+
+    print("recitator: ${currentRecitator.value.id}");
     stop();
     await _loadNewPlaylist();
     play();
@@ -91,6 +93,8 @@ class PageManager {
 
     final newMediaItems = playlist.map((item) async {
       final url = await getRecitionUrl(recitator.id, int.parse(item.id));
+
+      print(url);
 
       return MediaItem(
           id: item.id,

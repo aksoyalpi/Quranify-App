@@ -30,9 +30,11 @@ class _SettingsPageState extends State<SettingsPage> {
     final defaultRecitatorId = await SharedPrefs.getDefaultRecitator();
     if (defaultRecitatorId == null) {
       setState(() {
-        defaultRecitator = recitations[0];
+        defaultRecitator =
+            recitations.firstWhere((reciter) => reciter.id == 92);
       });
-      await SharedPrefs.setDefaultRecitator(recitations[0].id);
+      await SharedPrefs.setDefaultRecitator(
+          recitations.firstWhere((reciter) => reciter.id == 92).id);
     } else {
       setState(() {
         defaultRecitator = recitations
@@ -101,8 +103,10 @@ class _SettingsPageState extends State<SettingsPage> {
                 future: defaultRecitator,
                 builder: (_, snapshot) {
                   if (snapshot.hasData) {
-                    return Text(
-                        pageManager.recitators[snapshot.data! - 1].name);
+                    return Text(recitations
+                        .firstWhere(
+                            (reciter) => reciter.id == (snapshot.data ?? 92))
+                        .name);
                   } else if (snapshot.connectionState ==
                       ConnectionState.waiting) {
                     return const CircularProgressIndicator();

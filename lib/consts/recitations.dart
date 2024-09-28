@@ -100,5 +100,15 @@ const recitations = [
       "name": "Mahmoud Khalil Al-Husary",
       "language_name": "english"
     }
+  },
+  {
+    "id": 92,
+    "reciter_name": "Yasser Al-Dosari",
+    "style": null,
+    "translated_name": {
+      "name": "Yasser Al-Dosari",
+      "language_name": "english",
+    },
+    "server": "https://server11.mp3quran.net/yasser/"
   }
 ];
