@@ -255,8 +255,11 @@ class _MyHomePageState extends State<MyHomePage> {
           (index) {
             // get individual surah
             final Surah surah = filteredSurahs[index];
-
-            return SurahIcon(surah: surah);
+            // return list tile UI
+            return InkWell(
+              child: SurahIcon(surah: surah),
+              onTap: () => goToSurah(surah),
+            );
           },
         ));
 

@@ -35,8 +35,8 @@ class _SurahIconState extends State<SurahIcon> {
                 return ClipOval(
                     child: AnimatedContainer(
                         duration: const Duration(milliseconds: 300),
-                        height: 85,
-                        width: 85,
+                        height: 75,
+                        width: 75,
                         decoration: BoxDecoration(
                             color: currentPage == 0
                                 ? null
