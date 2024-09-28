@@ -24,6 +24,7 @@ class MyAudioHandler extends BaseAudioHandler {
 
   MyAudioHandler() {
     _loadEmptyPlaylist();
+    _listenForSequenceStateChanges();
     _notifyAudioHandlerAboutPlaybackEvents();
     _listenForDurationChanges();
     _listenForCurrentSurahIndexChanges();
@@ -51,6 +52,9 @@ class MyAudioHandler extends BaseAudioHandler {
           //MediaControl.stop,
           MediaControl.skipToNext,
         ],
+        shuffleMode: (_player.shuffleModeEnabled)
+            ? AudioServiceShuffleMode.all
+            : AudioServiceShuffleMode.none,
         systemActions: const {
           MediaAction.seek,
         },
@@ -71,11 +75,23 @@ class MyAudioHandler extends BaseAudioHandler {
     });
   }
 
+  void _listenForSequenceStateChanges() {
+    _player.sequenceStateStream.listen((SequenceState? sequenceState) {
+      final sequence = sequenceState?.effectiveSequence;
+      if (sequence == null || sequence.isEmpty) return;
+      final items = sequence.map((source) => source.tag as MediaItem);
+      queue.add(items.toList());
+    });
+  }
+
   void _listenForDurationChanges() {
     _player.durationStream.listen((duration) {
-      final index = _player.currentIndex;
+      var index = _player.currentIndex;
       final newQueue = queue.value;
       if (index == null || newQueue.isEmpty) return;
+      if (_player.shuffleModeEnabled) {
+        index = _player.shuffleIndices!.indexOf(index);
+      }
       final oldMediaItem = newQueue[index];
       final newMediaItem = oldMediaItem.copyWith(duration: duration);
       newQueue[index] = newMediaItem;

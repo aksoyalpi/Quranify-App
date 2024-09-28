@@ -76,35 +76,39 @@ class _SurahIconState extends State<SurahIcon> {
       ));
 
   Widget addToPlaylistWidget(Surah surah) => Center(
-        child: IconButton(
-          icon: const Icon(Icons.playlist_add),
-          onPressed: () {
-            addSurahToPlaylist(context, surah);
-            setState(() {
-              currentPage = 0;
-            });
-            pageController.jumpToPage(0);
-          },
+        child: SizedBox.expand(
+          child: IconButton(
+            icon: const Icon(Icons.playlist_add),
+            onPressed: () {
+              addSurahToPlaylist(context, surah);
+              setState(() {
+                currentPage = 0;
+              });
+              pageController.jumpToPage(0);
+            },
+          ),
         ),
       );
 
   Widget addToFavoritesWidget(Surah surah, List<Surah> favorites) => Center(
-        child: IconButton(
-          icon: Icon(favorites.contains(surah)
-              ? Icons.favorite
-              : Icons.favorite_outline),
-          onPressed: () {
-            if (favorites.contains(surah)) {
-              favorites.remove(surah);
-            } else {
-              favorites.add(surah);
-            }
-            pageManager.changeFavorites(favorites);
-            setState(() {
-              currentPage = 0;
-            });
-            pageController.jumpToPage(0);
-          },
+        child: SizedBox.expand(
+          child: IconButton(
+            icon: Icon(favorites.contains(surah)
+                ? Icons.favorite
+                : Icons.favorite_outline),
+            onPressed: () {
+              if (favorites.contains(surah)) {
+                favorites.remove(surah);
+              } else {
+                favorites.add(surah);
+              }
+              pageManager.changeFavorites(favorites);
+              setState(() {
+                currentPage = 0;
+              });
+              pageController.jumpToPage(0);
+            },
+          ),
         ),
       );
 }

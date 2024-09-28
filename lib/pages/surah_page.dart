@@ -208,7 +208,9 @@ class _SurahPageState extends State<SurahPage> with TickerProviderStateMixin {
                   // back button
                   IconButton(
                       onPressed: () => Navigator.pop(context),
-                      icon: const Icon(Icons.arrow_back)),
+                      icon: const Icon(
+                        Icons.keyboard_arrow_down,
+                      )),
 
                   // title
                   const Text("S U R A H"),
