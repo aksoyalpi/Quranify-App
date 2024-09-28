@@ -24,7 +24,7 @@ class _SurahIconState extends State<SurahIcon> {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      physics: NeverScrollableScrollPhysics(),
+      physics: const NeverScrollableScrollPhysics(),
       children: [
         Column(
           children: [
@@ -88,7 +88,13 @@ class _SurahIconState extends State<SurahIcon> {
   Widget addToPlaylistWidget(Surah surah) => Center(
         child: IconButton(
           icon: const Icon(Icons.playlist_add),
-          onPressed: () => addSurahToPlaylist(context, surah),
+          onPressed: () {
+            addSurahToPlaylist(context, surah);
+            setState(() {
+              currentPage = 0;
+            });
+            pageController.jumpToPage(0);
+          },
         ),
       );
 }
