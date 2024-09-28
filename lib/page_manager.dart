@@ -188,7 +188,16 @@ class PageManager {
       if (mediaItem != null &&
           currentSongTitleNotifier.value != mediaItem.title) {
         final recentlyPlayed = recentlyPlayedNotifier.value;
-        if (recentlyPlayed.length > 4) {
+
+        // checks weither mediaItem is already in recently played list
+        if (recentlyPlayed.any(
+          (element) => element.id == int.parse(mediaItem.id),
+        )) {
+          print("Alread in list: ${mediaItem.title}");
+          recentlyPlayed.removeWhere(
+            (element) => element.id == int.parse(mediaItem.id),
+          );
+        } else if (recentlyPlayed.length > 4) {
           recentlyPlayed.removeLast();
         }
         recentlyPlayed.insert(0, Surah.fromMediaItem(mediaItem));
