@@ -255,22 +255,8 @@ class _MyHomePageState extends State<MyHomePage> {
           (index) {
             // get individual surah
             final Surah surah = filteredSurahs[index];
-            // return list tile UI
-            final favorites = pageManager.favoritesNotifier.value;
 
-            return InkWell(
-              child: SurahIcon(surah: surah),
-              onLongPress: () => addSurahToPlaylist(context, surah),
-              onDoubleTap: () => setState(() {
-                if (favorites.contains(surah)) {
-                  favorites.remove(surah);
-                } else {
-                  favorites.add(surah);
-                }
-                pageManager.changeFavorites(favorites);
-              }),
-              onTap: () => goToSurah(surah),
-            );
+            return SurahIcon(surah: surah);
           },
         ));
 

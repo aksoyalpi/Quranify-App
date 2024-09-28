@@ -19,7 +19,7 @@ class _SurahIconState extends State<SurahIcon> {
   final pageManager = getIt<PageManager>();
   int currentPage = 0;
   final pageController =
-      PageController(initialPage: 0, keepPage: false, viewportFraction: 0.6);
+      PageController(initialPage: 0, keepPage: false, viewportFraction: 0.75);
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +38,11 @@ class _SurahIconState extends State<SurahIcon> {
                         height: 85,
                         width: 85,
                         decoration: BoxDecoration(
-                            color: currentPage == 0 ? null : Colors.green,
+                            color: currentPage == 0
+                                ? null
+                                : (currentPage == 1
+                                    ? Colors.green
+                                    : Colors.red),
                             shape: BoxShape.circle,
                             border: Border.all(
                                 color: isFavorite
@@ -52,7 +56,8 @@ class _SurahIconState extends State<SurahIcon> {
                             scrollDirection: Axis.vertical,
                             children: [
                               innerContent(),
-                              addToPlaylistWidget(widget.surah)
+                              addToPlaylistWidget(widget.surah),
+                              addToFavoritesWidget(widget.surah, favorites)
                             ])));
               },
             ),
@@ -75,6 +80,26 @@ class _SurahIconState extends State<SurahIcon> {
           icon: const Icon(Icons.playlist_add),
           onPressed: () {
             addSurahToPlaylist(context, surah);
+            setState(() {
+              currentPage = 0;
+            });
+            pageController.jumpToPage(0);
+          },
+        ),
+      );
+
+  Widget addToFavoritesWidget(Surah surah, List<Surah> favorites) => Center(
+        child: IconButton(
+          icon: Icon(favorites.contains(surah)
+              ? Icons.favorite
+              : Icons.favorite_outline),
+          onPressed: () {
+            if (favorites.contains(surah)) {
+              favorites.remove(surah);
+            } else {
+              favorites.add(surah);
+            }
+            pageManager.changeFavorites(favorites);
             setState(() {
               currentPage = 0;
             });
