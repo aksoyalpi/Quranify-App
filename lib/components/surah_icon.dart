@@ -31,44 +31,29 @@ class _SurahIconState extends State<SurahIcon> {
             ValueListenableBuilder(
               valueListenable: pageManager.favoritesNotifier,
               builder: (_, favorites, __) {
-                if (favorites.contains(widget.surah)) {
-                  return Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      SizedBox(
-                        height: 75,
-                        width: 75,
-                        child: Image.asset(
-                          "assets/icons/heart.png",
-                          color: Theme.of(context).colorScheme.onPrimary,
-                        ),
-                      ),
-                      innerContent(),
-                    ],
-                  );
-                } else {
-                  return ClipOval(
-                      child: AnimatedContainer(
-                          duration: Duration(milliseconds: 300),
-                          height: 85,
-                          width: 85,
-                          decoration: BoxDecoration(
-                              color: currentPage == 0 ? null : Colors.green,
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                  color:
-                                      Theme.of(context).colorScheme.primary)),
-                          child: PageView(
-                              padEnds: true,
-                              controller: pageController,
-                              onPageChanged: (value) =>
-                                  setState(() => currentPage = value),
-                              scrollDirection: Axis.vertical,
-                              children: [
-                                innerContent(),
-                                addToPlaylistWidget(widget.surah)
-                              ])));
-                }
+                bool isFavorite = favorites.contains(widget.surah);
+                return ClipOval(
+                    child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
+                        height: 85,
+                        width: 85,
+                        decoration: BoxDecoration(
+                            color: currentPage == 0 ? null : Colors.green,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                                color: isFavorite
+                                    ? Colors.red
+                                    : Theme.of(context).colorScheme.primary)),
+                        child: PageView(
+                            padEnds: true,
+                            controller: pageController,
+                            onPageChanged: (value) =>
+                                setState(() => currentPage = value),
+                            scrollDirection: Axis.vertical,
+                            children: [
+                              innerContent(),
+                              addToPlaylistWidget(widget.surah)
+                            ])));
               },
             ),
             Text(widget.surah.arabicTitle),
