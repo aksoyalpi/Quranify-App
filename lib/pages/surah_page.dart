@@ -112,7 +112,7 @@ class _SurahPageState extends State<SurahPage> with TickerProviderStateMixin {
                   title: Text(
                     surah.title,
                   ),
-                  subtitle: Text("Surah ${int.parse(surah.id)}",
+                  subtitle: Text(surah.extras!["arabicTitle"],
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.primary,
                       )),
@@ -123,7 +123,7 @@ class _SurahPageState extends State<SurahPage> with TickerProviderStateMixin {
                   trailing: IconButton(
                     icon: Icon(
                       Icons.delete_outline,
-                      color: Theme.of(context).colorScheme.onSecondary,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                     onPressed: () =>
                         removeSurahFromPlaylist(Surah.fromMediaItem(surah)),

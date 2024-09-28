@@ -10,11 +10,11 @@ Future<AudioHandler> initAudioService() async {
   return await AudioService.init(
     builder: () => MyAudioHandler(),
     config: const AudioServiceConfig(
-      androidNotificationChannelId: 'com.mycompany.myapp.audio',
-      androidNotificationChannelName: 'Audio Service Demo',
-      androidNotificationOngoing: true,
-      androidStopForegroundOnPause: true,
-    ),
+        androidNotificationChannelId: 'com.mycompany.myapp.audio',
+        androidNotificationChannelName: 'Quran',
+        androidNotificationOngoing: true,
+        androidStopForegroundOnPause: true,
+        androidNotificationIcon: "mipmap/icon_removebg"),
   );
 }
 

@@ -1,15 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:quran_fi/components/modal_sheet_player.dart';
 import 'package:quran_fi/components/recently_played_card.dart';
-import 'package:quran_fi/components/shuffle_card.dart';
-import 'package:quran_fi/components/sound_card.dart';
 import 'package:quran_fi/components/surah_icon.dart';
-import 'package:quran_fi/consts/sounds.dart';
 import 'package:quran_fi/models/surah.dart';
 import 'package:quran_fi/page_manager.dart';
 import 'package:quran_fi/pages/settings_page.dart';
@@ -294,54 +290,54 @@ class _MyHomePageState extends State<MyHomePage> {
     );
 
     // sound icons and shuffle mode
-    final soundsAndShuffle = SizedBox(
-      height: 200,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisSize: MainAxisSize.max,
-        children: [
-          // Nature sound Icons
-          Expanded(
-            child: Column(
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                Expanded(
-                  child: Row(
-                    children: [
-                      Expanded(
-                          child: SoundCard(
-                        soundData: sounds.entries.elementAt(1),
-                      )),
-                      Expanded(
-                          child: SoundCard(
-                        soundData: sounds.entries.elementAt(2),
-                      ))
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: Row(
-                    children: [
-                      Expanded(
-                          child: SoundCard(
-                        soundData: sounds.entries.elementAt(3),
-                      )),
-                      Expanded(
-                          child: SoundCard(
-                        soundData: sounds.entries.elementAt(4),
-                      ))
-                    ],
-                  ),
-                )
-              ],
-            ),
-          ),
+    // final soundsAndShuffle = SizedBox(
+    //   height: 200,
+    //   child: Row(
+    //     crossAxisAlignment: CrossAxisAlignment.center,
+    //     mainAxisSize: MainAxisSize.max,
+    //     children: [
+    //       // Nature sound Icons
+    //       Expanded(
+    //         child: Column(
+    //           mainAxisSize: MainAxisSize.max,
+    //           children: [
+    //             Expanded(
+    //               child: Row(
+    //                 children: [
+    //                   Expanded(
+    //                       child: SoundCard(
+    //                     soundData: sounds.entries.elementAt(1),
+    //                   )),
+    //                   Expanded(
+    //                       child: SoundCard(
+    //                     soundData: sounds.entries.elementAt(2),
+    //                   ))
+    //                 ],
+    //               ),
+    //             ),
+    //             Expanded(
+    //               child: Row(
+    //                 children: [
+    //                   Expanded(
+    //                       child: SoundCard(
+    //                     soundData: sounds.entries.elementAt(3),
+    //                   )),
+    //                   Expanded(
+    //                       child: SoundCard(
+    //                     soundData: sounds.entries.elementAt(4),
+    //                   ))
+    //                 ],
+    //               ),
+    //             )
+    //           ],
+    //         ),
+    //       ),
 
-          // Shuffle Card
-          const Expanded(child: SizedBox(height: 200, child: ShuffleCard())),
-        ],
-      ),
-    );
+    //       // Shuffle Card
+    //       const Expanded(child: SizedBox(height: 200, child: ShuffleCard())),
+    //     ],
+    //   ),
+    // );
 
     return Stack(
       children: [
