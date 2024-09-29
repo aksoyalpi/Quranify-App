@@ -172,20 +172,7 @@ class _SurahPageState extends State<SurahPage> with TickerProviderStateMixin {
               );
             },
             onReorder: (oldIndex, newIndex) async {
-              final currentSurahTitle =
-                  pageManager.currentSongTitleNotifier.value;
-              final surahThatIsDragged = pageManager.playlist[oldIndex].title;
-              if (oldIndex < newIndex) {
-                newIndex -= 1;
-              }
-              final surah = Surah.fromMediaItem(pageManager.playlist[oldIndex]);
-              pageManager.remove(surah);
-              await pageManager.add(surah, index: newIndex);
-
-              //check if tile that is reordered is current playing surah
-              if (currentSurahTitle == surahThatIsDragged) {
-                pageManager.playSurah(surah);
-              }
+              pageManager.move(oldIndex, newIndex);
             },
           ),
 
@@ -194,8 +181,8 @@ class _SurahPageState extends State<SurahPage> with TickerProviderStateMixin {
             bottom: 20,
             right: 20,
             child: ElevatedButton(
-              onPressed: () {
-                pageManager.removeAll();
+              onPressed: () async {
+                await pageManager.removeAll();
                 Navigator.popUntil(
                   context,
                   (route) => route.isFirst,

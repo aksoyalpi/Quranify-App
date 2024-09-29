@@ -326,10 +326,6 @@ class PageManager {
             "https://images.unsplash.com/photo-1576764402988-7143f9cca90a?q=80&w=1780&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"),
         extras: {"url": url, "arabicTitle": surah.arabicTitle});
 
-    //TODO does not work yet (if a surah is already in the playlist it should not be put again in the playlist)
-    /*if (!playlist.contains(item)) {
-      _audioHandler.addQueueItem(item);
-    }*/
     bool inPlaylist = false;
 
     // checks if surah is already in playlist
@@ -358,20 +354,28 @@ class PageManager {
     return false;
   }
 
-  void remove(Surah surah) {
+  Future<void> remove(Surah surah) async {
     final playlist = _audioHandler.queue.value;
 
     final itemInPlaylist =
         playlist.firstWhere((mediaItem) => int.parse(mediaItem.id) == surah.id);
 
     // returns the index of the item in the playlist
-    int indexOfSurah = _audioHandler.queue.value.indexOf(itemInPlaylist);
+    int indexOfSurah = playlist.indexOf(itemInPlaylist);
 
-    _audioHandler.removeQueueItemAt(indexOfSurah);
+    await _audioHandler.removeQueueItemAt(indexOfSurah);
   }
 
-  void removeAll() {
-    _audioHandler.updateQueue([]);
+  Future removeAll() async {
+    await _audioHandler.customAction("clear");
+  }
+
+  Future move(int oldIndex, int newIndex) async {
+    if (oldIndex < newIndex) {
+      newIndex--;
+    }
+    await _audioHandler
+        .customAction("move", {"oldIndex": oldIndex, "newIndex": newIndex});
   }
 
   void dispose() {

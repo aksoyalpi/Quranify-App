@@ -118,45 +118,29 @@ class MyAudioHandler extends BaseAudioHandler {
 
   @override
   Future<void> addQueueItems(List<MediaItem> mediaItems) async {
-    // manage Just Audio
     final audioSource = mediaItems.map(_createAudioSource);
-    _playlist.addAll(audioSource.toList());
-
-    // notify system
-    final newQueue = queue.value..addAll(mediaItems);
-    queue.add(newQueue);
+    await _playlist.addAll(audioSource.toList());
   }
 
   @override
   Future<void> addQueueItem(MediaItem mediaItem) async {
     _playlist.add(_createAudioSource(mediaItem));
-
-    final newQueue = queue.value..add(mediaItem);
-    queue.add(newQueue);
   }
 
   @override
   Future<void> insertQueueItem(int index, MediaItem mediaItem) async {
     await _playlist.insert(index, _createAudioSource(mediaItem));
-
-    final newQueue = queue.value..insert(index, mediaItem);
-    queue.add(newQueue);
   }
 
   @override
   Future<void> removeQueueItemAt(int index) async {
     await _playlist.removeAt(index);
-
-    final newQueue = queue.value..removeAt(index);
-    queue.add(newQueue);
   }
 
   @override
-  Future<void> updateQueue(List<MediaItem> newQueue) async {
+  Future<void> updateQueue(List<MediaItem> queue) async {
     await _playlist.clear();
-    await addQueueItems(newQueue);
-    queue.value.clear();
-    queue.add(newQueue);
+    await addQueueItems(queue);
   }
 
   @override
@@ -253,6 +237,15 @@ class MyAudioHandler extends BaseAudioHandler {
       }
     } else if (name == "setSoundVolume") {
       _soundPlayer.setVolume(extras!["volume"]);
+    } else if (name == "clear") {
+      _playlist.clear();
+      queue.value.clear();
+    } else if (name == "move") {
+      if (extras != null &&
+          extras.containsKey("oldIndex") &&
+          extras.containsKey("newIndex")) {
+        await _playlist.move(extras["oldIndex"], extras["newIndex"]);
+      }
     }
   }
 
