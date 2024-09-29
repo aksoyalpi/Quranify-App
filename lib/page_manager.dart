@@ -368,6 +368,7 @@ class PageManager {
 
   Future removeAll() async {
     await _audioHandler.customAction("clear");
+    currentSongTitleNotifier.value = "";
   }
 
   Future move(int oldIndex, int newIndex) async {
