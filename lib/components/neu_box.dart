@@ -1,8 +1,6 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:quran_fi/themes/theme_provider.dart';
 
 class NeuBox extends StatelessWidget {
   const NeuBox(

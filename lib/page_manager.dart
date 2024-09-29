@@ -22,8 +22,9 @@ class PageManager {
   final isLastSongNotifier = ValueNotifier<bool>(true);
   final isShuffleModeEnabledNotifier = ValueNotifier<bool>(false);
   final repeatModeNotifier = RepeatModeNotifer();
-  final currentRecitator = ValueNotifier<Recitator>(
-      Recitator.fromJson(recitations.toList().firstWhere((reciter)=> reciter["id"] == 92))); // Mishari Rashid al-Afasy
+  final currentRecitator = ValueNotifier<Recitator>(Recitator.fromJson(
+      recitations.toList().firstWhere(
+          (reciter) => reciter["id"] == 92))); // Mishari Rashid al-Afasy
   final currentSoundIndex = ValueNotifier<int>(0);
   final quranVolume = ValueNotifier<double>(1);
   final soundVolume = ValueNotifier<double>(1);
@@ -367,6 +368,10 @@ class PageManager {
     int indexOfSurah = _audioHandler.queue.value.indexOf(itemInPlaylist);
 
     _audioHandler.removeQueueItemAt(indexOfSurah);
+  }
+
+  void removeAll() {
+    _audioHandler.updateQueue([]);
   }
 
   void dispose() {

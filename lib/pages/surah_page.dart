@@ -27,13 +27,10 @@ class _SurahPageState extends State<SurahPage> with TickerProviderStateMixin {
   String formatTime(Duration duration) {
     String twoDigitSeconds =
         duration.inSeconds.remainder(60).toString().padLeft(2, "0");
-    String formattedTime = "${duration.inMinutes}:$twoDigitSeconds";
-    return formattedTime;
+    return "${duration.inMinutes}:$twoDigitSeconds";
   }
 
   void removeSurahFromPlaylist(Surah surah) {
-    final pageManager = getIt<PageManager>();
-
     pageManager.remove(surah);
   }
 
@@ -85,69 +82,8 @@ class _SurahPageState extends State<SurahPage> with TickerProviderStateMixin {
   }
 
   void showPlaylist(BuildContext context) {
-    final pageManager = getIt<PageManager>();
-
-    //final playlist =
-
     showModalBottomSheet(
-        context: context,
-        builder: (context) => ReorderableListView.builder(
-              itemCount: pageManager.playlist.length,
-              itemBuilder: (context, index) {
-                final MediaItem surah = pageManager.playlist[index];
-                // variable to ask if surah is the surah that is currently playing
-                final isPlaying;
-                if (pageManager.currentSongTitleNotifier.value == surah.title) {
-                  isPlaying = true;
-                } else {
-                  isPlaying = false;
-                }
-
-                return ListTile(
-                  key: Key(surah.id),
-                  iconColor: isPlaying
-                      ? Theme.of(context).colorScheme.onPrimary
-                      : null,
-                  leading: const Icon(Icons.drag_handle),
-                  title: Text(
-                    surah.title,
-                  ),
-                  subtitle: Text(surah.extras!["arabicTitle"],
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.primary,
-                      )),
-                  onTap: () {
-                    playSurah(Surah.fromMediaItem(surah));
-                    Navigator.pop(context);
-                  },
-                  trailing: IconButton(
-                    icon: Icon(
-                      Icons.delete_outline,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                    onPressed: () =>
-                        removeSurahFromPlaylist(Surah.fromMediaItem(surah)),
-                  ),
-                );
-              },
-              onReorder: (oldIndex, newIndex) async {
-                final currentSurahTitle =
-                    pageManager.currentSongTitleNotifier.value;
-                final surahThatIsDragged = pageManager.playlist[oldIndex].title;
-                if (oldIndex < newIndex) {
-                  newIndex -= 1;
-                }
-                final surah =
-                    Surah.fromMediaItem(pageManager.playlist[oldIndex]);
-                pageManager.remove(surah);
-                await pageManager.add(surah, index: newIndex);
-
-                //check if tile that is reordered is current playing surah
-                if (currentSurahTitle == surahThatIsDragged) {
-                  pageManager.playSurah(surah);
-                }
-              },
-            ));
+        context: context, builder: (context) => playlistWidget());
   }
 
   @override
@@ -194,6 +130,93 @@ class _SurahPageState extends State<SurahPage> with TickerProviderStateMixin {
       ),
     );
   }
+
+  Widget playlistWidget() => Stack(
+        children: [
+          ReorderableListView.builder(
+            itemCount: pageManager.playlist.length,
+            itemBuilder: (context, index) {
+              final MediaItem surah = pageManager.playlist[index];
+              // variable to ask if surah is the surah that is currently playing
+              final bool isPlaying;
+              if (pageManager.currentSongTitleNotifier.value == surah.title) {
+                isPlaying = true;
+              } else {
+                isPlaying = false;
+              }
+
+              return ListTile(
+                key: Key(surah.id),
+                iconColor:
+                    isPlaying ? Theme.of(context).colorScheme.onPrimary : null,
+                leading: const Icon(Icons.drag_handle),
+                title: Text(
+                  surah.title,
+                ),
+                subtitle: Text(surah.extras!["arabicTitle"],
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.primary,
+                    )),
+                onTap: () {
+                  playSurah(Surah.fromMediaItem(surah));
+                  Navigator.pop(context);
+                },
+                trailing: IconButton(
+                  icon: Icon(
+                    Icons.delete_outline,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                  onPressed: () =>
+                      removeSurahFromPlaylist(Surah.fromMediaItem(surah)),
+                ),
+              );
+            },
+            onReorder: (oldIndex, newIndex) async {
+              final currentSurahTitle =
+                  pageManager.currentSongTitleNotifier.value;
+              final surahThatIsDragged = pageManager.playlist[oldIndex].title;
+              if (oldIndex < newIndex) {
+                newIndex -= 1;
+              }
+              final surah = Surah.fromMediaItem(pageManager.playlist[oldIndex]);
+              pageManager.remove(surah);
+              await pageManager.add(surah, index: newIndex);
+
+              //check if tile that is reordered is current playing surah
+              if (currentSurahTitle == surahThatIsDragged) {
+                pageManager.playSurah(surah);
+              }
+            },
+          ),
+
+          // Deleta all Surahs from playlist button
+          Positioned(
+            bottom: 20,
+            right: 20,
+            child: ElevatedButton(
+              onPressed: () {
+                pageManager.removeAll();
+                Navigator.popUntil(
+                  context,
+                  (route) => route.isFirst,
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  foregroundColor: Theme.of(context).colorScheme.surface),
+              child: const Row(
+                children: [
+                  Icon(Icons.delete),
+                  const SizedBox(width: 10),
+                  Text("Delete All"),
+                ],
+              ),
+            ),
+          )
+        ],
+      );
 
   Widget surahPage() => SafeArea(
         child: Padding(

@@ -197,7 +197,9 @@ class _MyHomePageState extends State<MyHomePage> {
                           });
                         },
                       )
-                    : Text(pageIndex == 0 ? "F A V O R I T E S" : "H O M E"),
+                    : (pageIndex == 0
+                        ? const Text("F A V O R I T E S")
+                        : const Icon(Icons.home_outlined)),
                 actions: [
                   // S E A R C H    I C O N
                   IconButton(
