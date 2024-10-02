@@ -120,11 +120,11 @@ class _SurahPageState extends State<SurahPage> with TickerProviderStateMixin {
                   child: BackdropFilter(
                       filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
                       child: Container(
-                        child: surahPage(),
                         color: Theme.of(context)
                             .colorScheme
                             .surface
                             .withOpacity(0.1),
+                        child: surahPage(),
                       )),
                 )),
       ),
