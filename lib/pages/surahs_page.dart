@@ -4,6 +4,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:quran_fi/components/modal_sheet_player.dart';
 import 'package:quran_fi/components/recently_played_card.dart';
 import 'package:quran_fi/components/surah_icon.dart';
+import 'package:quran_fi/components/surah_tile.dart';
+import 'package:quran_fi/helper_functions.dart';
 import 'package:quran_fi/models/surah.dart';
 import 'package:quran_fi/page_manager.dart';
 import 'package:quran_fi/pages/surah_page.dart';
@@ -89,7 +91,10 @@ class _SurahsPageState extends State<SurahsPage> {
           // get individual surah
           final Surah surah = widget.surahs[index];
           // return list tile UI
-          return surahTile(context, surah, index);
+          return SurahTile(
+              surah: surah,
+              onSlide: (context) => addSurahToPlaylist(context, surah),
+              onTap: () => goToSurah(surah));
         }
       },
     );
@@ -245,59 +250,5 @@ class _SurahsPageState extends State<SurahsPage> {
                   onTap: () => goToSurah(recentlyPlayed[index]),
                   child: RecentlyPlayedCard(surah: recentlyPlayed[index])),
             ));
-  }
-
-  Widget surahTile(BuildContext context, Surah surah, int index) {
-    bool isFavorite = pageManager.favoritesNotifier.value.contains(surah);
-
-    return Slidable(
-      startActionPane: ActionPane(
-        motion: const StretchMotion(),
-        children: [
-          SlidableAction(
-            backgroundColor: Colors.green,
-            autoClose: true,
-            onPressed: (context) => addSurahToPlaylist(context, surah),
-            icon: Icons.queue_music,
-          )
-        ],
-      ),
-      child: Card(
-        elevation: 10,
-        child: ListTile(
-          leading: ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.asset("assets/images/quran.jpg")),
-          title: Text(surah.title),
-          subtitle: Text("Surah ${surah.id}"),
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(surah.arabicTitle),
-              ValueListenableBuilder(
-                  valueListenable: pageManager.favoritesNotifier,
-                  builder: (_, favorites, __) {
-                    return IconButton(
-                        onPressed: () {
-                          setState(() {
-                            if (favorites.contains(surah)) {
-                              favorites.remove(surah);
-                            } else {
-                              favorites.add(surah);
-                            }
-                            pageManager.changeFavorites(favorites);
-                          });
-                        },
-                        icon: Icon(
-                          isFavorite ? Icons.favorite : Icons.favorite_border,
-                          color: Theme.of(context).colorScheme.onPrimary,
-                        ));
-                  })
-            ],
-          ),
-          onTap: () => goToSurah(surah),
-        ),
-      ),
-    );
   }
 }

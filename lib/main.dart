@@ -1,15 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
-import 'package:google_fonts/google_fonts.dart';
+
 import 'package:provider/provider.dart';
-import 'package:quran_fi/components/modal_sheet_player.dart';
-import 'package:quran_fi/components/recently_played_card.dart';
-import 'package:quran_fi/components/surah_icon.dart';
+
 import 'package:quran_fi/models/surah.dart';
 import 'package:quran_fi/page_manager.dart';
 import 'package:quran_fi/pages/settings_page.dart';
-import 'package:quran_fi/pages/surah_page.dart';
 import 'package:quran_fi/pages/surahs_page.dart';
 import 'package:quran_fi/services/service_locator.dart';
 import 'package:quran_fi/themes/theme_provider.dart';
