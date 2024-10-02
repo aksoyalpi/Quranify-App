@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:quran_fi/components/modal_sheet_player.dart';
 import 'package:quran_fi/components/recently_played_card.dart';
 import 'package:quran_fi/components/surah_icon.dart';
 import 'package:quran_fi/components/surah_tile.dart';
-import 'package:quran_fi/helper_functions.dart';
 import 'package:quran_fi/models/surah.dart';
 import 'package:quran_fi/page_manager.dart';
 import 'package:quran_fi/pages/surah_page.dart';
@@ -77,65 +75,6 @@ class _SurahsPageState extends State<SurahsPage> {
 
   @override
   Widget build(BuildContext context) {
-    // section for list view of all surahs
-    final allSurahsList = ListView.builder(
-      physics: const ClampingScrollPhysics(),
-      shrinkWrap: true,
-      itemCount: widget.surahs.length + 1,
-      itemBuilder: (context, index) {
-        if (index == widget.surahs.length) {
-          return const SizedBox(
-            height: 100,
-          );
-        } else {
-          // get individual surah
-          final Surah surah = widget.surahs[index];
-          // return list tile UI
-          return SurahTile(
-              surah: surah,
-              onSlide: (context) => addSurahToPlaylist(context, surah),
-              onTap: () => goToSurah(surah));
-        }
-      },
-    );
-
-    // section for grid view of all surahs
-    final allSurahsGrid = GridView.builder(
-      gridDelegate:
-          const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
-      padding: const EdgeInsets.only(bottom: 50),
-      //childAspectRatio: 0.7,
-      shrinkWrap: true,
-      physics: const ClampingScrollPhysics(),
-
-      //crossAxisCount: 3,
-      itemCount: widget.surahs.length,
-      itemBuilder: (context, index) {
-        // get individual surah
-        final Surah surah = widget.surahs[index];
-        // return list tile UI
-        return InkWell(
-          child: SurahIcon(surah: surah),
-          onTap: () => goToSurah(surah),
-        );
-      },
-    );
-
-    // Section for recently played list
-    final recentlyPlayedBlock = Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (pageManager.recentlyPlayedNotifier.value.isNotEmpty)
-          Text(
-            " Recently Played",
-            style: GoogleFonts.bodoniModa(fontSize: 25),
-          ),
-
-        // recently played Surahs
-        SizedBox(height: 120, child: recentlyPlayedList())
-      ],
-    );
-
     // sound icons and shuffle mode
     // final soundsAndShuffle = SizedBox(
     //   height: 200,
@@ -192,7 +131,7 @@ class _SurahsPageState extends State<SurahsPage> {
           ListView(
             children: [
               // Recently Played
-              recentlyPlayedBlock,
+              recentlyPlayedBlock(),
 
               const SizedBox(
                 height: 25,
@@ -210,11 +149,11 @@ class _SurahsPageState extends State<SurahsPage> {
               ),
               const SizedBox(height: 10),
               // All Surahs
-              isListView ? allSurahsList : allSurahsGrid
+              isListView ? allSurahsList() : allSurahsGrid()
             ],
           )
         else
-          isListView ? allSurahsList : allSurahsGrid,
+          isListView ? allSurahsList() : allSurahsGrid(),
 
         // little AudioPlayer
         ValueListenableBuilder(
@@ -239,16 +178,73 @@ class _SurahsPageState extends State<SurahsPage> {
     );
   }
 
-  Widget recentlyPlayedList() {
-    return ValueListenableBuilder(
-        valueListenable: pageManager.recentlyPlayedNotifier,
-        builder: (_, recentlyPlayed, __) => ListView.builder(
-              shrinkWrap: true,
-              scrollDirection: Axis.horizontal,
-              itemCount: recentlyPlayed.length,
-              itemBuilder: (context, index) => InkWell(
-                  onTap: () => goToSurah(recentlyPlayed[index]),
-                  child: RecentlyPlayedCard(surah: recentlyPlayed[index])),
-            ));
-  }
+  // Widget for GridView of all Surahs
+  Widget allSurahsGrid() => GridView.builder(
+        gridDelegate:
+            const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
+        padding: const EdgeInsets.only(bottom: 50),
+        //childAspectRatio: 0.7,
+        shrinkWrap: true,
+        physics: const ClampingScrollPhysics(),
+
+        //crossAxisCount: 3,
+        itemCount: widget.surahs.length,
+        itemBuilder: (context, index) {
+          // get individual surah
+          final Surah surah = widget.surahs[index];
+          // return list tile UI
+          return InkWell(
+            child: SurahIcon(surah: surah),
+            onTap: () => goToSurah(surah),
+          );
+        },
+      );
+
+// Widget for List View of all Surahs
+  Widget allSurahsList() => ListView.builder(
+        physics: const ClampingScrollPhysics(),
+        shrinkWrap: true,
+        itemCount: widget.surahs.length + 1,
+        itemBuilder: (context, index) {
+          if (index == widget.surahs.length) {
+            return const SizedBox(
+              height: 100,
+            );
+          } else {
+            // get individual surah
+            final Surah surah = widget.surahs[index];
+            // return list tile UI
+            return SurahTile(
+                surah: surah,
+                onSlide: (context) => addSurahToPlaylist(context, surah),
+                onTap: () => goToSurah(surah));
+          }
+        },
+      );
+
+  // Widget for recently played list
+  Widget recentlyPlayedBlock() => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (pageManager.recentlyPlayedNotifier.value.isNotEmpty)
+            Text(
+              " Recently Played",
+              style: GoogleFonts.bodoniModa(fontSize: 25),
+            ),
+
+          // recently played Surahs
+          SizedBox(height: 120, child: recentlyPlayedList())
+        ],
+      );
+
+  Widget recentlyPlayedList() => ValueListenableBuilder(
+      valueListenable: pageManager.recentlyPlayedNotifier,
+      builder: (_, recentlyPlayed, __) => ListView.builder(
+            shrinkWrap: true,
+            scrollDirection: Axis.horizontal,
+            itemCount: recentlyPlayed.length,
+            itemBuilder: (context, index) => InkWell(
+                onTap: () => goToSurah(recentlyPlayed[index]),
+                child: RecentlyPlayedCard(surah: recentlyPlayed[index])),
+          ));
 }
