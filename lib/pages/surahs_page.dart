@@ -214,10 +214,13 @@ class _SurahsPageState extends State<SurahsPage> {
           // get individual surah
           final Surah surah = widget.surahs[index];
           // return list tile UI
-          return SurahTile(
-              surah: surah,
-              onSlide: (context) => addSurahToPlaylist(context, surah),
-              onTap: () => goToSurah(surah));
+          return InkWell(
+            onLongPress: pageManager.switchChooseMode,
+            child: SurahTile(
+                surah: surah,
+                onSlide: (context) => addSurahToPlaylist(context, surah),
+                onTap: () => goToSurah(surah)),
+          );
         },
       );
 

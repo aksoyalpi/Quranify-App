@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:quran_fi/models/surah.dart';
 import 'package:quran_fi/page_manager.dart';
 import 'package:quran_fi/services/service_locator.dart';
@@ -37,7 +38,14 @@ class SurahTile extends StatelessWidget {
         child: ListTile(
           leading: ClipRRect(
               borderRadius: BorderRadius.circular(8),
-              child: Image.asset("assets/images/quran.jpg")),
+              child: Stack(alignment: Alignment.center, children: [
+                Image.asset("assets/images/frame.png"),
+                Text(
+                  surah.id.toString(),
+                  style: GoogleFonts.bodoniModa(
+                      color: Color.fromARGB(500, 134, 81, 253), fontSize: 20),
+                )
+              ])),
           title: Text(surah.title),
           subtitle: Text("Surah ${surah.id}"),
           trailing: Row(
