@@ -191,7 +191,10 @@ class _SurahsPageState extends State<SurahsPage> {
                   builder: (_, isChooseMode, __) {
                     bool isChosen = choosedSurahs.contains(surah);
                     return GestureDetector(
-                      onLongPress: pageManager.switchChooseMode,
+                      onLongPress: () {
+                        pageManager.switchChooseMode();
+                        pageManager.chooseSurah(surah);
+                      },
                       // if page is in choose mode the user should trigger the method to choose surahs, else he should go to the surah page
                       onTap: () => isChooseMode
                           ? pageManager.chooseSurah(surah)

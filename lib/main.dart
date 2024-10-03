@@ -78,6 +78,13 @@ class _MyHomePageState extends State<MyHomePage> {
     filteredSurahs = surahs;
   }
 
+  bool handlePop(bool isChooseMode) {
+    if (isChooseMode) {
+      pageManager.switchChooseMode();
+    }
+    return false;
+  }
+
   bool _isSearching = false;
   final TextEditingController _searchController = TextEditingController();
 
@@ -85,49 +92,54 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
         valueListenable: pageManager.isChooseMode,
-        builder: (_, isChooseMode, __) => Scaffold(
-            backgroundColor: Theme.of(context).colorScheme.surface,
-            bottomNavigationBar: BottomNavigationBar(
-              onTap: (value) {
-                setState(() {
-                  pageIndex = value;
+        builder: (_, isChooseMode, __) => PopScope(
+              canPop: false,
+              onPopInvoked: (didPop) => handlePop(isChooseMode),
+              child: Scaffold(
+                  backgroundColor: Theme.of(context).colorScheme.surface,
+                  bottomNavigationBar: BottomNavigationBar(
+                    onTap: (value) {
+                      setState(() {
+                        pageIndex = value;
 
-                  if (value == 0) {
-                    filteredSurahs = pageManager.favoritesNotifier.value;
-                    filteredSurahs.sort(
-                      (a, b) => a.id.compareTo(b.id),
-                    );
-                  } else if (value == 1) {
-                    filteredSurahs = surahs;
-                  }
-                });
-              },
-              type: BottomNavigationBarType.shifting,
-              currentIndex: pageIndex,
-              showUnselectedLabels: false,
-              selectedItemColor: Theme.of(context).colorScheme.onPrimary,
-              items: const [
-                BottomNavigationBarItem(
-                    icon: Icon(Icons.favorite), label: "Favorites"),
-                BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-                BottomNavigationBarItem(
-                    icon: Icon(Icons.settings), label: "Settings")
-              ],
-            ),
-            appBar: pageIndex == 2
-                ? AppBar(
-                    title: const Text("S E T T I N G S"),
-                  )
-                : isChooseMode
-                    ? chooseModeAppBar()
-                    : defaultAppBar(),
-            body: pageIndex == 2
-                ? const SettingsPage()
-                : SurahsPage(
-                    surahs: filteredSurahs,
-                    isFavoritesPage: (pageIndex == 0),
-                    isListView: isListView,
-                  )));
+                        if (value == 0) {
+                          filteredSurahs = pageManager.favoritesNotifier.value;
+                          filteredSurahs.sort(
+                            (a, b) => a.id.compareTo(b.id),
+                          );
+                        } else if (value == 1) {
+                          filteredSurahs = surahs;
+                        }
+                      });
+                    },
+                    type: BottomNavigationBarType.shifting,
+                    currentIndex: pageIndex,
+                    showUnselectedLabels: false,
+                    selectedItemColor: Theme.of(context).colorScheme.onPrimary,
+                    items: const [
+                      BottomNavigationBarItem(
+                          icon: Icon(Icons.favorite), label: "Favorites"),
+                      BottomNavigationBarItem(
+                          icon: Icon(Icons.home), label: "Home"),
+                      BottomNavigationBarItem(
+                          icon: Icon(Icons.settings), label: "Settings")
+                    ],
+                  ),
+                  appBar: pageIndex == 2
+                      ? AppBar(
+                          title: const Text("S E T T I N G S"),
+                        )
+                      : isChooseMode
+                          ? chooseModeAppBar()
+                          : defaultAppBar(),
+                  body: pageIndex == 2
+                      ? const SettingsPage()
+                      : SurahsPage(
+                          surahs: filteredSurahs,
+                          isFavoritesPage: (pageIndex == 0),
+                          isListView: isListView,
+                        )),
+            ));
   }
 
   PreferredSizeWidget? chooseModeAppBar() => AppBar(

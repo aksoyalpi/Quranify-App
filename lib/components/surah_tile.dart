@@ -42,7 +42,7 @@ class SurahTile extends StatelessWidget {
           padding: const EdgeInsets.all(8.0),
           child: ListTile(
             leading: isChosen
-                ? Icon(Icons.check)
+                ? const Icon(Icons.check)
                 : Stack(alignment: Alignment.center, children: [
                     Image.asset("assets/images/frame.png"),
                     Text(
