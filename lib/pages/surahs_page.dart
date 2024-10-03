@@ -4,6 +4,7 @@ import 'package:quran_fi/components/modal_sheet_player.dart';
 import 'package:quran_fi/components/recently_played_card.dart';
 import 'package:quran_fi/components/surah_icon.dart';
 import 'package:quran_fi/components/surah_tile.dart';
+import 'package:quran_fi/helper_functions.dart';
 import 'package:quran_fi/models/surah.dart';
 import 'package:quran_fi/page_manager.dart';
 import 'package:quran_fi/pages/surah_page.dart';
@@ -49,32 +50,6 @@ class _SurahsPageState extends State<SurahsPage> {
       ),
     );
     //setState(() {});
-  }
-
-  void addSurahToPlaylist(BuildContext context, Surah surah) async {
-    final pageManager = getIt<PageManager>();
-    String text = "Added";
-    SnackBarAction? action = SnackBarAction(
-      label: "Undo",
-      onPressed: () {},
-    );
-
-    bool alreadyInPlaylist = await pageManager.add(surah);
-
-    if (alreadyInPlaylist) {
-      text = "Surah already in playlist";
-      action = null;
-    }
-
-    final snackBar = SnackBar(
-      content: Text(text),
-      action: action,
-      elevation: 10,
-      margin: const EdgeInsets.all(5),
-      behavior: SnackBarBehavior.floating,
-    );
-
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   @override
@@ -215,8 +190,7 @@ class _SurahsPageState extends State<SurahsPage> {
                   valueListenable: pageManager.isChooseMode,
                   builder: (_, isChooseMode, __) {
                     bool isChosen = choosedSurahs.contains(surah);
-                    print("reloaded: $surah");
-                    return InkWell(
+                    return GestureDetector(
                       onLongPress: pageManager.switchChooseMode,
                       // if page is in choose mode the user should trigger the method to choose surahs, else he should go to the surah page
                       onTap: () => isChooseMode

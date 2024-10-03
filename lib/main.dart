@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:provider/provider.dart';
+import 'package:quran_fi/helper_functions.dart';
 
 import 'package:quran_fi/models/surah.dart';
 import 'package:quran_fi/page_manager.dart';
@@ -137,16 +138,20 @@ class _MyHomePageState extends State<MyHomePage> {
         actions: [
           IconButton(
               onPressed: () {
+                final chosenSurahsCount =
+                    pageManager.choosedSurahs.value.length;
                 pageManager.addChosenSurahs();
                 pageManager.switchChooseMode();
+                showSnackBar(
+                    context, "Added $chosenSurahsCount Surahs to Playlist");
               },
-              icon: Icon(Icons.playlist_add)),
+              icon: const Icon(Icons.playlist_add)),
           IconButton(
               onPressed: () {
                 pageManager.addChosenSurahsToFavorites();
                 pageManager.switchChooseMode();
               },
-              icon: Icon(Icons.favorite_border)),
+              icon: const Icon(Icons.favorite_border)),
         ],
       );
 

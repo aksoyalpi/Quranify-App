@@ -76,8 +76,24 @@ class PageManager {
     await SharedPrefs.setFavorites(newFavorites);
   }
 
+  /// will add chosen surahs to favorites if one of the chosen surahs is not already in favorites
+  /// else it will remove all chosen surahs from favorites
   Future addChosenSurahsToFavorites() async {
-    favoritesNotifier.value.addAll(choosedSurahs.value);
+    final favorites = favoritesNotifier.value;
+    final chosen = choosedSurahs.value;
+
+    // returns true if all surahs are already in favorites
+    bool allInFavorites = !chosen.every(
+      (surah) => !favorites.contains(surah),
+    );
+
+    if (allInFavorites) {
+      favorites.removeWhere((surah) => chosen.contains(surah));
+    } else {
+      chosen.removeWhere((surah) => favorites.contains(surah));
+      favoritesNotifier.value.addAll(choosedSurahs.value);
+    }
+
     changeFavorites(favoritesNotifier.value);
   }
 
