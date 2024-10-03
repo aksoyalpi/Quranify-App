@@ -217,7 +217,7 @@ class _SurahsPageState extends State<SurahsPage> {
           // get individual surah
           final Surah surah = widget.surahs[index];
           // return list tile UI
-          return InkWell(
+          return GestureDetector(
             onLongPress: () {
               pageManager.switchChooseMode();
               pageManager.chooseSurah(surah);
