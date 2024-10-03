@@ -215,11 +215,28 @@ class _SurahsPageState extends State<SurahsPage> {
           final Surah surah = widget.surahs[index];
           // return list tile UI
           return InkWell(
-            onLongPress: pageManager.switchChooseMode,
-            child: SurahTile(
-                surah: surah,
-                onSlide: (context) => addSurahToPlaylist(context, surah),
-                onTap: () => goToSurah(surah)),
+            onLongPress: () {
+              pageManager.switchChooseMode();
+              pageManager.chooseSurah(surah);
+            },
+            child: ValueListenableBuilder(
+                valueListenable: pageManager.isChooseMode,
+                builder: (_, isChooseMode, __) {
+                  return ValueListenableBuilder(
+                      valueListenable: pageManager.choosedSurahs,
+                      builder: (_, chosenSurahs, __) {
+                        final isChosen = chosenSurahs.contains(surah);
+                        return SurahTile(
+                          surah: surah,
+                          onSlide: (context) =>
+                              addSurahToPlaylist(context, surah),
+                          onTap: () => isChooseMode
+                              ? pageManager.chooseSurah(surah)
+                              : goToSurah(surah),
+                          isChosen: isChosen,
+                        );
+                      });
+                }),
           );
         },
       );
