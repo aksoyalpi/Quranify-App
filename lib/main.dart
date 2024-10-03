@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:provider/provider.dart';
-import 'package:quran_fi/choose_mode_manager.dart';
 
 import 'package:quran_fi/models/surah.dart';
 import 'package:quran_fi/page_manager.dart';
@@ -64,7 +63,6 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final pageManager = getIt<PageManager>();
-  final chooseModeManager = getIt<ChooseModeManager>();
   late List<Surah> surahs;
   late List<Surah> filteredSurahs;
   int pageIndex = 1;
@@ -85,7 +83,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder(
-        valueListenable: chooseModeManager.isChooseMode,
+        valueListenable: pageManager.isChooseMode,
         builder: (_, isChooseMode, __) => Scaffold(
             backgroundColor: Theme.of(context).colorScheme.surface,
             bottomNavigationBar: BottomNavigationBar(
@@ -134,7 +132,7 @@ class _MyHomePageState extends State<MyHomePage> {
   PreferredSizeWidget? chooseModeAppBar() => AppBar(
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
-          onPressed: chooseModeManager.switchChooseMode,
+          onPressed: pageManager.switchChooseMode,
         ),
         actions: [
           IconButton(onPressed: () {}, icon: Icon(Icons.playlist_add)),

@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:quran_fi/choose_mode_manager.dart';
-
 import 'package:quran_fi/components/modal_sheet_player.dart';
 import 'package:quran_fi/components/recently_played_card.dart';
 import 'package:quran_fi/components/surah_icon.dart';
@@ -29,7 +27,6 @@ class SurahsPage extends StatefulWidget {
 
 class _SurahsPageState extends State<SurahsPage> {
   final pageManager = getIt<PageManager>();
-  final chooseModeManager = getIt<ChooseModeManager>();
 
   // go to surah with index surahIndex
   void goToSurah(Surah surah) async {
@@ -213,17 +210,17 @@ class _SurahsPageState extends State<SurahsPage> {
           final Surah surah = widget.surahs[index];
           // return list tile UI
           return ValueListenableBuilder(
-              valueListenable: chooseModeManager.choosedSurahs,
+              valueListenable: pageManager.choosedSurahs,
               builder: (_, choosedSurahs, __) => ValueListenableBuilder(
-                  valueListenable: chooseModeManager.isChooseMode,
+                  valueListenable: pageManager.isChooseMode,
                   builder: (_, isChooseMode, __) {
                     bool isChosen = choosedSurahs.contains(surah);
                     print("reloaded: $surah");
                     return InkWell(
-                      onLongPress: chooseModeManager.switchChooseMode,
+                      onLongPress: pageManager.switchChooseMode,
                       // if page is in choose mode the user should trigger the method to choose surahs, else he should go to the surah page
                       onTap: () => isChooseMode
-                          ? chooseModeManager.chooseSurah(surah)
+                          ? pageManager.chooseSurah(surah)
                           : goToSurah(surah),
                       child: SurahIcon(
                         surah: surah,

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:quran_fi/choose_mode_manager.dart';
 import 'package:quran_fi/helper_functions.dart';
 import 'package:quran_fi/page_manager.dart';
 import 'package:quran_fi/services/service_locator.dart';
@@ -24,7 +23,6 @@ class SurahIcon extends StatefulWidget {
 
 class _SurahIconState extends State<SurahIcon> {
   final pageManager = getIt<PageManager>();
-  final chooseModeManager = getIt<ChooseModeManager>();
   int currentPage = 0;
   final pageController =
       PageController(initialPage: 0, keepPage: false, viewportFraction: 0.75);

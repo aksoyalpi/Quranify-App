@@ -30,6 +30,8 @@ class PageManager {
   final soundVolume = ValueNotifier<double>(1);
   final favoritesNotifier = ValueNotifier<List<Surah>>([]);
   final recentlyPlayedNotifier = ValueNotifier<List<Surah>>([]);
+  final isChooseMode = ValueNotifier<bool>(false);
+  final choosedSurahs = ValueNotifier<List<Surah>>([]);
 
   List<MediaItem> get playlist => _audioHandler.queue.value;
 
@@ -40,6 +42,26 @@ class PageManager {
   // all recitators
   final List<Recitator> _recitators = List.generate(
       recitations.length, (index) => Recitator.fromJson(recitations[index]));
+
+// choose Surah function for choose mode
+  void chooseSurah(Surah surah) {
+    if (isChooseMode.value) {
+      if (choosedSurahs.value.contains(surah)) {
+        choosedSurahs.value.remove(surah);
+      } else {
+        choosedSurahs.value.add(surah);
+      }
+      choosedSurahs.value = choosedSurahs.value.toList();
+    }
+  }
+
+// activated/deactivates choose mode
+  void switchChooseMode() {
+    isChooseMode.value = !isChooseMode.value;
+    if (!isChooseMode.value) {
+      choosedSurahs.value.clear();
+    }
+  }
 
   Future _initFavorites() async {
     favoritesNotifier.value = await SharedPrefs.getFavorites();
@@ -207,7 +229,7 @@ class PageManager {
         }
         recentlyPlayed.insert(0, Surah.fromMediaItem(mediaItem));
         SharedPrefs.setRecentlyPlayed(recentlyPlayed);
-        recentlyPlayedNotifier.value = recentlyPlayed;
+        recentlyPlayedNotifier.value = recentlyPlayed.toList();
       }
 
       currentSongTitleNotifier.value = mediaItem?.title ?? '';
