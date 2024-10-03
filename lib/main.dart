@@ -163,10 +163,10 @@ class _MyHomePageState extends State<MyHomePage> {
                       },
                       icon: Icon(_isSearching ? Icons.close : Icons.search)),
 
-                  // V I E W   S E T T I N G
+                  // L A Y O U T  S E T T I N G
                   IconButton(
                       onPressed: () => setState(() => isListView = !isListView),
-                      icon: Icon(isListView ? Icons.list : Icons.grid_view))
+                      icon: Icon(isListView ? Icons.list : Icons.grid_view)),
                 ],
               ),
         body: pageIndex == 2

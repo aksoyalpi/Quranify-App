@@ -26,6 +26,8 @@ class SurahsPage extends StatefulWidget {
 
 class _SurahsPageState extends State<SurahsPage> {
   final pageManager = getIt<PageManager>();
+  bool isChooseMode = false;
+  final List<Surah> choosedSurahs = [];
 
   // go to surah with index surahIndex
   void goToSurah(Surah surah) async {
@@ -48,6 +50,27 @@ class _SurahsPageState extends State<SurahsPage> {
       ),
     );
     //setState(() {});
+  }
+
+  // method to mark or unmark surah as choosed
+  void chooseSurah(Surah surah) {
+    if (isChooseMode) {
+      if (choosedSurahs.contains(surah)) {
+        choosedSurahs.remove(surah);
+      } else {
+        choosedSurahs.add(surah);
+      }
+    }
+    setState(() {});
+  }
+
+  void switchChooseMode() {
+    setState(() {
+      isChooseMode = !isChooseMode;
+      if (!isChooseMode) {
+        choosedSurahs.clear();
+      }
+    });
   }
 
   void addSurahToPlaylist(BuildContext context, Surah surah) async {
@@ -209,8 +232,14 @@ class _SurahsPageState extends State<SurahsPage> {
           final Surah surah = widget.surahs[index];
           // return list tile UI
           return InkWell(
-            child: SurahIcon(surah: surah),
-            onTap: () => goToSurah(surah),
+            child: SurahIcon(
+                surah: surah,
+                isChooseMode: isChooseMode,
+                isChosen: choosedSurahs.contains(surah)),
+            // should switch to choose mode
+            onLongPress: switchChooseMode,
+            // if page is in choose mode the user should trigger the method to choose surahs, else he should go to the surah page
+            onTap: () => isChooseMode ? chooseSurah(surah) : goToSurah(surah),
           );
         },
       );

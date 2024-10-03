@@ -7,9 +7,15 @@ import 'package:quran_fi/services/service_locator.dart';
 import '../models/surah.dart';
 
 class SurahIcon extends StatefulWidget {
-  const SurahIcon({super.key, required this.surah});
+  const SurahIcon(
+      {super.key,
+      required this.surah,
+      required this.isChooseMode,
+      required this.isChosen});
 
   final Surah surah;
+  final bool isChooseMode;
+  final bool isChosen;
 
   @override
   State<SurahIcon> createState() => _SurahIconState();
@@ -38,16 +44,22 @@ class _SurahIconState extends State<SurahIcon> {
                         height: 75,
                         width: 75,
                         decoration: BoxDecoration(
-                            color: currentPage == 0
-                                ? null
-                                : (currentPage == 1
-                                    ? Colors.green
-                                    : Colors.red),
+                            color: widget.isChosen
+                                ? Colors.blue.shade100
+                                : currentPage == 0
+                                    ? null
+                                    : (currentPage == 1
+                                        ? Colors.green
+                                        : Colors.red),
                             shape: BoxShape.circle,
                             border: Border.all(
-                                color: isFavorite
-                                    ? Colors.red
-                                    : Theme.of(context).colorScheme.primary)),
+                                color: widget.isChooseMode
+                                    ? Colors.blue.shade100
+                                    : isFavorite
+                                        ? Colors.red
+                                        : Theme.of(context)
+                                            .colorScheme
+                                            .primary)),
                         child: PageView(
                             padEnds: true,
                             controller: pageController,
