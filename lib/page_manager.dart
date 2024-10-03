@@ -76,6 +76,11 @@ class PageManager {
     await SharedPrefs.setFavorites(newFavorites);
   }
 
+  Future addChosenSurahsToFavorites() async {
+    favoritesNotifier.value.addAll(choosedSurahs.value);
+    changeFavorites(favoritesNotifier.value);
+  }
+
   Future<void> changeRecitator(int id) async {
     currentRecitator.value = _recitators.firstWhere(
       (element) => element.id == id,
@@ -374,6 +379,13 @@ class PageManager {
       await _audioHandler.insertQueueItem(index, item);
     }
     return false;
+  }
+
+  /// Function to add chosen surahs (from choose mode) to playlist
+  Future addChosenSurahs() async {
+    for (final surah in choosedSurahs.value) {
+      add(surah);
+    }
   }
 
   Future<void> remove(Surah surah) async {

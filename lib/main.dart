@@ -135,8 +135,18 @@ class _MyHomePageState extends State<MyHomePage> {
           onPressed: pageManager.switchChooseMode,
         ),
         actions: [
-          IconButton(onPressed: () {}, icon: Icon(Icons.playlist_add)),
-          IconButton(onPressed: () {}, icon: Icon(Icons.favorite_border)),
+          IconButton(
+              onPressed: () {
+                pageManager.addChosenSurahs();
+                pageManager.switchChooseMode();
+              },
+              icon: Icon(Icons.playlist_add)),
+          IconButton(
+              onPressed: () {
+                pageManager.addChosenSurahsToFavorites();
+                pageManager.switchChooseMode();
+              },
+              icon: Icon(Icons.favorite_border)),
         ],
       );
 
