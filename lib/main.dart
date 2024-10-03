@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:provider/provider.dart';
+import 'package:quran_fi/choose_mode_manager.dart';
 
 import 'package:quran_fi/models/surah.dart';
 import 'package:quran_fi/page_manager.dart';
@@ -63,10 +64,13 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final pageManager = getIt<PageManager>();
+  final chooseModeManager = getIt<ChooseModeManager>();
   late List<Surah> surahs;
   late List<Surah> filteredSurahs;
   int pageIndex = 1;
   bool isListView = false;
+  bool isChooseMode = false;
+  final List<Surah> choosedSurahs = [];
 
   @override
   void initState() {
@@ -80,101 +84,116 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        bottomNavigationBar: BottomNavigationBar(
-          onTap: (value) {
-            setState(() {
-              pageIndex = value;
+    return ValueListenableBuilder(
+        valueListenable: chooseModeManager.isChooseMode,
+        builder: (_, isChooseMode, __) => Scaffold(
+            backgroundColor: Theme.of(context).colorScheme.surface,
+            bottomNavigationBar: BottomNavigationBar(
+              onTap: (value) {
+                setState(() {
+                  pageIndex = value;
 
-              if (value == 0) {
-                filteredSurahs = pageManager.favoritesNotifier.value;
-                filteredSurahs.sort(
-                  (a, b) => a.id.compareTo(b.id),
-                );
-              } else if (value == 1) {
-                filteredSurahs = surahs;
-              }
-            });
-          },
-          type: BottomNavigationBarType.shifting,
-          currentIndex: pageIndex,
-          showUnselectedLabels: false,
-          selectedItemColor: Theme.of(context).colorScheme.onPrimary,
-          items: const [
-            BottomNavigationBarItem(
-                icon: Icon(Icons.favorite), label: "Favorites"),
-            BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-            BottomNavigationBarItem(
-                icon: Icon(Icons.settings), label: "Settings")
-          ],
-        ),
-        appBar: pageIndex == 2
-            ? AppBar(
-                title: const Text("S E T T I N G S"),
-              )
-            : AppBar(
-                title: _isSearching
-                    ? TextField(
-                        controller: _searchController,
-                        autofocus: true,
-                        decoration: const InputDecoration(
-                          hintText: 'Search...',
-                          border: InputBorder.none,
-                        ),
-                        onChanged: (query) {
-                          final favorites = pageManager.favoritesNotifier.value;
-                          favorites.sort((a, b) => a.id.compareTo(b.id));
-
-                          // Handle search query here
-                          setState(() {
-                            // checks if the user is on favorites or home page
-                            final listToSearchIn =
-                                pageIndex == 0 ? favorites : surahs;
-                            if (query != "") {
-                              filteredSurahs = listToSearchIn
-                                  .where((element) => element.title
-                                      .toLowerCase()
-                                      .contains(query.toLowerCase()))
-                                  .toList();
-                            } else {
-                              filteredSurahs =
-                                  pageIndex == 0 ? favorites : surahs;
-                            }
-                          });
-                        },
-                      )
-                    : (pageIndex == 0
-                        ? const Text("F A V O R I T E S")
-                        : const Icon(Icons.home_outlined)),
-                actions: [
-                  // S E A R C H    I C O N
-                  IconButton(
-                      onPressed: () {
-                        setState(() {
-                          _isSearching = !_isSearching;
-                          if (!_isSearching) {
-                            _searchController.clear();
-                            filteredSurahs = pageIndex == 0
-                                ? pageManager.favoritesNotifier.value
-                                : surahs;
-                          }
-                        });
-                      },
-                      icon: Icon(_isSearching ? Icons.close : Icons.search)),
-
-                  // L A Y O U T  S E T T I N G
-                  IconButton(
-                      onPressed: () => setState(() => isListView = !isListView),
-                      icon: Icon(isListView ? Icons.list : Icons.grid_view)),
-                ],
-              ),
-        body: pageIndex == 2
-            ? const SettingsPage()
-            : SurahsPage(
-                surahs: filteredSurahs,
-                isFavoritesPage: (pageIndex == 0),
-                isListView: isListView,
-              ));
+                  if (value == 0) {
+                    filteredSurahs = pageManager.favoritesNotifier.value;
+                    filteredSurahs.sort(
+                      (a, b) => a.id.compareTo(b.id),
+                    );
+                  } else if (value == 1) {
+                    filteredSurahs = surahs;
+                  }
+                });
+              },
+              type: BottomNavigationBarType.shifting,
+              currentIndex: pageIndex,
+              showUnselectedLabels: false,
+              selectedItemColor: Theme.of(context).colorScheme.onPrimary,
+              items: const [
+                BottomNavigationBarItem(
+                    icon: Icon(Icons.favorite), label: "Favorites"),
+                BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
+                BottomNavigationBarItem(
+                    icon: Icon(Icons.settings), label: "Settings")
+              ],
+            ),
+            appBar: pageIndex == 2
+                ? AppBar(
+                    title: const Text("S E T T I N G S"),
+                  )
+                : isChooseMode
+                    ? chooseModeAppBar()
+                    : defaultAppBar(),
+            body: pageIndex == 2
+                ? const SettingsPage()
+                : SurahsPage(
+                    surahs: filteredSurahs,
+                    isFavoritesPage: (pageIndex == 0),
+                    isListView: isListView,
+                  )));
   }
+
+  PreferredSizeWidget? chooseModeAppBar() => AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: chooseModeManager.switchChooseMode,
+        ),
+        actions: [
+          IconButton(onPressed: () {}, icon: Icon(Icons.playlist_add)),
+          IconButton(onPressed: () {}, icon: Icon(Icons.favorite_border)),
+        ],
+      );
+
+  AppBar defaultAppBar() => AppBar(
+        title: _isSearching
+            ? TextField(
+                controller: _searchController,
+                autofocus: true,
+                decoration: const InputDecoration(
+                  hintText: 'Search...',
+                  border: InputBorder.none,
+                ),
+                onChanged: (query) {
+                  final favorites = pageManager.favoritesNotifier.value;
+                  favorites.sort((a, b) => a.id.compareTo(b.id));
+
+                  // Handle search query here
+                  setState(() {
+                    // checks if the user is on favorites or home page
+                    final listToSearchIn = pageIndex == 0 ? favorites : surahs;
+                    if (query != "") {
+                      filteredSurahs = listToSearchIn
+                          .where((element) => element.title
+                              .toLowerCase()
+                              .contains(query.toLowerCase()))
+                          .toList();
+                    } else {
+                      filteredSurahs = pageIndex == 0 ? favorites : surahs;
+                    }
+                  });
+                },
+              )
+            : (pageIndex == 0
+                ? const Text("F A V O R I T E S")
+                : const Icon(Icons.home_outlined)),
+        actions: [
+          // S E A R C H    I C O N
+          IconButton(
+              onPressed: () {
+                setState(() {
+                  _isSearching = !_isSearching;
+                  if (!_isSearching) {
+                    _searchController.clear();
+                    filteredSurahs = pageIndex == 0
+                        ? pageManager.favoritesNotifier.value
+                        : surahs;
+                  }
+                });
+              },
+              icon: Icon(_isSearching ? Icons.close : Icons.search)),
+
+          // L A Y O U T  S E T T I N G
+          IconButton(
+              onPressed: () => setState(() => isListView = !isListView),
+              icon: Icon(isListView ? Icons.list : Icons.grid_view)),
+        ],
+      );
 }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:quran_fi/choose_mode_manager.dart';
+
 import 'package:quran_fi/components/modal_sheet_player.dart';
 import 'package:quran_fi/components/recently_played_card.dart';
 import 'package:quran_fi/components/surah_icon.dart';
@@ -10,11 +12,12 @@ import 'package:quran_fi/pages/surah_page.dart';
 import 'package:quran_fi/services/service_locator.dart';
 
 class SurahsPage extends StatefulWidget {
-  const SurahsPage(
-      {super.key,
-      required this.surahs,
-      required this.isFavoritesPage,
-      required this.isListView});
+  const SurahsPage({
+    super.key,
+    required this.surahs,
+    required this.isFavoritesPage,
+    required this.isListView,
+  });
 
   final List<Surah> surahs;
   final bool isFavoritesPage;
@@ -26,8 +29,7 @@ class SurahsPage extends StatefulWidget {
 
 class _SurahsPageState extends State<SurahsPage> {
   final pageManager = getIt<PageManager>();
-  bool isChooseMode = false;
-  final List<Surah> choosedSurahs = [];
+  final chooseModeManager = getIt<ChooseModeManager>();
 
   // go to surah with index surahIndex
   void goToSurah(Surah surah) async {
@@ -50,27 +52,6 @@ class _SurahsPageState extends State<SurahsPage> {
       ),
     );
     //setState(() {});
-  }
-
-  // method to mark or unmark surah as choosed
-  void chooseSurah(Surah surah) {
-    if (isChooseMode) {
-      if (choosedSurahs.contains(surah)) {
-        choosedSurahs.remove(surah);
-      } else {
-        choosedSurahs.add(surah);
-      }
-    }
-    setState(() {});
-  }
-
-  void switchChooseMode() {
-    setState(() {
-      isChooseMode = !isChooseMode;
-      if (!isChooseMode) {
-        choosedSurahs.clear();
-      }
-    });
   }
 
   void addSurahToPlaylist(BuildContext context, Surah surah) async {
@@ -231,16 +212,26 @@ class _SurahsPageState extends State<SurahsPage> {
           // get individual surah
           final Surah surah = widget.surahs[index];
           // return list tile UI
-          return InkWell(
-            child: SurahIcon(
-                surah: surah,
-                isChooseMode: isChooseMode,
-                isChosen: choosedSurahs.contains(surah)),
-            // should switch to choose mode
-            onLongPress: switchChooseMode,
-            // if page is in choose mode the user should trigger the method to choose surahs, else he should go to the surah page
-            onTap: () => isChooseMode ? chooseSurah(surah) : goToSurah(surah),
-          );
+          return ValueListenableBuilder(
+              valueListenable: chooseModeManager.choosedSurahs,
+              builder: (_, choosedSurahs, __) => ValueListenableBuilder(
+                  valueListenable: chooseModeManager.isChooseMode,
+                  builder: (_, isChooseMode, __) {
+                    bool isChosen = choosedSurahs.contains(surah);
+                    print("reloaded: $surah");
+                    return InkWell(
+                      onLongPress: chooseModeManager.switchChooseMode,
+                      // if page is in choose mode the user should trigger the method to choose surahs, else he should go to the surah page
+                      onTap: () => isChooseMode
+                          ? chooseModeManager.chooseSurah(surah)
+                          : goToSurah(surah),
+                      child: SurahIcon(
+                        surah: surah,
+                        isChooseMode: isChooseMode,
+                        isChosen: isChosen,
+                      ),
+                    );
+                  }));
         },
       );
 

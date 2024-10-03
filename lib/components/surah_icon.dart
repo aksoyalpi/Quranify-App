@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:quran_fi/choose_mode_manager.dart';
 import 'package:quran_fi/helper_functions.dart';
 import 'package:quran_fi/page_manager.dart';
 import 'package:quran_fi/services/service_locator.dart';
@@ -23,6 +24,7 @@ class SurahIcon extends StatefulWidget {
 
 class _SurahIconState extends State<SurahIcon> {
   final pageManager = getIt<PageManager>();
+  final chooseModeManager = getIt<ChooseModeManager>();
   int currentPage = 0;
   final pageController =
       PageController(initialPage: 0, keepPage: false, viewportFraction: 0.75);
@@ -35,44 +37,43 @@ class _SurahIconState extends State<SurahIcon> {
         Column(
           children: [
             ValueListenableBuilder(
-              valueListenable: pageManager.favoritesNotifier,
-              builder: (_, favorites, __) {
-                bool isFavorite = favorites.contains(widget.surah);
-                return ClipOval(
-                    child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 300),
-                        height: 75,
-                        width: 75,
-                        decoration: BoxDecoration(
-                            color: widget.isChosen
-                                ? Colors.blue.shade100
-                                : currentPage == 0
-                                    ? null
-                                    : (currentPage == 1
-                                        ? Colors.green
-                                        : Colors.red),
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                                color: widget.isChooseMode
-                                    ? Colors.blue.shade100
-                                    : isFavorite
-                                        ? Colors.red
-                                        : Theme.of(context)
-                                            .colorScheme
-                                            .primary)),
-                        child: PageView(
-                            padEnds: true,
-                            controller: pageController,
-                            onPageChanged: (value) =>
-                                setState(() => currentPage = value),
-                            scrollDirection: Axis.vertical,
-                            children: [
-                              innerContent(),
-                              addToPlaylistWidget(widget.surah),
-                              addToFavoritesWidget(widget.surah, favorites)
-                            ])));
-              },
-            ),
+                valueListenable: pageManager.favoritesNotifier,
+                builder: (_, favorites, __) {
+                  bool isFavorite = favorites.contains(widget.surah);
+                  return ClipOval(
+                      child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 300),
+                          height: 75,
+                          width: 75,
+                          decoration: BoxDecoration(
+                              color: widget.isChosen
+                                  ? Colors.blue.shade300
+                                  : currentPage == 0
+                                      ? null
+                                      : (currentPage == 1
+                                          ? Colors.green
+                                          : Colors.red),
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                  color: widget.isChooseMode
+                                      ? Colors.blue.shade300
+                                      : isFavorite
+                                          ? Colors.red
+                                          : Theme.of(context)
+                                              .colorScheme
+                                              .primary)),
+                          child: PageView(
+                              padEnds: true,
+                              controller: pageController,
+                              onPageChanged: (value) =>
+                                  setState(() => currentPage = value),
+                              scrollDirection: Axis.vertical,
+                              children: [
+                                innerContent(),
+                                addToPlaylistWidget(widget.surah),
+                                addToFavoritesWidget(widget.surah, favorites)
+                              ])));
+                }),
             Text(widget.surah.arabicTitle),
             Text(widget.surah.title)
           ],
