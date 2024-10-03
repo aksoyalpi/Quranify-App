@@ -174,6 +174,7 @@ class _MyHomePageState extends State<MyHomePage> {
             : SurahsPage(
                 surahs: filteredSurahs,
                 isFavoritesPage: (pageIndex == 0),
+                isListView: isListView,
               ));
   }
 }

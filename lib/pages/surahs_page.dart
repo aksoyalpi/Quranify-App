@@ -11,10 +11,14 @@ import 'package:quran_fi/services/service_locator.dart';
 
 class SurahsPage extends StatefulWidget {
   const SurahsPage(
-      {super.key, required this.surahs, required this.isFavoritesPage});
+      {super.key,
+      required this.surahs,
+      required this.isFavoritesPage,
+      required this.isListView});
 
   final List<Surah> surahs;
   final bool isFavoritesPage;
+  final bool isListView;
 
   @override
   State<SurahsPage> createState() => _SurahsPageState();
@@ -22,7 +26,6 @@ class SurahsPage extends StatefulWidget {
 
 class _SurahsPageState extends State<SurahsPage> {
   final pageManager = getIt<PageManager>();
-  bool isListView = false;
 
   // go to surah with index surahIndex
   void goToSurah(Surah surah) async {
@@ -127,20 +130,16 @@ class _SurahsPageState extends State<SurahsPage> {
 
     return Stack(
       children: [
-        // TODO try to use CustomScrollView to enhance performance
-        // CustomScrollView(
-        //   slivers: [
-
-        //   ],
-        // ),
         if (!widget.isFavoritesPage)
-          ListView(
-            children: [
+          CustomScrollView(
+            slivers: [
               // Recently Played
               recentlyPlayedBlock(),
 
-              const SizedBox(
-                height: 25,
+              const SliverToBoxAdapter(
+                child: const SizedBox(
+                  height: 25,
+                ),
               ),
 
               // TODO for next version
@@ -149,21 +148,31 @@ class _SurahsPageState extends State<SurahsPage> {
                 height: 25,
               ),*/
 
-              Text(
-                " All Surahs",
-                style: GoogleFonts.bodoniModa(fontSize: 25),
+              SliverToBoxAdapter(
+                child: Text(
+                  " All Surahs",
+                  style: GoogleFonts.bodoniModa(fontSize: 25),
+                ),
               ),
-              const SizedBox(height: 10),
+              const SliverToBoxAdapter(child: SizedBox(height: 10)),
               // All Surahs
-              SizedBox(
-                  height: MediaQuery.of(context).size.height,
-                  child: isListView ? allSurahsList() : allSurahsGrid())
+              widget.isListView ? allSurahsList() : allSurahsGrid(),
+              const SliverToBoxAdapter(
+                child: SizedBox(
+                  height: 100,
+                ),
+              )
             ],
           )
         else
-          SizedBox(
-              height: MediaQuery.of(context).size.height,
-              child: isListView ? allSurahsList() : allSurahsGrid()),
+          CustomScrollView(slivers: [
+            widget.isListView ? allSurahsList() : allSurahsGrid(),
+            const SliverToBoxAdapter(
+              child: SizedBox(
+                height: 100,
+              ),
+            )
+          ]),
 
         // little AudioPlayer
         ValueListenableBuilder(
@@ -189,13 +198,9 @@ class _SurahsPageState extends State<SurahsPage> {
   }
 
   // Widget for GridView of all Surahs
-  Widget allSurahsGrid() => GridView.builder(
+  Widget allSurahsGrid() => SliverGrid.builder(
         gridDelegate:
             const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
-        padding: const EdgeInsets.only(bottom: 50),
-        //childAspectRatio: 0.7,
-        //shrinkWrap: true,
-        physics: const ClampingScrollPhysics(),
 
         //crossAxisCount: 3,
         itemCount: widget.surahs.length,
@@ -211,40 +216,35 @@ class _SurahsPageState extends State<SurahsPage> {
       );
 
 // Widget for List View of all Surahs
-  Widget allSurahsList() => ListView.builder(
-        physics: const ClampingScrollPhysics(),
+  Widget allSurahsList() => SliverList.builder(
         //shrinkWrap: true,
-        itemCount: widget.surahs.length + 1,
+        itemCount: widget.surahs.length,
         itemBuilder: (context, index) {
-          if (index == widget.surahs.length) {
-            return const SizedBox(
-              height: 100,
-            );
-          } else {
-            // get individual surah
-            final Surah surah = widget.surahs[index];
-            // return list tile UI
-            return SurahTile(
-                surah: surah,
-                onSlide: (context) => addSurahToPlaylist(context, surah),
-                onTap: () => goToSurah(surah));
-          }
+          // get individual surah
+          final Surah surah = widget.surahs[index];
+          // return list tile UI
+          return SurahTile(
+              surah: surah,
+              onSlide: (context) => addSurahToPlaylist(context, surah),
+              onTap: () => goToSurah(surah));
         },
       );
 
   // Widget for recently played list
-  Widget recentlyPlayedBlock() => Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (pageManager.recentlyPlayedNotifier.value.isNotEmpty)
-            Text(
-              " Recently Played",
-              style: GoogleFonts.bodoniModa(fontSize: 25),
-            ),
+  Widget recentlyPlayedBlock() => SliverToBoxAdapter(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (pageManager.recentlyPlayedNotifier.value.isNotEmpty)
+              Text(
+                " Recently Played",
+                style: GoogleFonts.bodoniModa(fontSize: 25),
+              ),
 
-          // recently played Surahs
-          SizedBox(height: 120, child: recentlyPlayedList())
-        ],
+            // recently played Surahs
+            SizedBox(height: 120, child: recentlyPlayedList())
+          ],
+        ),
       );
 
   Widget recentlyPlayedList() => ValueListenableBuilder(
