@@ -44,7 +44,7 @@ class _SurahsPageState extends State<SurahsPage> {
                 child: child),
       ),
     );
-    setState(() {});
+    //setState(() {});
   }
 
   void addSurahToPlaylist(BuildContext context, Surah surah) async {
@@ -127,6 +127,12 @@ class _SurahsPageState extends State<SurahsPage> {
 
     return Stack(
       children: [
+        // TODO try to use CustomScrollView to enhance performance
+        // CustomScrollView(
+        //   slivers: [
+
+        //   ],
+        // ),
         if (!widget.isFavoritesPage)
           ListView(
             children: [
@@ -149,11 +155,15 @@ class _SurahsPageState extends State<SurahsPage> {
               ),
               const SizedBox(height: 10),
               // All Surahs
-              isListView ? allSurahsList() : allSurahsGrid()
+              SizedBox(
+                  height: MediaQuery.of(context).size.height,
+                  child: isListView ? allSurahsList() : allSurahsGrid())
             ],
           )
         else
-          isListView ? allSurahsList() : allSurahsGrid(),
+          SizedBox(
+              height: MediaQuery.of(context).size.height,
+              child: isListView ? allSurahsList() : allSurahsGrid()),
 
         // little AudioPlayer
         ValueListenableBuilder(
@@ -184,7 +194,7 @@ class _SurahsPageState extends State<SurahsPage> {
             const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
         padding: const EdgeInsets.only(bottom: 50),
         //childAspectRatio: 0.7,
-        shrinkWrap: true,
+        //shrinkWrap: true,
         physics: const ClampingScrollPhysics(),
 
         //crossAxisCount: 3,
@@ -203,7 +213,7 @@ class _SurahsPageState extends State<SurahsPage> {
 // Widget for List View of all Surahs
   Widget allSurahsList() => ListView.builder(
         physics: const ClampingScrollPhysics(),
-        shrinkWrap: true,
+        //shrinkWrap: true,
         itemCount: widget.surahs.length + 1,
         itemBuilder: (context, index) {
           if (index == widget.surahs.length) {
@@ -240,7 +250,7 @@ class _SurahsPageState extends State<SurahsPage> {
   Widget recentlyPlayedList() => ValueListenableBuilder(
       valueListenable: pageManager.recentlyPlayedNotifier,
       builder: (_, recentlyPlayed, __) => ListView.builder(
-            shrinkWrap: true,
+            //shrinkWrap: true,
             scrollDirection: Axis.horizontal,
             itemCount: recentlyPlayed.length,
             itemBuilder: (context, index) => InkWell(
