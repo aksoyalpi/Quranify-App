@@ -35,42 +35,83 @@ class _SurahIconState extends State<SurahIcon> {
         Column(
           children: [
             ValueListenableBuilder(
-                valueListenable: pageManager.favoritesNotifier,
-                builder: (_, favorites, __) {
-                  bool isFavorite = favorites.contains(widget.surah);
-                  return ClipOval(
-                      child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 300),
-                          height: 75,
-                          width: 75,
-                          decoration: BoxDecoration(
-                              color: widget.isChosen
-                                  ? Colors.blue.shade300
-                                  : currentPage == 0
-                                      ? null
-                                      : (currentPage == 1
-                                          ? Colors.green
-                                          : Colors.red),
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                  color: widget.isChooseMode
-                                      ? Colors.blue.shade300
-                                      : isFavorite
-                                          ? Colors.red
-                                          : Theme.of(context)
+                valueListenable: pageManager.playlistNotifier,
+                builder: (_, playlist, __) {
+                  final isInPlaylist = playlist.contains(widget.surah.title);
+                  return ValueListenableBuilder(
+                      valueListenable: pageManager.favoritesNotifier,
+                      builder: (_, favorites, __) {
+                        bool isFavorite = favorites.contains(widget.surah);
+                        return Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            ClipOval(
+                                child: AnimatedContainer(
+                                    duration: const Duration(milliseconds: 300),
+                                    height: 75,
+                                    width: 85,
+                                    decoration: BoxDecoration(
+                                        color: widget.isChosen
+                                            ? Colors.blue.shade300
+                                            : currentPage == 0
+                                                ? null
+                                                : (currentPage == 1
+                                                    ? Colors.green
+                                                    : Colors.red),
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                            color: widget.isChooseMode
+                                                ? Colors.blue.shade300
+                                                : Theme.of(context)
+                                                    .colorScheme
+                                                    .primary)),
+                                    child: PageView(
+                                        padEnds: true,
+                                        controller: pageController,
+                                        onPageChanged: (value) =>
+                                            setState(() => currentPage = value),
+                                        scrollDirection: Axis.vertical,
+                                        children: [
+                                          innerContent(),
+                                          addToPlaylistWidget(widget.surah),
+                                          addToFavoritesWidget(
+                                              widget.surah, favorites)
+                                        ]))),
+                            if (isFavorite)
+                              Positioned(
+                                  bottom: 0,
+                                  right: 0,
+                                  child: Icon(
+                                    Icons.favorite,
+                                    size: 25,
+                                    color: Colors.red,
+                                    shadows: [
+                                      Shadow(
+                                          color: Theme.of(context)
                                               .colorScheme
-                                              .primary)),
-                          child: PageView(
-                              padEnds: true,
-                              controller: pageController,
-                              onPageChanged: (value) =>
-                                  setState(() => currentPage = value),
-                              scrollDirection: Axis.vertical,
-                              children: [
-                                innerContent(),
-                                addToPlaylistWidget(widget.surah),
-                                addToFavoritesWidget(widget.surah, favorites)
-                              ])));
+                                              .surface,
+                                          blurRadius: 10)
+                                    ],
+                                  )),
+                            if (isInPlaylist)
+                              Positioned(
+                                  top: 0,
+                                  right: 0,
+                                  child: Icon(
+                                    Icons.playlist_add_check_circle_sharp,
+                                    size: 25,
+                                    color: Colors.green,
+                                    shadows: [
+                                      Shadow(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .surface,
+                                          blurRadius: 10)
+                                    ],
+                                  ))
+                          ],
+                        );
+                      });
                 }),
             Text(widget.surah.arabicTitle),
             Text(widget.surah.title)
