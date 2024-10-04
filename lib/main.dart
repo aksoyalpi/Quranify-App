@@ -135,8 +135,7 @@ class _MyHomePageState extends State<MyHomePage> {
               child: Scaffold(
                   backgroundColor: Theme.of(context).colorScheme.surface,
                   bottomNavigationBar: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 15, vertical: 20),
+                    padding: const EdgeInsets.fromLTRB(20, 5, 20, 15),
                     child: GNav(
                         padding: const EdgeInsets.all(16),
                         tabBackgroundColor:
