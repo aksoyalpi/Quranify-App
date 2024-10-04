@@ -23,10 +23,10 @@ class SurahTile extends StatefulWidget {
 }
 
 class _SurahTileState extends State<SurahTile> {
+  final pageManager = getIt<PageManager>();
+
   @override
   Widget build(BuildContext context) {
-    final pageManager = getIt<PageManager>();
-
     return Card(
       margin: const EdgeInsets.all(10),
       elevation: 10,
@@ -64,6 +64,22 @@ class _SurahTileState extends State<SurahTile> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(widget.surah.arabicTitle),
+
+                const SizedBox(
+                  width: 20,
+                ),
+
+                ValueListenableBuilder(
+                  valueListenable: pageManager.playlistNotifier,
+                  builder: (_, playlist, __) {
+                    return Icon(
+                      Icons.playlist_add_check,
+                      color: playlist.contains(widget.surah.title)
+                          ? Colors.green.shade800
+                          : Colors.transparent,
+                    );
+                  },
+                ),
 
                 // favorites icon (heart)
                 ValueListenableBuilder(

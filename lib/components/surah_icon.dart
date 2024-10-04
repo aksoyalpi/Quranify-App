@@ -98,7 +98,7 @@ class _SurahIconState extends State<SurahIcon> {
                                   top: 0,
                                   right: 0,
                                   child: Icon(
-                                    Icons.playlist_add_check_circle_sharp,
+                                    Icons.queue_music,
                                     size: 25,
                                     color: Colors.green,
                                     shadows: [
