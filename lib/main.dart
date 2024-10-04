@@ -8,8 +8,11 @@ import 'package:quran_fi/models/surah.dart';
 import 'package:quran_fi/page_manager.dart';
 import 'package:quran_fi/pages/settings_page.dart';
 import 'package:quran_fi/pages/surahs_page.dart';
+import 'package:quran_fi/services/in_app_tour_target.dart';
 import 'package:quran_fi/services/service_locator.dart';
+import 'package:quran_fi/services/shared_prefs.dart';
 import 'package:quran_fi/themes/theme_provider.dart';
+import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 
 Future<void> main() async {
   await setupServiceLocator();
@@ -71,11 +74,44 @@ class _MyHomePageState extends State<MyHomePage> {
   bool isChooseMode = false;
   final List<Surah> choosedSurahs = [];
 
+  final surahPageKey = GlobalKey();
+  final searchIconKey = GlobalKey();
+  final changeViewKey = GlobalKey();
+
+  late TutorialCoachMark tutorialCoachMark;
+  void _initAddSiteInAppTour() {
+    tutorialCoachMark = TutorialCoachMark(
+      targets: surahsTargetsPage(
+          surahIconKey: surahPageKey,
+          changeViewKey: changeViewKey,
+          searchIconKey: searchIconKey),
+      colorShadow: Colors.purple.shade900,
+      paddingFocus: 10,
+      hideSkip: true,
+      opacityShadow: 0.8,
+      onFinish: () => SharedPrefs.setIsFirstTime(false),
+    );
+  }
+
+  void _showInAppTour() {
+    Future.delayed(const Duration(seconds: 1), () {
+      tutorialCoachMark.show(context: context);
+    });
+  }
+
   @override
   void initState() {
     super.initState();
     surahs = pageManager.surahs;
     filteredSurahs = surahs;
+    SharedPrefs.getIsFirstTime().then(
+      (isFirstTime) {
+        if (isFirstTime) {
+          _initAddSiteInAppTour();
+          _showInAppTour();
+        }
+      },
+    );
   }
 
   bool handlePop(bool isChooseMode) {
@@ -135,6 +171,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   body: pageIndex == 2
                       ? const SettingsPage()
                       : SurahsPage(
+                          surahIconKey: surahPageKey,
                           surahs: filteredSurahs,
                           isFavoritesPage: (pageIndex == 0),
                           isListView: isListView,
@@ -202,6 +239,7 @@ class _MyHomePageState extends State<MyHomePage> {
         actions: [
           // S E A R C H    I C O N
           IconButton(
+              key: searchIconKey,
               onPressed: () {
                 setState(() {
                   _isSearching = !_isSearching;
@@ -217,6 +255,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
           // L A Y O U T  S E T T I N G
           IconButton(
+              key: changeViewKey,
               onPressed: () => setState(() => isListView = !isListView),
               icon: Icon(isListView ? Icons.list : Icons.grid_view)),
         ],

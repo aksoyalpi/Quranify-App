@@ -89,4 +89,16 @@ class SharedPrefs {
       return [];
     }
   }
+
+  /// Shared prefs variable that returns true if the user is opening the app for the first time
+  /// crucial for the app onboarding tutorial
+  static Future<void> setIsFirstTime(bool isFirstTime) async {
+    final prefs = await getInstance();
+    prefs.setBool("isFirstTime", isFirstTime);
+  }
+
+  static Future<bool> getIsFirstTime() async {
+    final prefs = await getInstance();
+    return prefs.getBool("isFirstTime") ?? true;
+  }
 }

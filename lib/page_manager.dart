@@ -241,7 +241,6 @@ class PageManager {
         if (recentlyPlayed.any(
           (element) => element.id == int.parse(mediaItem.id),
         )) {
-          print("Alread in list: ${mediaItem.title}");
           recentlyPlayed.removeWhere(
             (element) => element.id == int.parse(mediaItem.id),
           );
@@ -283,7 +282,7 @@ class PageManager {
     _listenToChangesInSurah();
   }
 
-  void playSurah(Surah surah) async {
+  Future playSurah(Surah surah) async {
     stop();
     bool inPlaylist = false;
 
@@ -298,7 +297,6 @@ class PageManager {
 
       // returns the index of the item in the playlist
       int indexOfSurah = _audioHandler.queue.value.indexOf(itemInPlaylist);
-      print("index: $indexOfSurah");
       _audioHandler.skipToQueueItem(indexOfSurah);
     } else {
       await add(surah, placeAtCurrentPosition: true);
@@ -363,7 +361,7 @@ class PageManager {
     final playlist = _audioHandler.queue.value;
     final MediaItem item = MediaItem(
         id: surah.id.toString().padLeft(3, "0"),
-        album: "Quran",
+        album: currentRecitator.value.name,
         title: surah.title,
         artUri: Uri.parse(
             "https://images.unsplash.com/photo-1576764402988-7143f9cca90a?q=80&w=1780&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"),

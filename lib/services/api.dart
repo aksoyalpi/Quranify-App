@@ -22,7 +22,6 @@ Future<List<Surah>> getSurahs() async {
 Future getRecitionUrl(int recitatorId, int surahNumber) async {
   // check if its Yasser Al-Dosar
   if (recitatorId == 92) {
-    print("TEST");
     return "https://server11.mp3quran.net/yasser/${surahNumber.toString().padLeft(3, "0")}.mp3";
   } else {
     final url =

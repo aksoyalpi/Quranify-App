@@ -50,6 +50,7 @@ dependencies:
   flutter_slidable: ^3.1.1
   google_fonts: ^6.2.1
   animated_background: ^2.0.0
+  tutorial_coach_mark: ^1.2.11
 
 
 flutter_launcher_icons:

@@ -8,16 +8,20 @@ import 'package:quran_fi/helper_functions.dart';
 import 'package:quran_fi/models/surah.dart';
 import 'package:quran_fi/page_manager.dart';
 import 'package:quran_fi/pages/surah_page.dart';
+import 'package:quran_fi/services/in_app_tour_target.dart';
 import 'package:quran_fi/services/service_locator.dart';
+import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 
 class SurahsPage extends StatefulWidget {
   const SurahsPage({
     super.key,
+    required this.surahIconKey,
     required this.surahs,
     required this.isFavoritesPage,
     required this.isListView,
   });
 
+  final GlobalKey surahIconKey;
   final List<Surah> surahs;
   final bool isFavoritesPage;
   final bool isListView;
@@ -113,7 +117,7 @@ class _SurahsPageState extends State<SurahsPage> {
               recentlyPlayedBlock(),
 
               const SliverToBoxAdapter(
-                child: const SizedBox(
+                child: SizedBox(
                   height: 25,
                 ),
               ),
@@ -200,6 +204,7 @@ class _SurahsPageState extends State<SurahsPage> {
                           ? pageManager.chooseSurah(surah)
                           : goToSurah(surah),
                       child: SurahIcon(
+                        key: index == 4 ? widget.surahIconKey : null,
                         surah: surah,
                         isChooseMode: isChooseMode,
                         isChosen: isChosen,
