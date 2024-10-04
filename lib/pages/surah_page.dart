@@ -95,6 +95,22 @@ class _SurahPageState extends State<SurahPage> with TickerProviderStateMixin {
         }
       },
       child: Scaffold(
+        appBar: AppBar(
+          leading: Icon(Icons.keyboard_arrow_down),
+          title: Text(" S U R A H"),
+          centerTitle: true,
+          backgroundColor: Colors.transparent,
+          bottomOpacity: 0,
+          elevation: 0,
+          actions: [
+            IconButton(
+                onPressed: (() => showPlaylist(context)),
+                icon: const Icon(Icons.queue_music)),
+            IconButton(
+                onPressed: () => showMenu(context),
+                icon: const Icon(Icons.person)),
+          ],
+        ),
         body: ValueListenableBuilder(
             valueListenable: pageManager.playButtonNotifier,
             builder: (_, value, __) => AnimatedBackground(
@@ -134,6 +150,7 @@ class _SurahPageState extends State<SurahPage> with TickerProviderStateMixin {
   Widget playlistWidget() => Stack(
         children: [
           ReorderableListView.builder(
+            padding: const EdgeInsets.only(bottom: 75),
             itemCount: pageManager.playlist.length,
             itemBuilder: (context, index) {
               final MediaItem surah = pageManager.playlist[index];
@@ -211,30 +228,6 @@ class _SurahPageState extends State<SurahPage> with TickerProviderStateMixin {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // app bar
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // back button
-                  IconButton(
-                      onPressed: () => Navigator.pop(context),
-                      icon: const Icon(
-                        Icons.keyboard_arrow_down,
-                      )),
-
-                  // title
-                  const Text("S U R A H"),
-
-                  IconButton(
-                      onPressed: () => showMenu(context),
-                      icon: const Icon(Icons.more_horiz))
-                ],
-              ),
-
-              const SizedBox(
-                height: 25,
-              ),
-
               // album network
               NeuBox(
                   child: Padding(
@@ -441,18 +434,6 @@ class _SurahPageState extends State<SurahPage> with TickerProviderStateMixin {
 
               const SizedBox(
                 height: 25,
-              ),
-
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  IconButton(
-                      onPressed: (() => showPlaylist(context)),
-                      icon: const Icon(Icons.queue_music)),
-                  IconButton(
-                      onPressed: () => showMenu(context),
-                      icon: const Icon(Icons.person))
-                ],
               )
             ],
           ),
