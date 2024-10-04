@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_nav_bar/google_nav_bar.dart';
 
 import 'package:provider/provider.dart';
 import 'package:quran_fi/helper_functions.dart';
@@ -133,33 +134,35 @@ class _MyHomePageState extends State<MyHomePage> {
               onPopInvoked: (didPop) => handlePop(isChooseMode),
               child: Scaffold(
                   backgroundColor: Theme.of(context).colorScheme.surface,
-                  bottomNavigationBar: BottomNavigationBar(
-                    onTap: (value) {
-                      setState(() {
-                        pageIndex = value;
+                  bottomNavigationBar: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 15, vertical: 20),
+                    child: GNav(
+                        padding: const EdgeInsets.all(16),
+                        tabBackgroundColor:
+                            Theme.of(context).colorScheme.secondary,
+                        onTabChange: (value) {
+                          setState(() {
+                            pageIndex = value;
 
-                        if (value == 0) {
-                          filteredSurahs = pageManager.favoritesNotifier.value;
-                          filteredSurahs.sort(
-                            (a, b) => a.id.compareTo(b.id),
-                          );
-                        } else if (value == 1) {
-                          filteredSurahs = surahs;
-                        }
-                      });
-                    },
-                    type: BottomNavigationBarType.shifting,
-                    currentIndex: pageIndex,
-                    showUnselectedLabels: false,
-                    selectedItemColor: Theme.of(context).colorScheme.onPrimary,
-                    items: const [
-                      BottomNavigationBarItem(
-                          icon: Icon(Icons.favorite), label: "Favorites"),
-                      BottomNavigationBarItem(
-                          icon: Icon(Icons.home), label: "Home"),
-                      BottomNavigationBarItem(
-                          icon: Icon(Icons.settings), label: "Settings")
-                    ],
+                            if (value == 0) {
+                              filteredSurahs =
+                                  pageManager.favoritesNotifier.value;
+                              filteredSurahs.sort(
+                                (a, b) => a.id.compareTo(b.id),
+                              );
+                            } else if (value == 1) {
+                              filteredSurahs = surahs;
+                            }
+                          });
+                        },
+                        gap: 8,
+                        tabs: const [
+                          GButton(
+                              icon: Icons.favorite_border, text: "Favorites"),
+                          GButton(icon: Icons.home, text: "Home"),
+                          GButton(icon: Icons.settings, text: "Settings"),
+                        ]),
                   ),
                   appBar: pageIndex == 2
                       ? AppBar(
