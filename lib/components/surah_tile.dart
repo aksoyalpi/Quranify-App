@@ -5,7 +5,7 @@ import 'package:quran_fi/models/surah.dart';
 import 'package:quran_fi/page_manager.dart';
 import 'package:quran_fi/services/service_locator.dart';
 
-class SurahTile extends StatelessWidget {
+class SurahTile extends StatefulWidget {
   const SurahTile(
       {super.key,
       required this.surah,
@@ -19,9 +19,13 @@ class SurahTile extends StatelessWidget {
   final bool isChosen;
 
   @override
+  State<SurahTile> createState() => _SurahTileState();
+}
+
+class _SurahTileState extends State<SurahTile> {
+  @override
   Widget build(BuildContext context) {
     final pageManager = getIt<PageManager>();
-    bool isFavorite = pageManager.favoritesNotifier.value.contains(surah);
 
     return Card(
       margin: const EdgeInsets.all(10),
@@ -33,7 +37,7 @@ class SurahTile extends StatelessWidget {
             SlidableAction(
               backgroundColor: Colors.green,
               autoClose: true,
-              onPressed: onSlide,
+              onPressed: widget.onSlide,
               icon: Icons.queue_music,
             )
           ],
@@ -41,33 +45,42 @@ class SurahTile extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: ListTile(
-            leading: isChosen
+            leading: widget.isChosen
                 ? const Icon(Icons.check)
                 : Stack(alignment: Alignment.center, children: [
                     Image.asset("assets/images/frame.png"),
                     Text(
-                      surah.id.toString(),
+                      widget.surah.id.toString(),
                       style: GoogleFonts.bodoniModa(
                           color: const Color.fromARGB(500, 134, 81, 253),
                           fontSize: 20),
                     )
                   ]),
             title: Text(
-              surah.title,
+              widget.surah.title,
               style: GoogleFonts.bodoniModa(),
             ),
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(surah.arabicTitle),
+                Text(widget.surah.arabicTitle),
 
                 // favorites icon (heart)
                 ValueListenableBuilder(
                     valueListenable: pageManager.favoritesNotifier,
                     builder: (_, favorites, __) {
+                      final isFavorite = favorites.contains(widget.surah);
                       return IconButton(
-                          onPressed: () {
-                            pageManager.changeFavorites(favorites);
+                          onPressed: () async {
+                            final tmpFavorites = favorites;
+                            if (favorites.contains(widget.surah)) {
+                              tmpFavorites.removeWhere(
+                                (favorite) => favorite.id == widget.surah.id,
+                              );
+                            } else {
+                              tmpFavorites.add(widget.surah);
+                            }
+                            await pageManager.changeFavorites(tmpFavorites);
                           },
                           icon: Icon(
                             isFavorite ? Icons.favorite : Icons.favorite_border,
@@ -90,7 +103,7 @@ class SurahTile extends StatelessWidget {
                 //     })
               ],
             ),
-            onTap: onTap,
+            onTap: widget.onTap,
           ),
         ),
       ),

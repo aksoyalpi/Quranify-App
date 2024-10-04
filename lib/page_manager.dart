@@ -71,8 +71,9 @@ class PageManager {
     recentlyPlayedNotifier.value = await SharedPrefs.getRecentlyPlayed();
   }
 
+  // updates favorites list to newFavorites parameter
   Future changeFavorites(List<Surah> newFavorites) async {
-    favoritesNotifier.value = newFavorites;
+    favoritesNotifier.value = newFavorites.toList();
     await SharedPrefs.setFavorites(newFavorites);
   }
 
