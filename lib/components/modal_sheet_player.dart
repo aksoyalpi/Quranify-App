@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:quran_fi/components/neu_box.dart';
 import 'package:quran_fi/notifiers/play_button_notifier.dart';

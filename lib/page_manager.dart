@@ -103,7 +103,6 @@ class PageManager {
       (element) => element.id == id,
     );
 
-    print("recitator: ${currentRecitator.value.id}");
     stop();
     await _loadNewPlaylist();
     play();
@@ -118,9 +117,7 @@ class PageManager {
     }
   }
 
-  /**
-   * Method to change the default recitator by the id of the recitator
-   */
+  /// Method to change the default recitator by the id of the recitator
   Future<void> setDefaultRecitator(int recitatorId, {bool init = false}) async {
     currentRecitator.value = recitators.firstWhere(
       (recitator) => recitator.id == recitatorId,
@@ -138,8 +135,6 @@ class PageManager {
 
     final newMediaItems = playlist.map((item) async {
       final url = await getRecitionUrl(recitator.id, int.parse(item.id));
-
-      print(url);
 
       return MediaItem(
           id: item.id,
@@ -213,11 +208,11 @@ class PageManager {
   }
 
   void _listenToBufferedPosition() {
-    _audioHandler.playbackState.listen((PlaybackState) {
+    _audioHandler.playbackState.listen((playbackState) {
       final oldState = progressNotifier.value;
       progressNotifier.value = ProgressBarState(
           current: oldState.current,
-          buffered: PlaybackState.bufferedPosition,
+          buffered: playbackState.bufferedPosition,
           total: oldState.total);
     });
   }
@@ -288,8 +283,9 @@ class PageManager {
     bool inPlaylist = false;
 
     // checks if surah is already in playlist
-    playlist.forEach((mediaItem) =>
-        int.parse(mediaItem.id) == surah.id ? inPlaylist = true : null);
+    for (var mediaItem in playlist) {
+      int.parse(mediaItem.id) == surah.id ? inPlaylist = true : null;
+    }
 
     if (inPlaylist) {
       // returns the item(Surah) that already is in the playlist
@@ -371,8 +367,9 @@ class PageManager {
     bool inPlaylist = false;
 
     // checks if surah is already in playlist
-    playlist.forEach((mediaItem) =>
-        int.parse(mediaItem.id) == surah.id ? inPlaylist = true : null);
+    for (var mediaItem in playlist) {
+      int.parse(mediaItem.id) == surah.id ? inPlaylist = true : null;
+    }
 
     if (inPlaylist) return true;
 
@@ -415,9 +412,11 @@ class PageManager {
     await _audioHandler.removeQueueItemAt(indexOfSurah);
   }
 
+  /// Method to clear playlist
   Future removeAll() async {
     await _audioHandler.customAction("clear");
     currentSongTitleNotifier.value = "";
+    playlistNotifier.value = [];
   }
 
   Future move(int oldIndex, int newIndex) async {

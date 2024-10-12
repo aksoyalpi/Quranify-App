@@ -228,7 +228,6 @@ class MyAudioHandler extends BaseAudioHandler {
             "assets/audio/${sounds.keys.elementAt(extras["index"])}.mp3"));
         _soundPlayer.play();
 
-        // TODO can be done in init (just for testing of error that sound stops)
         await _soundPlayer.setLoopMode(LoopMode.one);
 
         isSoundOn = true;

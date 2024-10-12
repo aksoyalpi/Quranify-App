@@ -16,7 +16,6 @@ class RecentlyPlayedCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
             side: BorderSide(color: Theme.of(context).colorScheme.secondary)),
         color: Theme.of(context).colorScheme.surface,
-        shadowColor: Theme.of(context).colorScheme.primary,
         margin: const EdgeInsets.all(10),
         elevation: 5,
         child: Padding(

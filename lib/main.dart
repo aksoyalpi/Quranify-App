@@ -137,6 +137,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   bottomNavigationBar: Padding(
                     padding: const EdgeInsets.fromLTRB(20, 5, 20, 15),
                     child: GNav(
+                        selectedIndex: pageIndex,
                         padding: const EdgeInsets.all(16),
                         tabBackgroundColor:
                             Theme.of(context).colorScheme.secondary,

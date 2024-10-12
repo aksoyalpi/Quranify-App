@@ -165,7 +165,7 @@ class _SurahsPageState extends State<SurahsPage> {
               return const Align(
                   alignment: Alignment.bottomCenter,
                   child: Padding(
-                    padding: EdgeInsets.all(18.0),
+                    padding: EdgeInsets.fromLTRB(18.0, 0, 18, 5),
                     child: LittleAudioPlayer(),
                   ));
             }
