@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
-import 'package:quran_fi/consts/recitations.dart';
 import 'package:quran_fi/models/surah.dart';
 
 const baseURL = "https://api.quran.com/api/v4";
