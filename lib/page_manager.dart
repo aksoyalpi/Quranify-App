@@ -24,7 +24,7 @@ class PageManager {
   final repeatModeNotifier = RepeatModeNotifer();
   final currentRecitator = ValueNotifier<Recitator>(Recitator.fromJson(
       recitations.toList().firstWhere(
-          (reciter) => reciter["id"] == 92))); // Mishari Rashid al-Afasy
+          (reciter) => reciter["id"] == 7))); // Mishary Rashid Al-Afasy
   final currentSoundIndex = ValueNotifier<int>(0);
   final quranVolume = ValueNotifier<double>(1);
   final soundVolume = ValueNotifier<double>(1);
@@ -111,7 +111,8 @@ class PageManager {
   Future<void> _initDefaultRecitator() async {
     final int? defaultRecitatorId = await SharedPrefs.getDefaultRecitator();
     if (defaultRecitatorId == null) {
-      currentRecitator.value = recitators[6];
+      currentRecitator.value = Recitator.fromJson(
+          recitations.toList().firstWhere((reciter) => reciter["id"] == 7));
     } else {
       setDefaultRecitator(defaultRecitatorId, init: true);
     }
