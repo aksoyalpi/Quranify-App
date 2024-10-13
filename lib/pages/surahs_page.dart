@@ -51,61 +51,10 @@ class _SurahsPageState extends State<SurahsPage> {
                 child: child),
       ),
     );
-    //setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    // sound icons and shuffle mode
-    // final soundsAndShuffle = SizedBox(
-    //   height: 200,
-    //   child: Row(
-    //     crossAxisAlignment: CrossAxisAlignment.center,
-    //     mainAxisSize: MainAxisSize.max,
-    //     children: [
-    //       // Nature sound Icons
-    //       Expanded(
-    //         child: Column(
-    //           mainAxisSize: MainAxisSize.max,
-    //           children: [
-    //             Expanded(
-    //               child: Row(
-    //                 children: [
-    //                   Expanded(
-    //                       child: SoundCard(
-    //                     soundData: sounds.entries.elementAt(1),
-    //                   )),
-    //                   Expanded(
-    //                       child: SoundCard(
-    //                     soundData: sounds.entries.elementAt(2),
-    //                   ))
-    //                 ],
-    //               ),
-    //             ),
-    //             Expanded(
-    //               child: Row(
-    //                 children: [
-    //                   Expanded(
-    //                       child: SoundCard(
-    //                     soundData: sounds.entries.elementAt(3),
-    //                   )),
-    //                   Expanded(
-    //                       child: SoundCard(
-    //                     soundData: sounds.entries.elementAt(4),
-    //                   ))
-    //                 ],
-    //               ),
-    //             )
-    //           ],
-    //         ),
-    //       ),
-
-    //       // Shuffle Card
-    //       const Expanded(child: SizedBox(height: 200, child: ShuffleCard())),
-    //     ],
-    //   ),
-    // );
-
     return Stack(
       children: [
         if (!widget.isFavoritesPage)
@@ -119,12 +68,6 @@ class _SurahsPageState extends State<SurahsPage> {
                   height: 25,
                 ),
               ),
-
-              // TODO for next version
-              /*soundsAndShuffle,
-              const SizedBox(
-                height: 25,
-              ),*/
 
               SliverToBoxAdapter(
                 child: Text(
@@ -252,12 +195,10 @@ class _SurahsPageState extends State<SurahsPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (pageManager.recentlyPlayedNotifier.value.isNotEmpty)
-              Text(
-                " Recently Played",
-                style: GoogleFonts.bodoniModa(fontSize: 25),
-              ),
-
+            Text(
+              " Recently Played",
+              style: GoogleFonts.bodoniModa(fontSize: 25),
+            ),
             // recently played Surahs
             SizedBox(height: 120, child: recentlyPlayedList())
           ],
@@ -266,12 +207,14 @@ class _SurahsPageState extends State<SurahsPage> {
 
   Widget recentlyPlayedList() => ValueListenableBuilder(
       valueListenable: pageManager.recentlyPlayedNotifier,
-      builder: (_, recentlyPlayed, __) => ListView.builder(
-            //shrinkWrap: true,
-            scrollDirection: Axis.horizontal,
-            itemCount: recentlyPlayed.length,
-            itemBuilder: (context, index) => InkWell(
-                onTap: () => goToSurah(recentlyPlayed[index]),
-                child: RecentlyPlayedCard(surah: recentlyPlayed[index])),
-          ));
+      builder: (_, recentlyPlayed, __) => recentlyPlayed.isEmpty
+          ? const Center(child: Text("No Surahs played"))
+          : ListView.builder(
+              //shrinkWrap: true,
+              scrollDirection: Axis.horizontal,
+              itemCount: recentlyPlayed.length,
+              itemBuilder: (context, index) => InkWell(
+                  onTap: () => goToSurah(recentlyPlayed[index]),
+                  child: RecentlyPlayedCard(surah: recentlyPlayed[index])),
+            ));
 }
