@@ -26,9 +26,6 @@ Future<void> main() async {
 
   // Set preferred orientations for the app
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-
-  // TODO: should only be called the first time
-  //await SharedPrefs.initialize();
 }
 
 class MyApp extends StatefulWidget {
@@ -184,7 +181,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   PreferredSizeWidget? chooseModeAppBar() => AppBar(
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
           onPressed: pageManager.switchChooseMode,
         ),
         actions: [

@@ -37,8 +37,7 @@ class DemoPlaylist extends PlaylistRepository {
     _surahIndex++;
     final currentRecitator = getIt<PageManager>().currentRecitator.value;
     final url = await getRecitionUrl(currentRecitator.id, _surahIndex);
-    print(url);
-    print("_surahIndex: $_surahIndex");
+
     return {
       'id': _surahIndex.toString().padLeft(3, '0'),
       'title': _surahs[_surahIndex - 1].title,

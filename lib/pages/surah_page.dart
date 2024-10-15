@@ -70,7 +70,7 @@ class _SurahPageState extends State<SurahPage> with TickerProviderStateMixin {
 
                             pageManager.pause();
                             pageManager.play();
-                            Navigator.pop(context);
+                            if (context.mounted) Navigator.pop(context);
                           }
                         });
                   },
@@ -96,8 +96,8 @@ class _SurahPageState extends State<SurahPage> with TickerProviderStateMixin {
       },
       child: Scaffold(
         appBar: AppBar(
-          leading: Icon(Icons.keyboard_arrow_down),
-          title: Text(" S U R A H"),
+          leading: const Icon(Icons.keyboard_arrow_down),
+          title: const Text(" S U R A H"),
           centerTitle: true,
           backgroundColor: Colors.transparent,
           bottomOpacity: 0,
@@ -200,10 +200,13 @@ class _SurahPageState extends State<SurahPage> with TickerProviderStateMixin {
             child: ElevatedButton(
               onPressed: () async {
                 await pageManager.removeAll();
-                Navigator.popUntil(
-                  context,
-                  (route) => route.isFirst,
-                );
+                if (context.mounted) {
+                  Navigator.popUntil(
+                    // ignore: use_build_context_synchronously
+                    context,
+                    (route) => route.isFirst,
+                  );
+                }
               },
               style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,
@@ -213,7 +216,7 @@ class _SurahPageState extends State<SurahPage> with TickerProviderStateMixin {
               child: const Row(
                 children: [
                   Icon(Icons.delete),
-                  const SizedBox(width: 10),
+                  SizedBox(width: 10),
                   Text("Delete All"),
                 ],
               ),

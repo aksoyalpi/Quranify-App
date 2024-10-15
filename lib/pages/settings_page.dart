@@ -84,7 +84,7 @@ class _SettingsPageState extends State<SettingsPage> {
     return Column(
       children: [
         // dark and light mode
-        SettingsTile(context,
+        settingsTile(context,
             title: "Dark Mode",
             child:
 
@@ -97,7 +97,7 @@ class _SettingsPageState extends State<SettingsPage> {
         // defualt recitator
         InkWell(
           onTap: openRecitatorsSetting,
-          child: SettingsTile(context,
+          child: settingsTile(context,
               title: "Default Recitator",
               child: FutureBuilder(
                 future: defaultRecitator,
@@ -120,7 +120,7 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 }
 
-Widget SettingsTile(BuildContext context,
+Widget settingsTile(BuildContext context,
         {required String title, required Widget child}) =>
     Container(
       decoration: BoxDecoration(

@@ -13,7 +13,7 @@ void addSurahToPlaylist(BuildContext context, Surah surah) async {
     text = "Surah already in playlist";
   }
 
-  showSnackBar(context, text);
+  if (context.mounted) showSnackBar(context, text);
 }
 
 void showSnackBar(BuildContext context, String text) {
