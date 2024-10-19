@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:animated_background/animated_background.dart';
@@ -5,6 +6,7 @@ import 'package:audio_service/audio_service.dart';
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:quran_fi/components/neu_box.dart';
+import 'package:quran_fi/components/sleep_timer_dialog.dart';
 import 'package:quran_fi/components/sound_icon.dart';
 import 'package:quran_fi/models/surah.dart';
 import 'package:quran_fi/notifiers/play_button_notifier.dart';
@@ -37,6 +39,13 @@ class _SurahPageState extends State<SurahPage> with TickerProviderStateMixin {
   void playSurah(Surah surah) {
     final pageManager = getIt<PageManager>();
     pageManager.playSurah(surah);
+  }
+
+  void _handleSleepTimer(context) {
+    showDialog(
+      context: context,
+      builder: (context) => const SleepTimerDialog(),
+    );
   }
 
   void showMenu(BuildContext context) {
@@ -97,8 +106,6 @@ class _SurahPageState extends State<SurahPage> with TickerProviderStateMixin {
       child: Scaffold(
         appBar: AppBar(
           leading: const Icon(Icons.keyboard_arrow_down),
-          title: const Text(" S U R A H"),
-          centerTitle: true,
           backgroundColor: Colors.transparent,
           bottomOpacity: 0,
           elevation: 0,
@@ -109,6 +116,9 @@ class _SurahPageState extends State<SurahPage> with TickerProviderStateMixin {
             IconButton(
                 onPressed: () => showMenu(context),
                 icon: const Icon(Icons.person)),
+            IconButton(
+                onPressed: () => _handleSleepTimer(context),
+                icon: Icon(Icons.timer_outlined))
           ],
         ),
         body: ValueListenableBuilder(

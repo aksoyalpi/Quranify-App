@@ -147,13 +147,16 @@ class _SettingsPageState extends State<SettingsPage> {
         // Feedback button
         InkWell(
           onTap: _goToPlayStore,
-          child: settingsTile(context, title: "Give Feedback"),
+          child: settingsTile(context,
+              title: "Give Feedback",
+              child: const Icon(Icons.feedback_outlined)),
         ),
 
         // Share App Button
         InkWell(
             onTap: () => _shareHandler(context),
-            child: settingsTile(context, title: "Share App with others"))
+            child: settingsTile(context,
+                title: "Share App with others", child: const Icon(Icons.share)))
       ],
     );
   }
