@@ -1,7 +1,7 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:quran_fi/page_manager.dart';
+import 'package:quran_fi/services/service_locator.dart';
 import 'package:sleek_circular_slider/sleek_circular_slider.dart';
 
 class SleepTimerDialog extends StatefulWidget {
@@ -15,12 +15,23 @@ class _SleepTimerDialogState extends State<SleepTimerDialog> {
   final List<int> times = [5, 10, 15, 30, 45, 60];
   int sleepTime = 0;
 
+  void _setSleepTimer() {
+    final pageManager = getIt<PageManager>();
+    pageManager.setSleepTimer(sleepTime);
+  }
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
       actions: [
-        TextButton(onPressed: () {}, child: const Text("Cancel")),
-        TextButton(onPressed: () {}, child: const Text("Ok"))
+        TextButton(
+            onPressed: Navigator.of(context).pop, child: const Text("Cancel")),
+        TextButton(
+            onPressed: () {
+              _setSleepTimer();
+              Navigator.of(context).pop();
+            },
+            child: const Text("Ok"))
       ],
       content: Column(
         mainAxisSize: MainAxisSize.min,

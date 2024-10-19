@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:just_audio/just_audio.dart';
@@ -20,6 +22,7 @@ class MyAudioHandler extends BaseAudioHandler {
   final _soundPlayer = AudioPlayer();
   // final _soundPlayer = AudioPlayer();
   final _playlist = ConcatenatingAudioSource(children: []);
+  Timer? _sleepTimer;
 
   bool isSoundOn = false;
 
@@ -247,6 +250,18 @@ class MyAudioHandler extends BaseAudioHandler {
           extras.containsKey("oldIndex") &&
           extras.containsKey("newIndex")) {
         await _playlist.move(extras["oldIndex"], extras["newIndex"]);
+      }
+    } else if (name == "setSleepTimer") {
+      _sleepTimer?.cancel();
+      if (extras != null &&
+          extras.containsKey("minutes") &&
+          extras["minutes"] > 0) {
+        _sleepTimer = Timer(
+          Duration(minutes: extras["minutes"]),
+          () {
+            pause();
+          },
+        );
       }
     }
   }

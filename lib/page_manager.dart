@@ -43,6 +43,11 @@ class PageManager {
   final List<Recitator> _recitators = List.generate(
       recitations.length, (index) => Recitator.fromJson(recitations[index]));
 
+// Method to set sleep timer, so that audio stops automatically after given time
+  void setSleepTimer(int minutes) {
+    _audioHandler.customAction("setSleepTimer", {"minutes": minutes});
+  }
+
 // choose Surah function for choose mode
   void chooseSurah(Surah surah) {
     if (isChooseMode.value) {
