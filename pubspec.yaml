@@ -52,6 +52,7 @@ dependencies:
   animated_background: ^2.0.0
   tutorial_coach_mark: ^1.2.11
   google_nav_bar: ^5.0.6
+  in_app_review: ^2.0.9
 
 
 flutter_launcher_icons:

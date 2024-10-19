@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
+import 'package:in_app_review/in_app_review.dart';
 
 import 'package:provider/provider.dart';
 import 'package:quran_fi/helper_functions.dart';
@@ -25,7 +26,8 @@ Future<void> main() async {
   ));
 
   // Set preferred orientations for the app
-  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+  SystemChrome.setPreferredOrientations(
+      [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
 }
 
 class MyApp extends StatefulWidget {
@@ -40,7 +42,6 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     getIt<PageManager>().init();
-    //Provider.of<ThemeProvider>(context).init();
   }
 
   // This widget is the root of your application.
@@ -71,6 +72,11 @@ class _MyHomePageState extends State<MyHomePage> {
   bool isListView = false;
   bool isChooseMode = false;
   final List<Surah> choosedSurahs = [];
+  final InAppReview _inAppReview = InAppReview.instance;
+
+  void showInAppReview() async {
+    if (await _inAppReview.isAvailable()) _inAppReview.requestReview();
+  }
 
   final surahPageKey = GlobalKey();
   final searchIconKey = GlobalKey();
@@ -107,6 +113,15 @@ class _MyHomePageState extends State<MyHomePage> {
         if (isFirstTime) {
           _initAddSiteInAppTour();
           _showInAppTour();
+        }
+      },
+    );
+    SharedPrefs.getAppOpenedCount().then(
+      (count) {
+        int feedbackAfterThisNumber = 6;
+        SharedPrefs.setAppOpenedCount((count + 1) % feedbackAfterThisNumber);
+        if (count == feedbackAfterThisNumber) {
+          showInAppReview();
         }
       },
     );

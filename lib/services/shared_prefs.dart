@@ -102,4 +102,17 @@ class SharedPrefs {
     final prefs = await getInstance();
     return prefs.getBool("isFirstTime") ?? true;
   }
+
+  // variable to count the times the user opened the app
+  // important for asking for feedback
+  static Future<void> setAppOpenedCount(int count) async {
+    final prefs = await getInstance();
+    prefs.setInt("appOpenedCount", count);
+  }
+
+  /// Returns saved default recitators id
+  static Future<int> getAppOpenedCount() async {
+    final prefs = await getInstance();
+    return prefs.getInt("appOpenedCount") ?? 0;
+  }
 }

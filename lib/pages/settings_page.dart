@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:in_app_review/in_app_review.dart';
 import 'package:provider/provider.dart';
 import 'package:quran_fi/models/recitator.dart';
 import 'package:quran_fi/page_manager.dart';
@@ -18,6 +19,7 @@ class _SettingsPageState extends State<SettingsPage> {
   late Recitator? defaultRecitator;
   final pageManager = getIt<PageManager>();
   late final List<Recitator> recitations;
+  int defaultRecitatorId = 7;
 
   @override
   void initState() {
@@ -26,14 +28,22 @@ class _SettingsPageState extends State<SettingsPage> {
     _loadPrefs();
   }
 
+  void _goToPlayStore() async {
+    InAppReview inAppReview = InAppReview.instance;
+
+    if (await inAppReview.isAvailable()) inAppReview.openStoreListing();
+  }
+
   Future<void> _loadPrefs() async {
     final defaultRecitatorId = await SharedPrefs.getDefaultRecitator();
     if (defaultRecitatorId == null) {
       setState(() {
-        defaultRecitator = recitations.firstWhere((reciter) => reciter.id == 7);
+        defaultRecitator = recitations
+            .firstWhere((reciter) => reciter.id == defaultRecitatorId);
       });
-      await SharedPrefs.setDefaultRecitator(
-          recitations.firstWhere((reciter) => reciter.id == 7).id);
+      await SharedPrefs.setDefaultRecitator(recitations
+          .firstWhere((reciter) => reciter.id == defaultRecitatorId)
+          .id);
     } else {
       setState(() {
         defaultRecitator = recitations
@@ -104,7 +114,8 @@ class _SettingsPageState extends State<SettingsPage> {
                   if (snapshot.hasData) {
                     return Text(recitations
                         .firstWhere((reciter) =>
-                            reciter.id == (snapshot.data ?? 7)) // Mishari
+                            reciter.id ==
+                            (snapshot.data ?? defaultRecitatorId)) // Mishari
                         .name);
                   } else if (snapshot.connectionState ==
                       ConnectionState.waiting) {
@@ -114,13 +125,19 @@ class _SettingsPageState extends State<SettingsPage> {
                 },
               )),
         ),
+
+        // Feedback button
+        InkWell(
+          onTap: _goToPlayStore,
+          child: settingsTile(context, title: "Give Feedback"),
+        )
       ],
     );
   }
 }
 
 Widget settingsTile(BuildContext context,
-        {required String title, required Widget child}) =>
+        {required String title, Widget? child}) =>
     Container(
       decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.secondary,
@@ -136,7 +153,7 @@ Widget settingsTile(BuildContext context,
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
 
-          child
+          if (child != null) child
         ],
       ),
     );
