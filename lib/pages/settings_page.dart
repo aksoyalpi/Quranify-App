@@ -30,11 +30,10 @@ class _SettingsPageState extends State<SettingsPage> {
     final defaultRecitatorId = await SharedPrefs.getDefaultRecitator();
     if (defaultRecitatorId == null) {
       setState(() {
-        defaultRecitator =
-            recitations.firstWhere((reciter) => reciter.id == 92);
+        defaultRecitator = recitations.firstWhere((reciter) => reciter.id == 7);
       });
       await SharedPrefs.setDefaultRecitator(
-          recitations.firstWhere((reciter) => reciter.id == 92).id);
+          recitations.firstWhere((reciter) => reciter.id == 7).id);
     } else {
       setState(() {
         defaultRecitator = recitations
@@ -104,8 +103,8 @@ class _SettingsPageState extends State<SettingsPage> {
                 builder: (_, snapshot) {
                   if (snapshot.hasData) {
                     return Text(recitations
-                        .firstWhere(
-                            (reciter) => reciter.id == (snapshot.data ?? 92))
+                        .firstWhere((reciter) =>
+                            reciter.id == (snapshot.data ?? 7)) // Mishari
                         .name);
                   } else if (snapshot.connectionState ==
                       ConnectionState.waiting) {

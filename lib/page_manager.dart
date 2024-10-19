@@ -436,9 +436,7 @@ class PageManager {
     _audioHandler.stop();
   }
 
-  
-   // GETTERS
-   
+  // GETTERS
 
   List<Surah> get surahs => _surahs;
   List<Recitator> get recitators => _recitators;

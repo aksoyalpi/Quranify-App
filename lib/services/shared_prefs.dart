@@ -21,6 +21,7 @@ class SharedPrefs {
     prefs.setInt("recitator", recitatorId);
   }
 
+  /// Returns saved default recitators id
   static Future<int?> getDefaultRecitator() async {
     final prefs = await getInstance();
     return prefs.getInt("recitator");
