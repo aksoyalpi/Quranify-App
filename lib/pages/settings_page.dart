@@ -2,11 +2,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:in_app_review/in_app_review.dart';
 import 'package:provider/provider.dart';
+import 'package:quran_fi/helper_functions.dart';
 import 'package:quran_fi/models/recitator.dart';
 import 'package:quran_fi/page_manager.dart';
 import 'package:quran_fi/services/service_locator.dart';
 import 'package:quran_fi/services/shared_prefs.dart';
 import 'package:quran_fi/themes/theme_provider.dart';
+import 'package:share_plus/share_plus.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -32,6 +34,22 @@ class _SettingsPageState extends State<SettingsPage> {
     InAppReview inAppReview = InAppReview.instance;
 
     if (await inAppReview.isAvailable()) inAppReview.openStoreListing();
+  }
+
+  void _shareHandler(context) async {
+    late final ShareResult result;
+    try {
+      result = await Share.shareXFiles(
+          [XFile("assets\\icons\\whiteOnPurple_512x512.png")],
+          text:
+              "Check out this cool App to listen to the holy Quran with calming nature sounds in the background\n: https://play.google.com/store/apps/details?id=com.alaksoftware.quranify&pcampaignid=web_share");
+    } catch (e) {
+      result = await Share.share(
+          "Check out this cool App to listen to the holy Quran with calming nature sounds in the background\n: https://play.google.com/store/apps/details?id=com.alaksoftware.quranify&pcampaignid=web_share");
+    }
+    if (result.status == ShareResultStatus.success) {
+      if (mounted) showSnackBar(context, "Thank your for sharing my App :)");
+    }
   }
 
   Future<void> _loadPrefs() async {
@@ -130,7 +148,12 @@ class _SettingsPageState extends State<SettingsPage> {
         InkWell(
           onTap: _goToPlayStore,
           child: settingsTile(context, title: "Give Feedback"),
-        )
+        ),
+
+        // Share App Button
+        InkWell(
+            onTap: () => _shareHandler(context),
+            child: settingsTile(context, title: "Share App with others"))
       ],
     );
   }
