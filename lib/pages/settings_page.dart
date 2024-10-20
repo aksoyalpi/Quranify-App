@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_donation_buttons/donationButtons/ko-fiButton.dart';
 import 'package:in_app_review/in_app_review.dart';
 import 'package:provider/provider.dart';
 import 'package:quran_fi/helper_functions.dart';
@@ -156,7 +157,15 @@ class _SettingsPageState extends State<SettingsPage> {
         InkWell(
             onTap: () => _shareHandler(context),
             child: settingsTile(context,
-                title: "Share App with others", child: const Icon(Icons.share)))
+                title: "Share App with others",
+                child: const Icon(Icons.share))),
+
+        KofiButton(
+            kofiName: "alaksoftware",
+            kofiColor: KofiColor.Red,
+            onDonation: () {
+              // TODO
+            }),
       ],
     );
   }

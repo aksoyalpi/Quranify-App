@@ -86,14 +86,21 @@ class _SurahsPageState extends State<SurahsPage> {
             ],
           )
         else
-          CustomScrollView(slivers: [
-            widget.isListView ? allSurahsList() : allSurahsGrid(),
-            const SliverToBoxAdapter(
-              child: SizedBox(
-                height: 100,
-              ),
-            )
-          ]),
+          widget.surahs.isEmpty
+              ? const Center(
+                  child: Text(
+                  "No favorites yet\n\nMark Surahs as favorite to find them here",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 20),
+                ))
+              : CustomScrollView(slivers: [
+                  widget.isListView ? allSurahsList() : allSurahsGrid(),
+                  const SliverToBoxAdapter(
+                    child: SizedBox(
+                      height: 100,
+                    ),
+                  )
+                ]),
 
         // little AudioPlayer
         ValueListenableBuilder(

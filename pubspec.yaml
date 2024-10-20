@@ -55,6 +55,7 @@ dependencies:
   in_app_review: ^2.0.9
   share_plus: ^10.1.0
   sleek_circular_slider: ^2.0.1
+  flutter_donation_buttons: ^0.4.10
 
 
 flutter_launcher_icons:
