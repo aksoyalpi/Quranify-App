@@ -20,7 +20,7 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  late Recitator? defaultRecitator;
+  late Recitator defaultRecitator;
   final pageManager = getIt<PageManager>();
   late final List<Recitator> recitations;
   int defaultRecitatorId = 7;
@@ -55,27 +55,19 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Future<void> _loadPrefs() async {
-    final defaultRecitatorId = await SharedPrefs.getDefaultRecitator();
-    if (defaultRecitatorId == null) {
-      setState(() {
-        defaultRecitator = recitations
-            .firstWhere((reciter) => reciter.id == defaultRecitatorId);
-      });
-      await SharedPrefs.setDefaultRecitator(recitations
-          .firstWhere((reciter) => reciter.id == defaultRecitatorId)
-          .id);
-    } else {
-      setState(() {
-        defaultRecitator = recitations
-            .firstWhere((recitator) => recitator.id == defaultRecitatorId);
-      });
-    }
+    defaultRecitatorId =
+        await (SharedPrefs.getDefaultRecitator()) ?? defaultRecitatorId;
+    setState(() {
+      defaultRecitator =
+          recitations.firstWhere((reciter) => reciter.id == defaultRecitatorId);
+    });
   }
 
   void changeReciter(Recitator? newRecitator) async {
     if (newRecitator != null) {
       setState(() {
         defaultRecitator = newRecitator;
+        defaultRecitatorId = newRecitator.id;
       });
       SharedPrefs.setDefaultRecitator(newRecitator.id);
       await pageManager.setDefaultRecitator(newRecitator.id);
@@ -94,7 +86,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
                     return RadioListTile(
                       title: Text(reciter.name),
-                      groupValue: defaultRecitator!.id,
+                      groupValue: defaultRecitator.id,
                       value: reciter.id,
                       onChanged: (int? newId) =>
                           changeReciter(recitations.firstWhere(
@@ -108,7 +100,6 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
-    final defaultRecitator = SharedPrefs.getDefaultRecitator();
 
     return Column(
       children: [
@@ -125,26 +116,13 @@ class _SettingsPageState extends State<SettingsPage> {
 
         // defualt recitator
         InkWell(
-          onTap: openRecitatorsSetting,
-          child: settingsTile(context,
-              title: "Default Recitator",
-              child: FutureBuilder(
-                future: defaultRecitator,
-                builder: (_, snapshot) {
-                  if (snapshot.hasData) {
-                    return Text(recitations
-                        .firstWhere((reciter) =>
-                            reciter.id ==
-                            (snapshot.data ?? defaultRecitatorId)) // Mishari
-                        .name);
-                  } else if (snapshot.connectionState ==
-                      ConnectionState.waiting) {
-                    return const CircularProgressIndicator();
-                  }
-                  return const Text("?");
-                },
-              )),
-        ),
+            onTap: openRecitatorsSetting,
+            child: settingsTile(context,
+                title: "Default Recitator",
+                child: Text(recitations
+                    .firstWhere((reciter) =>
+                        reciter.id == (defaultRecitatorId)) // Mishari
+                    .name))),
 
         // Feedback button
         InkWell(

@@ -59,6 +59,8 @@ dependencies:
   feedback: ^3.1.0
   shake: ^2.2.0
   flutter_email_sender: ^6.0.3
+  flutter_media_downloader: ^1.0.6
+  flutter_native_splash: ^2.4.1
 
 
 flutter_launcher_icons:
@@ -135,3 +137,14 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+
+
+flutter_native_splash:
+  android: true
+  ios: true
+  web: false
+  image: assets/icons/purpleOnWhite_1024x1024.png
+  color: "#FFFFFF"
+  android_12:
+    image: assets/icons/purpleOnWhite_1024x1024.png
+    color: "#FFFFFF"
