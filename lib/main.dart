@@ -1,7 +1,12 @@
+import 'dart:io';
+
+import 'package:feedback/feedback.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:in_app_review/in_app_review.dart';
+import 'package:path_provider/path_provider.dart';
 
 import 'package:provider/provider.dart';
 import 'package:quran_fi/helper_functions.dart';
@@ -14,6 +19,7 @@ import 'package:quran_fi/services/in_app_tour_target.dart';
 import 'package:quran_fi/services/service_locator.dart';
 import 'package:quran_fi/services/shared_prefs.dart';
 import 'package:quran_fi/themes/theme_provider.dart';
+import 'package:shake/shake.dart';
 import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 
 Future<void> main() async {
@@ -22,7 +28,7 @@ Future<void> main() async {
     providers: [
       ChangeNotifierProvider(create: (_) => ThemeProvider()),
     ],
-    child: const MyApp(),
+    child: const BetterFeedback(child: MyApp()),
   ));
 
   // Set preferred orientations for the app
@@ -42,6 +48,35 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     getIt<PageManager>().init();
+    ShakeDetector.autoStart(onPhoneShake: () {
+      BetterFeedback.of(context).show(
+        _submitFeedback,
+      );
+    });
+  }
+
+  void _submitFeedback(UserFeedback feedback) async {
+    String path = "";
+    String timestamp = DateTime.timestamp().toIso8601String();
+    try {
+      Directory root = await getTemporaryDirectory();
+      String directoryPath = "${root.path}/quran_fi";
+      // Create the directory if it doesn't exist
+      await Directory(directoryPath).create(recursive: true);
+      String filePath = "$directoryPath/$timestamp.jpg";
+      final file = await File(filePath).writeAsBytes(feedback.screenshot);
+      path = file.path;
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+
+    final Email email = Email(
+        body: feedback.text,
+        subject: "Quranify Feedback",
+        recipients: ["alaksoftware@gmail.com"],
+        attachmentPaths: [path]);
+
+    await FlutterEmailSender.send(email);
   }
 
   // This widget is the root of your application.
