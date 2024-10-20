@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:quran_fi/consts/recitations.dart';
 import 'package:quran_fi/consts/surahs.dart';
@@ -32,6 +34,8 @@ class PageManager {
   final recentlyPlayedNotifier = ValueNotifier<List<Surah>>([]);
   final isChooseMode = ValueNotifier<bool>(false);
   final choosedSurahs = ValueNotifier<List<Surah>>([]);
+  final sleepTimer = ValueNotifier<int>(0);
+  Timer? _timer;
 
   List<MediaItem> get playlist => _audioHandler.queue.value;
 
@@ -46,6 +50,15 @@ class PageManager {
 // Method to set sleep timer, so that audio stops automatically after given time
   void setSleepTimer(int minutes) {
     _audioHandler.customAction("setSleepTimer", {"minutes": minutes});
+    sleepTimer.value = minutes;
+    _timer?.cancel();
+    _timer = Timer.periodic(
+      const Duration(minutes: 1),
+      (timer) {
+        sleepTimer.value--;
+        if (sleepTimer.value == 0) timer.cancel();
+      },
+    );
   }
 
 // choose Surah function for choose mode

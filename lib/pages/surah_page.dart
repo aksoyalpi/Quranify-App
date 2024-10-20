@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:ui';
 
 import 'package:animated_background/animated_background.dart';
@@ -118,7 +117,16 @@ class _SurahPageState extends State<SurahPage> with TickerProviderStateMixin {
                 icon: const Icon(Icons.person)),
             IconButton(
                 onPressed: () => _handleSleepTimer(context),
-                icon: Icon(Icons.timer_outlined))
+                icon: ValueListenableBuilder(
+                  valueListenable: pageManager.sleepTimer,
+                  builder: (_, time, __) {
+                    if (time == 0) {
+                      return const Icon(Icons.timer);
+                    } else {
+                      return Text(time.toString());
+                    }
+                  },
+                ))
           ],
         ),
         body: ValueListenableBuilder(
