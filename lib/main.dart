@@ -50,33 +50,9 @@ class _MyAppState extends State<MyApp> {
     getIt<PageManager>().init();
     ShakeDetector.autoStart(onPhoneShake: () {
       BetterFeedback.of(context).show(
-        _submitFeedback,
+        submitFeedback,
       );
     });
-  }
-
-  void _submitFeedback(UserFeedback feedback) async {
-    String path = "";
-    String timestamp = DateTime.timestamp().toIso8601String();
-    try {
-      Directory root = await getTemporaryDirectory();
-      String directoryPath = "${root.path}/quran_fi";
-      // Create the directory if it doesn't exist
-      await Directory(directoryPath).create(recursive: true);
-      String filePath = "$directoryPath/$timestamp.jpg";
-      final file = await File(filePath).writeAsBytes(feedback.screenshot);
-      path = file.path;
-    } catch (e) {
-      debugPrint(e.toString());
-    }
-
-    final Email email = Email(
-        body: feedback.text,
-        subject: "Quranify Feedback",
-        recipients: ["alaksoftware@gmail.com"],
-        attachmentPaths: [path]);
-
-    await FlutterEmailSender.send(email);
   }
 
   // This widget is the root of your application.

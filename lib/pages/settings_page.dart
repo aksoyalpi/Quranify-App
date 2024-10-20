@@ -1,3 +1,4 @@
+import 'package:feedback/feedback.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_donation_buttons/donationButtons/ko-fiButton.dart';
@@ -149,8 +150,8 @@ class _SettingsPageState extends State<SettingsPage> {
         InkWell(
           onTap: _goToPlayStore,
           child: settingsTile(context,
-              title: "Give Feedback",
-              child: const Icon(Icons.feedback_outlined)),
+              title: "Rate App in store",
+              child: const Icon(Icons.star_rate_outlined)),
         ),
 
         // Share App Button
@@ -160,6 +161,16 @@ class _SettingsPageState extends State<SettingsPage> {
                 title: "Share App with others",
                 child: const Icon(Icons.share))),
 
+        InkWell(
+          onTap: () => BetterFeedback.of(context).show(
+            submitFeedback,
+          ),
+          child: settingsTile(context,
+              title: "Report Bug",
+              child: const Icon(Icons.bug_report_outlined)),
+        ),
+
+        // Kofi Donation Button
         KofiButton(
             kofiName: "alaksoftware",
             kofiColor: KofiColor.Red,
