@@ -120,7 +120,7 @@ class _SurahPageState extends State<SurahPage> with TickerProviderStateMixin {
                 icon: ValueListenableBuilder(
                   valueListenable: pageManager.sleepTimer,
                   builder: (_, time, __) {
-                    if (time == 0) {
+                    if (time <= 0) {
                       return const Icon(Icons.timer);
                     } else {
                       return Text(time.toString());

@@ -1,12 +1,8 @@
-import 'dart:io';
-
 import 'package:feedback/feedback.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:in_app_review/in_app_review.dart';
-import 'package:path_provider/path_provider.dart';
 
 import 'package:provider/provider.dart';
 import 'package:quran_fi/helper_functions.dart';
