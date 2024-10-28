@@ -104,7 +104,9 @@ class _SurahPageState extends State<SurahPage> with TickerProviderStateMixin {
       },
       child: Scaffold(
         appBar: AppBar(
-          leading: const Icon(Icons.keyboard_arrow_down),
+          leading: IconButton(
+              onPressed: Navigator.of(context).pop,
+              icon: const Icon(Icons.keyboard_arrow_down)),
           backgroundColor: Colors.transparent,
           bottomOpacity: 0,
           elevation: 0,
