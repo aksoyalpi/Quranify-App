@@ -15,7 +15,6 @@ import 'package:quran_fi/services/in_app_tour_target.dart';
 import 'package:quran_fi/services/service_locator.dart';
 import 'package:quran_fi/services/shared_prefs.dart';
 import 'package:quran_fi/themes/theme_provider.dart';
-import 'package:shake/shake.dart';
 import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 
 Future<void> main() async {
@@ -40,17 +39,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  @override
-  void initState() {
-    super.initState();
-    getIt<PageManager>().init();
-    ShakeDetector.autoStart(onPhoneShake: () {
-      BetterFeedback.of(context).show(
-        submitFeedback,
-      );
-    });
-  }
-
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
