@@ -23,11 +23,7 @@
 
 ## 📱 Screenshots
 
-![image](https://github.com/user-attachments/assets/f0fc48b4-c82b-4d02-9e64-ae48130f72d8)
-![image](https://github.com/user-attachments/assets/1040f60a-99db-4e08-8bbb-fb31c995711a)
-![image](https://github.com/user-attachments/assets/68530915-9c92-4aec-8e34-59a3af7037a4)
-![image](https://github.com/user-attachments/assets/ba152ba0-51cd-4625-ae57-1d5f46b13965)
-![image](https://github.com/user-attachments/assets/7849a324-85ba-491d-87e6-dce26e1718a9)
+![quranify_monochrome](https://github.com/user-attachments/assets/552d6a28-d848-4385-85f9-bb02eb3d6523)
 
 
 
