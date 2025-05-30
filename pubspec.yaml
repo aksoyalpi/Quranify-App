@@ -2,7 +2,7 @@ name: quran_fi
 description: "Quranify Application to listen to the quran with nature sounds in the background."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -19,7 +19,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+3
 
 environment:
-  sdk: '>=3.4.3 <4.0.0'
+  sdk: ">=3.4.3 <4.0.0"
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -39,7 +39,7 @@ dependencies:
   provider: ^6.1.2
   audioplayers: ^6.0.0
   http: ^1.2.1
-  audio_service: ^0.18.14
+  audio_service: ^0.18.18
   font_awesome_flutter: ^10.7.0
   get_it: ^7.7.0
   audio_video_progress_bar: ^2.0.3
@@ -61,7 +61,6 @@ dependencies:
   flutter_email_sender: ^6.0.3
   flutter_media_downloader: ^1.0.6
   flutter_native_splash: ^2.4.1
-
 
 flutter_launcher_icons:
   android: "launcher_icon"
@@ -85,8 +84,6 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
-
-
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
   # activated in the `analysis_options.yaml` file located at the root of your
@@ -99,7 +96,6 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
-
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
@@ -107,10 +103,10 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-   - assets/audio/
-   - assets/images/
-   - assets/icons/
-   - assets/animations/
+    - assets/audio/
+    - assets/images/
+    - assets/icons/
+    - assets/animations/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
@@ -138,7 +134,6 @@ flutter:
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
 
-
 flutter_native_splash:
   android: true
   ios: true
@@ -146,5 +141,5 @@ flutter_native_splash:
   #image: assets/icons/whiteOnPurple_removedbg_750x750.png
   color: "#ffffff"
   android_12:
-  #  image: assets/icons/whiteOnPurple_removedbg_750x750.png
+    #  image: assets/icons/whiteOnPurple_removedbg_750x750.png
     color: "#ffffff" #"#752ace"

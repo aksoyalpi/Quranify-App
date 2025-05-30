@@ -138,7 +138,8 @@ class _MyHomePageState extends State<MyHomePage> {
         valueListenable: pageManager.isChooseMode,
         builder: (_, isChooseMode, __) => PopScope(
               canPop: false,
-              onPopInvoked: (didPop) => handlePop(isChooseMode),
+              onPopInvokedWithResult: (didPop, result) =>
+                  handlePop(isChooseMode),
               child: Scaffold(
                   backgroundColor: Theme.of(context).colorScheme.surface,
                   bottomNavigationBar: Padding(

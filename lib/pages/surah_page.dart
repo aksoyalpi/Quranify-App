@@ -159,7 +159,7 @@ class _SurahPageState extends State<SurahPage> with TickerProviderStateMixin {
                         color: Theme.of(context)
                             .colorScheme
                             .surface
-                            .withOpacity(0.1),
+                            .withValues(alpha: 0.1),
                         child: surahPage(),
                       )),
                 )),
