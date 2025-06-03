@@ -110,7 +110,7 @@ class MyAudioHandler extends BaseAudioHandler {
   }
 
   void _listenForCurrentSurahIndexChanges() {
-    _player.currentIndexStream.listen((index) {
+    _player.currentIndexStream.listen((index) async {
       final playlist = queue.value;
       if (index == null || playlist.isEmpty) return;
       if (_player.shuffleModeEnabled) {
@@ -248,12 +248,7 @@ class MyAudioHandler extends BaseAudioHandler {
           extras.containsKey("oldIndex") &&
           extras.containsKey("newIndex")) {
         // moves AudioSource from oldIndex to NewIndex
-        final AudioSource removedElement =
-            _player.audioSources[extras["oldIncex"]];
-
-        await _player.removeAudioSourceAt(extras["oldIndex"]);
-
-        _player.insertAudioSource(extras["newIndex"], removedElement);
+        _player.moveAudioSource(extras["oldIndex"], extras["newIndex"]);
       }
     } else if (name == "setSleepTimer") {
       _sleepTimer?.cancel();

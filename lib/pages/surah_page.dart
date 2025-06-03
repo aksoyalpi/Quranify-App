@@ -356,6 +356,8 @@ class _SurahPageState extends State<SurahPage> with TickerProviderStateMixin {
                   ValueListenableBuilder(
                       valueListenable: pageManager.progressNotifier,
                       builder: (_, value, __) {
+                        //print("total: ${value.total}");
+                        //print("Position: ${value.current}");
                         return ProgressBar(
                           thumbColor: Theme.of(context).colorScheme.onPrimary,
                           progressBarColor:

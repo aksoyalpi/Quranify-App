@@ -12,6 +12,7 @@ import 'notifiers/play_button_notifier.dart';
 import 'notifiers/progress_notifier.dart';
 import 'package:audio_service/audio_service.dart';
 import 'services/service_locator.dart';
+import 'package:just_audio/just_audio.dart';
 
 class PageManager {
   final _audioHandler = getIt<AudioHandler>();
@@ -216,7 +217,7 @@ class PageManager {
   }
 
   void _listenToCurrentPosition() {
-    AudioService.position.listen((position) {
+    AudioService.position.listen((Duration position) {
       final oldState = progressNotifier.value;
       progressNotifier.value = ProgressBarState(
         current: position,
@@ -237,12 +238,19 @@ class PageManager {
   }
 
   void _listenToTotalDuration() {
-    _audioHandler.mediaItem.listen((mediaItem) {
+    _audioHandler.mediaItem.listen((mediaItem) async {
       final oldState = progressNotifier.value;
+
+      // work around to get surahs duration
+      final tmpPlayer = AudioPlayer();
+      final Duration? duration =
+          await tmpPlayer.setUrl(mediaItem?.extras?["url"]);
+
+      tmpPlayer.dispose();
       progressNotifier.value = ProgressBarState(
           current: oldState.current,
           buffered: oldState.buffered,
-          total: mediaItem?.duration ?? Duration.zero);
+          total: duration ?? Duration(hours: 1));
     });
   }
 

@@ -10,6 +10,16 @@
             "type": "dart"
         },
         {
+            "name": "quran_fi (debug)",
+            "request": "launch",
+            "type": "dart",
+            "env": {
+                "ANDROID_HOME": "~/android-sdk",
+                "ANDROID_SDK_ROOT": "~/android-sdk"
+            },
+            "flutterMode": "debug"
+        },
+        {
             "name": "quran_fi (profile mode)",
             "request": "launch",
             "type": "dart",
