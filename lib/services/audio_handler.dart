@@ -20,8 +20,6 @@ Future<AudioHandler> initAudioService() async {
 class MyAudioHandler extends BaseAudioHandler {
   final _player = AudioPlayer();
   final _soundPlayer = AudioPlayer();
-  // final _soundPlayer = AudioPlayer();
-  final _playlist = ConcatenatingAudioSource(children: []);
   Timer? _sleepTimer;
 
   bool isSoundOn = false;
@@ -40,7 +38,7 @@ class MyAudioHandler extends BaseAudioHandler {
 
   Future<void> _loadEmptyPlaylist() async {
     try {
-      await _player.setAudioSource(_playlist);
+      await _player.setAudioSources([]);
     } catch (e) {
       if (kDebugMode) {
         print("Error: $e");
@@ -124,28 +122,28 @@ class MyAudioHandler extends BaseAudioHandler {
 
   @override
   Future<void> addQueueItems(List<MediaItem> mediaItems) async {
-    final audioSource = mediaItems.map(_createAudioSource);
-    await _playlist.addAll(audioSource.toList());
+    final audioSources = mediaItems.map(_createAudioSource);
+    _player.addAudioSources(audioSources.toList());
   }
 
   @override
   Future<void> addQueueItem(MediaItem mediaItem) async {
-    _playlist.add(_createAudioSource(mediaItem));
+    _player.addAudioSource(_createAudioSource(mediaItem));
   }
 
   @override
   Future<void> insertQueueItem(int index, MediaItem mediaItem) async {
-    await _playlist.insert(index, _createAudioSource(mediaItem));
+    _player.insertAudioSource(index, _createAudioSource(mediaItem));
   }
 
   @override
   Future<void> removeQueueItemAt(int index) async {
-    await _playlist.removeAt(index);
+    _player.removeAudioSourceAt(index);
   }
 
   @override
   Future<void> updateQueue(List<MediaItem> queue) async {
-    await _playlist.clear();
+    _player.clearAudioSources();
     await addQueueItems(queue);
   }
 
@@ -222,7 +220,7 @@ class MyAudioHandler extends BaseAudioHandler {
       super.stop();
     } else if (name == "removeAll") {
       // manage Just Audio
-      await _playlist.clear();
+      _player.clearAudioSources();
       queue.value = [];
     } else if (name == "setVolume") {
       await _player.setVolume(extras!["volume"]);
@@ -243,13 +241,19 @@ class MyAudioHandler extends BaseAudioHandler {
     } else if (name == "setSoundVolume") {
       _soundPlayer.setVolume(extras!["volume"]);
     } else if (name == "clear") {
-      _playlist.clear();
+      _player.clearAudioSources();
       queue.value.clear();
     } else if (name == "move") {
       if (extras != null &&
           extras.containsKey("oldIndex") &&
           extras.containsKey("newIndex")) {
-        await _playlist.move(extras["oldIndex"], extras["newIndex"]);
+        // moves AudioSource from oldIndex to NewIndex
+        final AudioSource removedElement =
+            _player.audioSources[extras["oldIncex"]];
+
+        await _player.removeAudioSourceAt(extras["oldIndex"]);
+
+        _player.insertAudioSource(extras["newIndex"], removedElement);
       }
     } else if (name == "setSleepTimer") {
       _sleepTimer?.cancel();
