@@ -1,6 +1,6 @@
 {
-    "name": "quran_fi",
-    "short_name": "quran_fi",
+    "name": "quranify",
+    "short_name": "quranify",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
